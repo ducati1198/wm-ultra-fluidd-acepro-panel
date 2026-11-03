@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- README: step-by-step install of the OrcaSlicer plugin (section 5).
+
 ## 0.3.0
 
 All new and **not yet tested on a printer** (macros are checked in simulation, the Fluidd card builds and lints, the Orca plugin helpers are unit-tested with Orca stubbed).

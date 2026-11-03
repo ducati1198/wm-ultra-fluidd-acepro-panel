@@ -24,7 +24,7 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 2. [Hardware and wiring](#2-hardware-and-wiring)
 3. [Install](#3-install)
 4. [Configure](#4-configure)
-5. [Fluidd Toolheads + ACE panel](#5-fluidd-toolheads--ace-panel)
+5. [Fluidd Toolheads + ACE panel](#5-fluidd-toolheads--ace-panel) (including the [OrcaSlicer plugin](#install-the-orcaslicer-plugin-optional-works-without-an-ace-pro))
 6. [First tests on the printer](#6-first-tests-on-the-printer)
 7. [Everyday use and commands](#7-everyday-use-and-commands)
 8. [Endless spool (experimental)](#8-endless-spool-experimental)
@@ -329,7 +329,33 @@ A toolhead counts as a match when its colour is the closest of WonderMaker's pal
 
 - **Tool-change bar.** While WonderMaker changes tools the card shows what it is doing (lifting Z, putting the old head back, locking the new one). It reads WonderMaker's own `changing_tool` flag and the dock sensors; no WonderMaker macro is changed or wrapped. The percentages are rough steps, not a measurement.
 - **Counters.** `wm_stats.cfg` watches WonderMaker's `current_extruder` every 2 seconds and counts every change: in total and per toolhead (`wm_stat_changes`, `wm_stat_head0`…`3`). **Reset** (or `WM_STATS_RESET`) sets them to 0. Purged filament is not counted, because that would mean wrapping WonderMaker's purge macros.
-- **OrcaSlicer plugin.** [`orca_plugin/`](orca_plugin/INSTALL.md) lets you choose the toolhead per filament inside Orca. It writes `WM_SET_TOOL_MAP MAP=0:2,1:3,2:2,3:3 FILE="name.gcode" KEEP_EXISTING=1` at the top of the G-code. If you choose in Fluidd's "Choose toolheads" window for the same file, the Fluidd choice wins.
+- **OrcaSlicer plugin.** Choose the toolhead per filament inside Orca. Install steps are in the next section.
+
+### Install the OrcaSlicer plugin (optional, works without an ACE Pro)
+
+> **Not yet tested in OrcaSlicer or on a printer.** You need OrcaSlicer **2.5 or newer** (it has the plugin system).
+
+The plugin lets you pick, inside Orca, which toolhead prints each filament. When you send or export, it writes the choice at the top of the G-code, so the print needs no popup at start. It reads your four toolheads (colour, material, loaded or empty) from the printer, so an ACE Pro is not needed.
+
+**On the printer (once):** run `./installer.sh` or `./installer.sh --update` from this repository. That installs `wm_stats.cfg`, which holds the `WM_SET_TOOL_MAP` macro the plugin calls. Then restart Klipper.
+
+**In OrcaSlicer (once):**
+
+1. Download the plugin file: [`wm_toolhead_mapper.py`](https://raw.githubusercontent.com/ducati1198/wm-ultra-fluidd-acepro-panel/main/orca_plugin/wm_toolhead_mapper.py) (right-click, save as; keep the `.py` name). It is also in this repository under `orca_plugin/`.
+2. Open Orca's **Printer settings → Connection** and make sure the host is your printer's address, for example `192.168.0.50:7125`. The plugin uses it to read the toolheads.
+3. Open **File → Plugins**, use the split button **Browse plugins → Install local plugin**, and pick `wm_toolhead_mapper.py`.
+4. When Orca asks whether the plugin may connect to your printer, click **Yes**.
+5. The plugin brings two parts, **WM Toolheads** (the panel) and **WM Tool Map** (the G-code step). If the Plugins window shows them disabled, enable both.
+6. Switch Orca to **Advanced** mode. Open your **Process** settings → **Others** → **Slicing Pipeline Plugin**, add **WM Tool Map**, and save the process preset. Do this for each process preset you print with.
+7. Restart Orca. The **WM Toolheads** panel docks on the right of the 3D view.
+
+**Use it:** in the panel, each filament shows its best toolhead (**Auto**: same material, closest colour, each toolhead used once). Change a row to a specific toolhead or **As sliced**, then slice and use **Upload and Print**. The G-code gets a line like:
+
+```
+WM_SET_TOOL_MAP MAP=0:0,1:3,2:2,3:3 FILE="benchy.gcode" KEEP_EXISTING=1
+```
+
+Print tool T1 is then printed with toolhead 4 (the numbers in the macro start at 0). If you choose toolheads in Fluidd's **Choose toolheads** window for the same file, the Fluidd choice wins. More detail: [`orca_plugin/INSTALL.md`](orca_plugin/INSTALL.md).
 
 ### Dryer presets
 
