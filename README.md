@@ -187,7 +187,6 @@ cd ~
 git clone https://github.com/ducati1198/wm-ultra-fluidd-acepro-panel
 cd wm-ultra-fluidd-acepro-panel
 chmod +x installer.sh
-./installer.sh --dry-run     # look first: shows the plan and changes nothing
 ./installer.sh
 ```
 
