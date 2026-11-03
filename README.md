@@ -165,7 +165,7 @@ Restart Klipper and run `ACE_GET_STATUS`. The ACE chip in the Fluidd Toolheads c
 - WonderMaker's Klipper and Moonraker with its `zru-s.cfg` config, and Fluidd (optional, for the panel). Python 3.9 or newer in Klipper's environment (`~/klippy-env`), with `pyserial` for the ACE.
 - **With an ACE:** one ACE Pro connected by USB (a powered hub is fine), and the tubes from section 2.1. **Without an ACE:** nothing else.
 - No print running.
-- SSH access to the machine that runs Klipper (user `t13dp`, see 3.2).
+- SSH access to the machine that runs Klipper (user `t13dp`, default password in 3.2).
 - The replacement main board does **not** have to be installed to run the installer. Klipper can stay stopped.
 
 ### 3.2 One-command installer
@@ -173,10 +173,10 @@ Restart Klipper and run `ACE_GET_STATUS`. The ACE chip in the Fluidd Toolheads c
 Log in to the printer's Klipper host over SSH first (Windows, macOS and Linux all have `ssh` in the terminal):
 
 ```bash
-ssh t13dp@<printer-ip>        # user: t13dp   password: the one you set on the printer
+ssh t13dp@<printer-ip>        # user: t13dp   default password: TM88888
 ```
 
-Find `<printer-ip>` in your router's device list, or use the hostname if you know it. The first time, answer `yes` to the fingerprint question.
+If you changed the password, use yours. Find `<printer-ip>` in your router's device list, or use the hostname if you know it. The first time, answer `yes` to the fingerprint question.
 
 Then, on the printer:
 
