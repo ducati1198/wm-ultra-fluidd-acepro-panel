@@ -270,7 +270,7 @@ show_plan() {
         elif [ -e "$CONFIG_DIR/$f" ]; then echo "  ~  $f (replaced; your tuned values are kept)"
         else echo "  +  $f"; fi
     done
-    echo "printer.cfg gets these lines (after [include zru-s.cfg], nothing else is edited):"
+    echo "printer.cfg gets these lines (just above the SAVE_CONFIG block, after [save_variables]; nothing else is edited):"
     for f in "${INCLUDE_LINES[@]}"; do
         cfg_wanted "$(echo "$f" | sed -E 's/\[include ([^]]+)\]/\1/')" || continue
         include_present "$(echo "$f" | sed -E 's/\[include ([^]]+)\]/\1/;s/\./\\./g')" && echo "  =  $f (already there)" || echo "  +  $f"
@@ -328,12 +328,25 @@ ensure_include() { # "[include x.cfg]"  - goes right after the previous include 
 }
 
 ensure_includes() {
-    local prev="[include zru-s.cfg]" l
+    # Klipper loads sections in file order and the ACE driver reads [save_variables] while it loads,
+    # so our lines must come AFTER that section: they go in one block just above SAVE_CONFIG.
+    local pc="$CONFIG_DIR/printer.cfg" tmp l block="" want=0
     for l in "${INCLUDE_LINES[@]}"; do
         cfg_wanted "$(echo "$l" | sed -E 's/\[include ([^]]+)\]/\1/')" || continue
-        ensure_include "$l" "$prev"
-        prev="$l"
+        block+="${block:+$'\n'}$l"; want=1
     done
+    [ "$want" = 1 ] || return 0
+    tmp="$(mktemp)"
+    cp "$pc" "$tmp"
+    for l in "${INCLUDE_LINES[@]}"; do
+        sed -i -E "/^[[:space:]]*\[include[[:space:]]+$(echo "$l" | sed -E 's/\[include ([^]]+)\]/\1/;s/\./\\./g')\]/d" "$tmp"
+    done
+    local t2; t2="$(mktemp)"
+    awk -v text="$block" '/^#\*# <-+ SAVE_CONFIG -+>/ && !d { print text; d=1 } { print } END { if (!d) print text }' "$tmp" > "$t2" && cat "$t2" > "$tmp"; rm -f "$t2"
+    if cmp -s "$tmp" "$pc"; then rm -f "$tmp"; return 0; fi
+    backup_path "$pc"
+    cat "$tmp" > "$pc"; rm -f "$tmp"
+    print_success "printer.cfg: the ACE include lines are now above SAVE_CONFIG, after [save_variables]"
 }
 
 link_item() { # source target label

@@ -39,8 +39,8 @@ H="$(new_home t1)"; C="$(cfg "$H")"
 inst "$H" "$A_ALL"
 check "installer finished"                          test "$RC" -eq 0
 for f in wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm-ultra-install.conf; do check "$f written" test -f "$C/$f"; done
-check "includes sit right after zru-s.cfg"          test "$(sed -n 3,5p "$C/printer.cfg" | tr '\n' ' ')" = "[include wm_ace_driver.cfg] [include wm_ace.cfg] [include wm_endless.cfg] "
-check "other.cfg include still follows"             test "$(sed -n 6p "$C/printer.cfg")" = "[include other.cfg]"
+check "includes sit after [save_variables], above SAVE_CONFIG" test "$(grep -n 'include wm_\|save_variables\|SAVE_CONFIG' "$C/printer.cfg" | cut -d: -f2- | tr '\n' ' ')" = "[save_variables] [include wm_ace_driver.cfg] [include wm_ace.cfg] [include wm_endless.cfg] #*# <---------------------- SAVE_CONFIG ----------------------> "
+check "other.cfg include still follows zru-s"        test "$(sed -n 2,3p "$C/printer.cfg" | tr '\n' ' ')" = "[include zru-s.cfg] [include other.cfg] "
 check "SAVE_CONFIG block untouched"                 test "$(tail -1 "$C/printer.cfg")" = "#*# control = pid"
 check "register_tool_commands False kept"           grep -q '^register_tool_commands: False' "$C/wm_ace_driver.cfg"
 check "auto-load = 1"                               grep -q '^variable_auto: *1' "$C/wm_ace.cfg"
