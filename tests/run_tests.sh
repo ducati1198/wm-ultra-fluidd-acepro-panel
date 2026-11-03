@@ -31,8 +31,8 @@ inst() { # home answers [args...]
 }
 cfg() { echo "$1/printer_data/config"; }
 
-# Answers in order: auto-load? endless? Fluidd panel? continue?
-A_ALL='y\ny\ny\ny\n'
+# Answers in order: ACE Pro? auto-load? endless? Fluidd panel? continue?
+A_ALL='y\ny\ny\ny\ny\n'
 
 echo "1. Fresh install"
 H="$(new_home t1)"; C="$(cfg "$H")"
@@ -88,7 +88,7 @@ check "nothing written"                             test ! -e "$(cfg "$H5")/wm_a
 
 echo "6. Without endless spool and without Fluidd"
 H6="$(new_home t6)"; C6="$(cfg "$H6")"
-inst "$H6" 'y\nn\nn\ny\n'
+inst "$H6" 'y\ny\nn\nn\ny\n'
 check "installer finished"                          test "$RC" -eq 0
 check "wm_endless.cfg not written"                  test ! -e "$C6/wm_endless.cfg"
 check "no endless include"                          bash -c '! grep -q wm_endless "$0"' "$C6/printer.cfg"
@@ -123,6 +123,24 @@ rm -f "$H9/klipper/klippy/extras/ace"; sed -i '/wm_ace.cfg/d' "$C9/printer.cfg"
 inst "$H9" "" --check;  check "--check finds the damage"  test "$RC" -ne 0
 inst "$H9" "" --repair; check "--repair finished"          test "$RC" -eq 0
 inst "$H9" "" --check;  check "--check passes again"       test "$RC" -eq 0
+
+echo "10. No ACE Pro (panel + endless spool only)"
+H10="$(new_home t10)"; C10="$(cfg "$H10")"; cp -a "$C10/printer.cfg" "$ROOT/p10.cfg"
+inst "$H10" 'n\ny\ny\ny\n'
+check "installer finished"                          test "$RC" -eq 0
+check "wm_endless.cfg written"                      test -f "$C10/wm_endless.cfg"
+check "no ACE cfgs"                                 test ! -e "$C10/wm_ace.cfg" -a ! -e "$C10/wm_ace_driver.cfg"
+check "only the endless include added"              bash -c 'grep -q "include wm_endless.cfg" "$0" && ! grep -q "wm_ace" "$0"' "$C10/printer.cfg"
+check "driver not linked"                           test ! -e "$H10/klipper/klippy/extras/ace"
+check "Fluidd has the panel"                        grep -rlq "ACE feeder" "$H10/fluidd/assets"
+check "conf says ACE=0"                             grep -q '^ACE="0"' "$C10/wm-ultra-install.conf"
+inst "$H10" "" --check;  check "--check passes"     test "$RC" -eq 0
+inst "$H10" 'n\n' --update; check "update keeps panel-only mode" bash -c '! test -e "$0/wm_ace.cfg"' "$C10"
+inst "$H10" 'y\n' --uninstall; check "uninstall finished"  test "$RC" -eq 0
+check "printer.cfg back to the original"            cmp -s "$ROOT/p10.cfg" "$C10/printer.cfg"
+H11="$(new_home t11)"
+inst "$H11" 'n\nn\nn\n'
+check "nothing selected is refused"                 test "$RC" -eq 1
 
 echo
 echo "passed: $PASS   failed: $FAIL"

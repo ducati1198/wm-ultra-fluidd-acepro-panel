@@ -3,8 +3,9 @@
 # =============================================================================
 # ACE Pro on the WonderMaker ZR Ultra / Ultra-S  -  installer
 # =============================================================================
-# Adds an Anycubic ACE Pro (feeder + dryer) and the WonderMaker Toolheads panel
-# to a Raspberry Pi that runs WonderMaker's own Klipper / Moonraker / Fluidd.
+# Adds the WonderMaker Toolheads panel and, if you have one, an Anycubic ACE Pro (feeder + dryer)
+# to the machine that runs WonderMaker's own Klipper / Moonraker / Fluidd. Without an ACE Pro it
+# installs only the panel (and the optional endless-spool macros).
 #
 # ./installer.sh               install (asks a few plain questions first)
 # ./installer.sh --update      update the files, keep your tuned values
@@ -20,7 +21,7 @@
 #   - It never starts or restarts Klipper unless you answer yes to that one question.
 #   - It never changes a WonderMaker file. Your printer.cfg only gets three include lines.
 #
-# Compatible with: Raspberry Pi OS Bookworm (the WonderMaker Pi image). Needs bash and python3.
+# Needs bash and python3 (Debian based systems).
 # =============================================================================
 
 set -u
@@ -54,6 +55,7 @@ KLIPPER_SERVICE="klipper"
 CONF_NAME="wm-ultra-install.conf"
 
 # Answers
+HAVE_ACE=1                                  # 0 = no ACE Pro: panel (and optional endless spool) only
 WANT_AUTO=1
 WANT_FLUIDD=0
 WANT_ENDLESS=1
@@ -208,7 +210,7 @@ check_is_wondermaker() {
         print_success "WonderMaker ZR Ultra config found (zru-s.cfg, _CHANGE_TOOL, path_N sensors)"
     else
         die_with_fix "this does not look like a WonderMaker ZR Ultra / Ultra-S config" \
-            "run it on the Pi that has WonderMaker's printer.cfg, zru-s.cfg and the hub sensors path_0..path_3. For other printers use the main installer.sh in the repository root."
+            "run it on the machine that has WonderMaker's printer.cfg, zru-s.cfg and the hub sensors path_0..path_3. For other printers use https://github.com/ducati1198/acepro-any-klipper"
     fi
 }
 
@@ -233,7 +235,7 @@ check_driver_source() {
 
 keep_value() { # staged_file existing_file prefix key   (prefix = "variable_" or "")
     local sf="$1" ef="$2" pre="$3" k="$4" val
-    [ -f "$ef" ] || return 0
+    [ -f "$ef" ] && [ -f "$sf" ] || return 0
     val="$(sed -nE "s/^${pre}${k}:[[:space:]]*([^[:space:]#]+).*/\1/p" "$ef" | head -1)"
     [ -n "$val" ] || return 0
     sed -i -E "s/^(${pre}${k}:[[:space:]]*)[^[:space:]#]+/\1${val}/" "$sf"
@@ -251,7 +253,11 @@ stage_files() {
         sed -i -E "s/^(variable_auto:[[:space:]]*)[0-9]+/\1${WANT_AUTO}/" "$STAGE/wm_ace.cfg"
     fi
     if [ "$WANT_ENDLESS" = 0 ]; then rm -f "$STAGE/wm_endless.cfg"; fi
+    if [ "$HAVE_ACE" = 0 ]; then rm -f "$STAGE/wm_ace.cfg" "$STAGE/wm_ace_driver.cfg"; fi
 }
+
+# 0 = this config file is part of the install (staged now, or already in the config folder)
+cfg_wanted() { [ -f "${STAGE:-/nonexistent}/$1" ] || [ -f "$CONFIG_DIR/$1" ]; }
 
 include_present() { grep -qE "^\s*\[include\s+$1\]" "$CONFIG_DIR/printer.cfg" 2>/dev/null; }
 
@@ -266,10 +272,14 @@ show_plan() {
     done
     echo "printer.cfg gets these lines (after [include zru-s.cfg], nothing else is edited):"
     for f in "${INCLUDE_LINES[@]}"; do
-        [ "$WANT_ENDLESS" = 0 ] && [ "$f" = "[include wm_endless.cfg]" ] && continue
+        cfg_wanted "$(echo "$f" | sed -E 's/\[include ([^]]+)\]/\1/')" || continue
         include_present "$(echo "$f" | sed -E 's/\[include ([^]]+)\]/\1/;s/\./\\./g')" && echo "  =  $f (already there)" || echo "  +  $f"
     done
-    echo "Links into $KLIPPER_DIR/klippy/extras:  ace, virtual_pins.py, temperature_ace.py  (to $REPO_DIR/extras)"
+    if [ "$HAVE_ACE" = 1 ]; then
+        echo "Links into $KLIPPER_DIR/klippy/extras:  ace, virtual_pins.py, temperature_ace.py  (to $REPO_DIR/extras)"
+    else
+        echo "ACE driver: not installed (no ACE Pro). Install again later to add it."
+    fi
     [ "$WANT_FLUIDD" = 1 ] && echo "Fluidd:  $FLUIDD_DIR gets the WonderMaker Toolheads + ACE panel (the old folder is saved first)"
     [ "$WANT_FLUIDD" = 0 ] && echo "Fluidd:  not changed"
     echo "Klipper: NOT started or restarted by the install. No board is flashed."
@@ -320,7 +330,7 @@ ensure_include() { # "[include x.cfg]"  - goes right after the previous include 
 ensure_includes() {
     local prev="[include zru-s.cfg]" l
     for l in "${INCLUDE_LINES[@]}"; do
-        if [ "$l" = "[include wm_endless.cfg]" ] && [ "$WANT_ENDLESS" = 0 ] && [ ! -f "$CONFIG_DIR/wm_endless.cfg" ]; then continue; fi
+        cfg_wanted "$(echo "$l" | sed -E 's/\[include ([^]]+)\]/\1/')" || continue
         ensure_include "$l" "$prev"
         prev="$l"
     done
@@ -387,6 +397,7 @@ save_answers() {
     backup_path "$f"
     {
         echo "VERSION=\"$VERSION\""
+        echo "ACE=\"$HAVE_ACE\""
         echo "AUTO=\"$WANT_AUTO\""
         echo "ENDLESS=\"$WANT_ENDLESS\""
         echo "FLUIDD=\"$WANT_FLUIDD\""
@@ -412,16 +423,21 @@ restart_question() {
 final_steps() {
     local w
     print_header "Done"
-    print_success "ACE Pro for the WonderMaker Ultra is installed (v$VERSION)."
+    print_success "WonderMaker Ultra panel$([ "$HAVE_ACE" = 1 ] && echo " + ACE Pro") installed (v$VERSION)."
     if [ "${#WARNINGS[@]}" -gt 0 ]; then
         echo; print_warning "Things to look at:"
         for w in "${WARNINGS[@]}"; do echo "  - $w"; done
     fi
     echo
     echo "Next:"
-    echo "  1. Restart Klipper once, then run  ./installer.sh --check"
-    echo "  2. Fluidd: hard-refresh the browser (Ctrl/Cmd+Shift+R). The Toolheads card shows the ACE parts once Klipper reports the ACE."
-    echo "  3. First tests are in the README, section 6 (dryer, manual feed, then ACE_WM_LOAD T=0). Stay at the printer."
+    echo "  1. Restart Klipper once (if you installed config files), then run  ./installer.sh --check"
+    if [ "$HAVE_ACE" = 1 ]; then
+        echo "  2. Fluidd: hard-refresh the browser (Ctrl/Cmd+Shift+R). The Toolheads card shows the ACE parts once Klipper reports the ACE."
+        echo "  3. First tests are in the README, section 6 (dryer, manual feed, then ACE_WM_LOAD T=0). Stay at the printer."
+    else
+        echo "  2. Fluidd: hard-refresh the browser (Ctrl/Cmd+Shift+R). The Toolheads card works without an ACE; the ACE parts stay hidden."
+        echo "  3. Got an ACE Pro later? Run ./installer.sh again and answer yes to the ACE question."
+    fi
     echo "Undo everything:  ./installer.sh --undo"
 }
 
@@ -432,7 +448,7 @@ final_steps() {
 do_install() {
     local existing=0
     echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║   ACE Pro on WonderMaker Ultra  ·  installer  v${VERSION}$(printf '%*s' $((10 - ${#VERSION})) '')║${NC}"
+    echo -e "${BLUE}║   WonderMaker Ultra panel + ACE  ·  installer  v${VERSION}$(printf '%*s' $((9 - ${#VERSION})) '')║${NC}"
     echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
     echo "Nothing is changed until you confirm the summary. No board is ever flashed."
     echo "Press ENTER to accept the [default]."
@@ -442,9 +458,7 @@ do_install() {
     [ "$DRY" = 1 ] || guard_not_printing
     find_dirs
     check_is_wondermaker
-    check_driver_source
-    [ "$DRY" = 1 ] || check_ace_usb
-    [ -f "$CONFIG_DIR/wm_ace.cfg" ] && existing=1
+    { [ -f "$CONFIG_DIR/wm_ace.cfg" ] || [ -f "$(CONF_FILE)" ]; } && existing=1
 
     if [ "$MODE" = "update" ] && [ "$existing" = 0 ]; then
         die_with_fix "there is no ACE install to update in $CONFIG_DIR" "run   ./installer.sh   to install first."
@@ -453,6 +467,7 @@ do_install() {
         if [ "$MODE" = "update" ] || ask_yn "An install was found. Update it and keep your tuned values?" Y "no starts a fresh install; your current files are saved first."; then
             UPDATING=1
             OLD_VERSION="$(kv_get "$(CONF_FILE)" VERSION || true)"
+            HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
             WANT_AUTO="$(kv_get "$(CONF_FILE)" AUTO || echo 1)"; WANT_AUTO="${WANT_AUTO:-1}"
             WANT_ENDLESS="$(kv_get "$(CONF_FILE)" ENDLESS || echo 1)"; WANT_ENDLESS="${WANT_ENDLESS:-1}"
             [ -f "$CONFIG_DIR/wm_endless.cfg" ] || WANT_ENDLESS=0
@@ -462,17 +477,31 @@ do_install() {
     print_header "2 of 4 · Questions"
     local fl="$INSTALL_HOME/fluidd"
     if [ "$UPDATING" = 0 ]; then
-        ask_yn "Load a spool automatically when you put it into an ACE slot?" Y \
-            "the ACE feeds it to the hub and the toolhead sensor. You can switch this later with ACE_WM_AUTO ENABLE=0." && WANT_AUTO=1 || WANT_AUTO=0
+        ask_yn "Do you have an Anycubic ACE Pro to connect?" Y \
+            "no is fine: you then get the WonderMaker Toolheads panel (and the endless-spool option) without any ACE parts. You can run the installer again later." && HAVE_ACE=1 || HAVE_ACE=0
+    fi
+    if [ "$HAVE_ACE" = 1 ]; then
+        check_driver_source
+        [ "$DRY" = 1 ] || check_ace_usb
+    fi
+    if [ "$UPDATING" = 0 ]; then
+        if [ "$HAVE_ACE" = 1 ]; then
+            ask_yn "Load a spool automatically when you put it into an ACE slot?" Y \
+                "the ACE feeds it to the hub and the toolhead sensor. You can switch this later with ACE_WM_AUTO ENABLE=0." && WANT_AUTO=1 || WANT_AUTO=0
+        fi
         ask_yn "Add the experimental endless-spool macros (switched OFF until you turn them on in Fluidd)?" Y \
             "when a toolhead runs out, the Toolheads card offers to continue on a spare head with the same colour and material." && WANT_ENDLESS=1 || WANT_ENDLESS=0
     fi
     if [ -d "$fl" ]; then
-        local q="Install the WonderMaker Toolheads + ACE panel into Fluidd?"
+        local q="Install the WonderMaker Toolheads panel$([ "$HAVE_ACE" = 1 ] && echo " (with the ACE parts)") into Fluidd?"
         [ "$UPDATING" = 1 ] && q="Also refresh the Fluidd panel?"
         ask_yn "$q" "$([ "$UPDATING" = 1 ] && echo N || echo Y)" "your Fluidd folder is saved first and can be put back with --undo." && { WANT_FLUIDD=1; FLUIDD_DIR="$fl"; }
     else
         print_info "No Fluidd folder at $fl, so the panel is skipped."
+    fi
+
+    if [ "$HAVE_ACE" = 0 ] && [ "$WANT_ENDLESS" = 0 ] && [ "$WANT_FLUIDD" = 0 ]; then
+        die_with_fix "nothing is selected (no ACE, no endless spool, no Fluidd panel)" "run it again and say yes to at least one of them."
     fi
 
     print_header "3 of 4 · What will change"
@@ -493,7 +522,7 @@ do_install() {
     echo "$VERSION" > "$BACKUP_DIR/installer-version.txt"
     print_success "Backup folder: $BACKUP_DIR"
 
-    link_driver
+    [ "$HAVE_ACE" = 1 ] && link_driver
     apply_stage
     ensure_includes
     [ "$WANT_FLUIDD" = 1 ] && install_fluidd_panel "$FLUIDD_DIR"
@@ -578,36 +607,46 @@ do_undo() {
 }
 
 do_check() {
-    local bad=0 f x state py
+    local bad=0 f x state py have
     find_dirs
-    echo -e "${BLUE}ACE Pro (WonderMaker Ultra) check${NC}   installer v$VERSION"
+    echo -e "${BLUE}WonderMaker Ultra panel / ACE Pro check${NC}   installer v$VERSION"
+    have="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; have="${have:-1}"
     local inst; inst="$(kv_get "$(CONF_FILE)" VERSION || true)"
     [ -n "$inst" ] && [ "$inst" != "$VERSION" ] && print_warning "Installed with v$inst, this download is v$VERSION. Run ./installer.sh --update."
     check_is_wondermaker
-    for f in wm_ace_driver.cfg wm_ace.cfg; do
-        [ -f "$CONFIG_DIR/$f" ] && print_success "$f present" || { print_error "$f is missing"; bad=1; }
-    done
-    [ -f "$CONFIG_DIR/wm_endless.cfg" ] && print_success "wm_endless.cfg present (experimental)" || print_info "wm_endless.cfg not installed (endless spool offer stays hidden)"
-    for f in wm_ace_driver.cfg wm_ace.cfg; do
-        include_present "${f//./\\.}" && print_success "printer.cfg includes $f" || { print_error "printer.cfg does not include $f"; bad=1; }
-    done
-    grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/wm_ace_driver.cfg" 2>/dev/null \
-        && print_success "driver will not create T0..T7 (WonderMaker owns them)" \
-        || { print_error "register_tool_commands: False is missing in wm_ace_driver.cfg: the driver would replace WonderMaker's T0..T3"; bad=1; }
+    if [ "$have" = 1 ]; then
+        for f in wm_ace_driver.cfg wm_ace.cfg; do
+            [ -f "$CONFIG_DIR/$f" ] && print_success "$f present" || { print_error "$f is missing"; bad=1; }
+            include_present "${f//./\\.}" && print_success "printer.cfg includes $f" || { print_error "printer.cfg does not include $f"; bad=1; }
+        done
+    else
+        print_info "Installed without an ACE Pro (panel only). ACE checks skipped."
+    fi
+    if [ -f "$CONFIG_DIR/wm_endless.cfg" ]; then
+        print_success "wm_endless.cfg present (experimental)"
+        include_present "wm_endless\\.cfg" && print_success "printer.cfg includes wm_endless.cfg" || { print_error "printer.cfg does not include wm_endless.cfg"; bad=1; }
+    else
+        print_info "wm_endless.cfg not installed (endless spool offer stays hidden)"
+    fi
     x="$KLIPPER_DIR/klippy/extras"
-    for f in ace temperature_ace.py virtual_pins.py; do
-        if [ -e "$x/$f" ]; then print_success "$f in Klipper's extras folder"
-        elif is_symlink "$x/$f"; then print_error "$x/$f is a broken link (was the repository moved?)"; bad=1
-        else print_error "$x/$f is missing"; bad=1; fi
-    done
-    grep -q "register_tool_commands" "$x/ace/config.py" 2>/dev/null \
-        && print_success "driver has the register_tool_commands option" \
-        || { print_error "the linked driver is too old (no register_tool_commands). Use extras/ace from this repository."; bad=1; }
-    py="$(klippy_python)"
-    "$py" -m py_compile "$x"/ace/*.py 2>/dev/null && print_success "driver compiles" || { print_error "driver does not compile"; bad=1; }
-    find "$REPO_DIR/extras" -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
+    if [ "$have" = 1 ]; then
+        grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/wm_ace_driver.cfg" 2>/dev/null \
+            && print_success "driver will not create T0..T7 (WonderMaker owns them)" \
+            || { print_error "register_tool_commands: False is missing in wm_ace_driver.cfg: the driver would replace WonderMaker's T0..T3"; bad=1; }
+        for f in ace temperature_ace.py virtual_pins.py; do
+            if [ -e "$x/$f" ]; then print_success "$f in Klipper's extras folder"
+            elif is_symlink "$x/$f"; then print_error "$x/$f is a broken link (was the repository moved?)"; bad=1
+            else print_error "$x/$f is missing"; bad=1; fi
+        done
+        grep -q "register_tool_commands" "$x/ace/config.py" 2>/dev/null \
+            && print_success "driver has the register_tool_commands option" \
+            || { print_error "the linked driver is too old (no register_tool_commands). Use extras/ace from this repository."; bad=1; }
+        py="$(klippy_python)"
+        "$py" -m py_compile "$x"/ace/*.py 2>/dev/null && print_success "driver compiles" || { print_error "driver does not compile"; bad=1; }
+        find "$REPO_DIR/extras" -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
+    fi
     if [ -d "$INSTALL_HOME/fluidd/assets" ]; then
-        grep -rlq "ACE feeder" "$INSTALL_HOME/fluidd/assets" 2>/dev/null && print_success "Fluidd has the Toolheads + ACE panel" || print_info "Fluidd is not the panel build (ACE parts will not show)"
+        grep -rlq "ACE feeder" "$INSTALL_HOME/fluidd/assets" 2>/dev/null && print_success "Fluidd has the Toolheads panel" || print_info "Fluidd is not the panel build"
     fi
     if command -v curl >/dev/null 2>&1 && [ "$TESTING" = 0 ]; then
         state="$(curl -s -m 3 "$MOONRAKER_URL/printer/info" 2>/dev/null | python3 -I -c 'import sys,json; print(json.load(sys.stdin)["result"]["state"])' 2>/dev/null || true)"
@@ -624,7 +663,8 @@ do_repair() {
     BACKUP_DIR="$BACKUP_ROOT/wm-$(timestamp)-repair"
     mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
     [ -f "$CONFIG_DIR/wm_endless.cfg" ] || WANT_ENDLESS=0
-    link_driver
+    HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
+    [ "$HAVE_ACE" = 1 ] && link_driver
     ensure_includes
     print_success "Repair finished. Run ./installer.sh --check"
 }

@@ -1,10 +1,10 @@
 <div align="center">
 
-# ACE Pro on the WonderMaker ZR Ultra / Ultra-S
+# WonderMaker ZR Ultra / Ultra-S: Fluidd Toolheads panel, for the ACE Pro or without it
 
-**Use an Anycubic ACE Pro as the filament feeder and dryer of a WonderMaker ZR Ultra, and control it from the WonderMaker Toolheads card in Fluidd.**
-One installer. Runs on the Raspberry Pi with WonderMaker's own Klipper / Moonraker / Fluidd.
-One ACE Pro for T0–T3: slot N → hub inlet N → toolhead N.
+**Use an Anycubic ACE Pro as the filament feeder and dryer of a WonderMaker ZR Ultra, and control it from the WonderMaker Toolheads card in Fluidd. No ACE Pro? The panel and the endless-spool option work without it.**
+One installer, for WonderMaker's own Klipper / Moonraker / Fluidd.
+With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
@@ -54,6 +54,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 
 | | |
 |---|---|
+| **Works without an ACE Pro** | Say no to the ACE question and you get the WonderMaker Toolheads panel and the endless-spool option only. Every ACE element stays hidden. Add the ACE later by running the installer again. |
 | **ACE Pro as feeder** | `ACE_WM_LOAD T=n` feeds slot n to the hub inlet (fast), then to the toolhead sensor (slow). WonderMaker's own insert routine then heats and loads the filament. |
 | **Uses WonderMaker's own sensors** | The hub sensor `path_N` stops the fast feed, the toolhead sensor `filament<N>` stops the slow feed. No new sensors needed. |
 | **Unload** | `ACE_WM_UNLOAD T=n` runs WonderMaker's `UNLOAD_FILAMENT`, then the ACE pulls the filament back until `path_N` clears and into the ACE. |
@@ -76,21 +77,84 @@ If no ACE is installed, the card looks exactly like the plain WonderMaker Toolhe
 
 ## 2. Hardware and wiring
 
+What you need to run an ACE Pro on a WonderMaker ZR Ultra / Ultra-S, and how to connect it by USB. (The same guide is also in [`docs/HARDWARE.md`](docs/HARDWARE.md).) **No ACE Pro? Skip this section and go to [Install](#3-install).**
+
+> The connector pinouts below come from the Kobra-S1/ACEPRO documentation and community adapter builds. They are not re-measured on every unit, so **check your adapter with a multimeter before plugging it in** (section 2.4).
+
+### 2.1 What you need
+
 | Part | Required | Notes |
 |---|---|---|
-| WonderMaker ZR Ultra / Ultra-S running Klipper on a Raspberry Pi | Yes | Tested layout: Pi 400, Raspberry Pi OS Bookworm 64-bit, WonderMaker's Klipper and Moonraker fork. |
-| 1 Anycubic ACE Pro | Yes | First generation (USB). One unit covers T0–T3. |
-| USB adapter for the ACE | Yes | Data wires only (D+, D-, GND), never 5 V. See the [hardware guide](docs/HARDWARE.md). Check the adapter with a multimeter first. |
-| 4 PTFE tubes, ACE → hub | Yes | Slot 1 → hub inlet 1 → T0, slot 2 → inlet 2 → T1, slot 3 → inlet 3 → T2, slot 4 → inlet 4 → T3. |
+| WonderMaker ZR Ultra or Ultra-S with WonderMaker's own Klipper, Moonraker and Fluidd | Yes | The installer looks for WonderMaker's `zru-s.cfg`, `_CHANGE_TOOL`, `UNLOAD_FILAMENT` and the hub sensor `path_0`, and refuses to run on anything else. |
+| 1 Anycubic Color Engine Pro (first generation) | Only for the ACE parts | One unit covers all four toolheads (T0–T3). |
+| USB cable or adapter for the ACE | Only for the ACE parts | Section 2.3 shows how to build one. |
+| 4 PTFE tubes, ACE → filament hub | Only for the ACE parts | Slot 1 → hub inlet 1 → T0, slot 2 → inlet 2 → T1, slot 3 → inlet 3 → T2, slot 4 → inlet 4 → T3. |
+| WonderMaker's hub sensors `path_0`…`path_3` and toolhead sensors `filament0`…`filament3` | Already on the printer | They stop the feed. No extra sensor is needed. No RDM sensor, encoder, cutter or poop basket is used. |
+| USB port on the Klipper host | Only for the ACE parts | Use a powered hub if the ports are weak. |
 
-### Which sensors are used
+The WonderMaker hub is passive (no motor). The ACE pushes and pulls the filament between the ACE and the hub; the toolhead extruder does the rest. The sensors are WonderMaker's own, set in its config; nothing about them is changed.
 
 | Sensor | Where | Used for |
 |---|---|---|
-| `path_0` … `path_3` | WonderMaker filament hub (HUB MCU, pins `!HUB:PC13/PB12/PA2/PA3`) | The fast feed stops when the filament reaches the hub; during unload, the ACE retracts until it clears. |
-| `filament0` … `filament3` | Each toolhead | The slow feed stops when the filament reaches the toolhead; WonderMaker's own insert routine takes over. |
+| `path_0` … `path_3` | WonderMaker filament hub (HUB MCU, pins `!HUB:PC13/PB12/PA2/PA3`) | The fast feed stops when the filament reaches the hub; during unload the ACE retracts until it clears. |
+| `filament0` … `filament3` | Each toolhead | The slow feed stops when the filament reaches the toolhead; WonderMaker's own insert routine then takes over. |
 
-The hub is passive (no motor). The ACE does all the pushing and pulling between the ACE and the hub; the toolhead extruder does the rest.
+### 2.2 Which ACE do you have?
+
+| Unit | What the 4-pin connector carries | What to use |
+|---|---|---|
+| **ACE Pro** (first generation) | Native USB data | A plain USB-A adapter (below). It appears in Linux as `/dev/ttyACM*`. |
+| **ACE 2 Pro** | RS-485, not USB | Not covered here. It needs the RS485-to-USB conversion cable from Anycubic's ACE 2 kit; a home-made USB cable will not work. |
+
+The driver detects which protocol a unit speaks (`protocol: auto` in `wm_ace_driver.cfg`). The rest of this section is about the first-generation ACE Pro.
+
+### 2.3 USB adapter for the ACE Pro
+
+<div align="center">
+<img src="docs/img/connection-chain.svg" alt="From the ACE Pro to a USB port" width="90%">
+</div>
+
+Only **three wires** are used: **D+, D- and GND**. Do **not** connect VBUS (5 V). The ACE has its own power supply, and a second 5 V source on the data cable can damage the host or the unit.
+
+The stock cable has a 6-pin plug for the ACE's socket and a 4-pin plug that normally goes into an Anycubic printer. You can adapt either end:
+
+| | Variant A: adapt the printer end | Variant B: adapt the ACE end |
+|---|---|---|
+| Original cable | Kept as it is | Not used |
+| You build | A 4-pin socket to USB-A adapter | A 6-pin plug to USB-A cable |
+| Donor part | A 4-pin ACE extension cable (cut one end off) | A 6-pin plug or pigtail |
+| Good if | You want to keep the original cable and be able to go back to it | You want the shortest path or a tidy back cover |
+
+<div align="center">
+<img src="docs/img/connector-pinout.svg" alt="Connector faces" width="90%">
+</div>
+
+| ACE signal | USB-A pin |
+|---|---|
+| D+ | 3 |
+| D- | 2 |
+| GND | 4 |
+| NC (not connected) | 1 (VBUS), left unconnected |
+
+- The plug and the socket faces are mirror images of each other. That is normal for connectors that mate.
+- Use the **position** in the diagram to find each pin. Wire colours differ between cable makers.
+- The 6-pin plug has the same 2×2 signal block in two columns, plus a third column with no contacts.
+
+### 2.4 Check before you plug in
+
+With a multimeter (no ACE connected, nothing powered):
+
+1. **Continuity:** D+ to USB pin 3, D- to USB pin 2, GND to USB pin 4.
+2. **No shorts:** D+ to D-, D+ to GND and D- to GND must not beep.
+3. **VBUS:** USB pin 1 must not be connected to anything on the ACE side.
+
+Then plug it in, power the ACE and, on the machine that runs Klipper:
+
+```bash
+ls /dev/serial/by-id/          # the ACE should be listed
+```
+
+Restart Klipper and run `ACE_GET_STATUS`. The ACE chip in the Fluidd Toolheads card then shows "connected".
 
 ---
 
@@ -98,56 +162,98 @@ The hub is passive (no motor). The ACE does all the pushing and pulling between 
 
 ### 3.1 Requirements
 
-- WonderMaker's Klipper, Moonraker and (optional) Fluidd on the Pi, with the `zru-s.cfg` config. The installer refuses to run on anything else.
-- `python3`, `bash`, `git`; `unzip` is optional (Python is used if it is missing).
-- Python 3.9 or newer in Klipper's environment (`~/klippy-env`), with `pyserial`.
+- WonderMaker's Klipper and Moonraker with its `zru-s.cfg` config, and Fluidd (optional, for the panel). Python 3.9 or newer in Klipper's environment (`~/klippy-env`), with `pyserial` for the ACE.
+- **With an ACE:** one ACE Pro connected by USB (a powered hub is fine), and the tubes from section 2.1. **Without an ACE:** nothing else.
 - No print running.
+- SSH access to the machine that runs Klipper.
 - The replacement main board does **not** have to be installed to run the installer. Klipper can stay stopped.
 
 ### 3.2 One-command installer
 
-On the Pi:
-
-```
-git clone https://github.com/ducati1198/wm-ultra-fluidd-acepro-panel ~/wm-ultra-fluidd-acepro-panel
-cd ~/wm-ultra-fluidd-acepro-panel
+```bash
+sudo apt-get update
+sudo apt-get install -y git
+cd ~
+git clone https://github.com/ducati1198/wm-ultra-fluidd-acepro-panel
+cd wm-ultra-fluidd-acepro-panel
+chmod +x installer.sh
 ./installer.sh --dry-run     # look first: shows the plan and changes nothing
-./installer.sh               # install
+./installer.sh
 ```
 
-It asks three questions (auto-load, endless-spool macros, Fluidd panel), shows a summary, and changes nothing until you confirm.
+> **"destination path 'wm-ultra-fluidd-acepro-panel' already exists"?** You already downloaded it once. Do not clone again. Update the folder instead:
+>
+> ```bash
+> cd ~/wm-ultra-fluidd-acepro-panel
+> git pull
+> ./installer.sh --update
+> ```
+>
+> If `git pull` complains about local changes, see [section 9](#9-update-undo-and-uninstall).
+
+The installer asks a few plain questions, shows exactly what it will change, and only then does it. It saves a backup first, so `./installer.sh --undo` puts everything back.
+
+**The questions** (each has a one-line reason and a safe default):
+
+1. Do you have an **Anycubic ACE Pro** to connect? (No gives you the panel and the endless-spool option only.)
+2. With an ACE: load a spool **automatically** when you put it into a slot?
+3. Add the experimental **endless-spool** macros? (Switched off until you turn them on in Fluidd.)
+4. Install the **Fluidd panel**? (Your Fluidd folder is saved first.)
+
+**What it does:**
+
+1. Checks that this is a WonderMaker ZR Ultra config and that no print is running.
+2. With an ACE: checks that the driver compiles and that `pyserial` is available, and looks for the ACE on USB (a warning, not a stop, if it is not there yet).
+3. With an ACE: links the ACE driver (`extras/ace/`), `virtual_pins` and the ACE temperature sensor into Klipper's `extras` folder.
+4. Copies the config files into your config folder and adds the `[include …]` lines to `printer.cfg`, right after `[include zru-s.cfg]` and above the SAVE_CONFIG block. No WonderMaker file is edited.
+5. Installs the Fluidd panel if you chose it (your `config.json` is kept; the old folder is saved).
+6. Saves everything it touched in `~/acepro-backup/wm-<date>`.
+7. Asks once whether to restart Klipper (default no, and only if Klipper is running).
+8. Prints your next steps.
+
+**More commands:**
 
 | Command | What it does |
 |---|---|
-| `./installer.sh` | Install. |
-| `--dry-run` | Go through the questions and show the plan. Changes nothing. |
-| `--update` | Update the files, keep your tuned values (distances, speeds). |
-| `--check` | Report problems. Changes nothing. |
-| `--repair` | Restore the driver links and the include lines. |
-| `--undo [DIR]` | Put back the files saved before an install (default: the latest). |
-| `--uninstall` | Remove everything the installer added (saved first). |
+| `./installer.sh --update` | Update the files. Your tuned values (distances, speeds) are kept. |
+| `./installer.sh --check` | Look for problems. Changes nothing. |
+| `./installer.sh --repair` | Restore the driver links and the include lines. |
+| `./installer.sh --undo` | Put back the files saved before the last install. |
+| `./installer.sh --uninstall` | Remove everything the installer added (saved first, so `--undo` brings it back). |
+| `./installer.sh --dry-run` | Go through the questions and show what would change. Changes nothing. |
 
-What the installer changes:
+**Safety checks the installer makes first:**
 
-- Copies `wm_ace_driver.cfg`, `wm_ace.cfg` and (if you want it) `wm_endless.cfg` to `~/printer_data/config`.
-- Adds three `[include …]` lines to `printer.cfg`, right after `[include zru-s.cfg]` (above the SAVE_CONFIG block). No WonderMaker file is edited.
-- Links the ACE driver (`ace`, `virtual_pins.py`, `temperature_ace.py`) from this repository into `~/klipper/klippy/extras`.
-- Optionally replaces `~/fluidd` with the panel build (your `config.json` is kept; the old folder is saved).
-- Saves everything it touches in `~/acepro-backup/wm-<date>`.
+- It **stops if a print is running or paused** (there is no override). `--check` and `--dry-run` still work.
+- It **stops if the config is not a WonderMaker ZR Ultra / Ultra-S config.**
+- It warns, and carries on, if it **sees no ACE on USB**.
+- It **never flashes any board and never starts Klipper by itself.**
 
-What it does **not** do: flash any board, edit WonderMaker's macros, or start Klipper. At the end it asks once whether to restart Klipper (default no, and only if Klipper is running).
+### 3.3 Check `printer.cfg`
 
-Keep the cloned folder: the driver is linked from it, so `git pull` plus `--update` is how you update.
+The installer adds these for you (the two ACE lines only with an ACE, the endless line only if you chose it). Check they are there:
 
-### 3.3 Fluidd by hand (optional)
-
-```
-mv ~/fluidd ~/fluidd_backup
-mkdir ~/fluidd && unzip fluidd/fluidd-v1.37.7-zr-ace.zip -d ~/fluidd
-cp ~/fluidd_backup/config.json ~/fluidd/ 2>/dev/null
+```ini
+[include zru-s.cfg]
+[include wm_ace_driver.cfg]
+[include wm_ace.cfg]
+[include wm_endless.cfg]
 ```
 
-Check the download with `sha256sum -c fluidd-v1.37.7-zr-ace.zip.sha256`, then hard-refresh the browser. Details in [`fluidd/README.md`](fluidd/README.md).
+Restart Klipper from Fluidd (FIRMWARE_RESTART) or:
+
+```bash
+sudo systemctl restart klipper
+```
+
+With an ACE, run `ACE_GET_STATUS` in the console. You should see the unit connected with its four slots.
+
+### 3.4 Fluidd panel
+
+Installed by the installer (step 5 above). Manual steps and building it yourself: [`fluidd/README.md`](fluidd/README.md).
+
+> **After any install or update, hard-refresh the browser** so Fluidd loads the new files:
+> Windows/Linux `Ctrl+Shift+R` · macOS `Cmd+Shift+R`.
 
 ---
 
@@ -202,7 +308,7 @@ The panel is Fluidd v1.37.7 plus WonderMaker's ZR Toolheads card and the ACE par
 
 ## 6. First tests on the printer
 
-Written for the day the printer is running again. Do them in this order, empty bed, hand near the stop button.
+Written for the day the printer is running again. Do them in this order, empty bed, hand near the stop button. Steps 2–8 are for an ACE Pro; without one, only step 1 and step 9 apply.
 
 1. `./installer.sh --check` → no problems. Restart Klipper once, read `~/printer_data/logs/klippy.log` for `[ace]` lines.
 2. **Connection:** the ACE chip in the Toolheads card turns "connected". Temperature and humidity show.
@@ -246,7 +352,7 @@ Loads and unloads are refused while a print is running. Printing, colour mapping
 
 ## 8. Endless spool (experimental)
 
-**WonderMaker has no endless spool from the factory.** Their config, macros and the touchscreen app (v1.0.26) only pause on runout, and the product page says the same: "Printing pauses when filament runs out or breaks." This add-on is mine, built around WonderMaker's pause and resume. It is off by default.
+**WonderMaker has no endless spool from the factory.** Their config, macros and the touchscreen app (v1.0.26) only pause on runout, and the product page says the same: "Printing pauses when filament runs out or breaks." This add-on is mine, built around WonderMaker's pause and resume. It is off by default and does not need an ACE Pro.
 
 How it works:
 
@@ -281,7 +387,7 @@ cd ~/wm-ultra-fluidd-acepro-panel && git pull
 
 | Problem | Try |
 |---|---|
-| Installer says "does not look like a WonderMaker ZR Ultra config" | Run it on the Pi that has `zru-s.cfg`, `_CHANGE_TOOL`, `UNLOAD_FILAMENT` and the `path_0` sensor. |
+| Installer says "does not look like a WonderMaker ZR Ultra config" | Run it on the machine that has WonderMaker's `zru-s.cfg`, `_CHANGE_TOOL`, `UNLOAD_FILAMENT` and the `path_0` sensor. |
 | `--check`: "linked driver is too old" | Update this repository (`git pull`), then run `--repair`. |
 | `--check`: broken link | The repository was moved. Run `--repair` from its new place. |
 | Klipper: "Unknown config object temperature_ace" or virtual pins | The links in `klippy/extras` are missing: `--repair`. |
