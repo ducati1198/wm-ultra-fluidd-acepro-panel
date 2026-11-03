@@ -61,6 +61,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Auto-load** | Put a spool into an ACE slot and it loads to the matching toolhead (switch off with `ACE_WM_AUTO ENABLE=0`). |
 | **Feed assist** | Follows the active toolhead while printing. |
 | **Dryer** | Start and stop from Fluidd, six material presets (PLA, PETG, ABS/ASA, TPU, Nylon/PA, PVA). Max 65 °C. |
+| **Filament mapping at print start** | "Choose toolheads" window: opens only when a colour or material does not match a loaded toolhead, otherwise it just prints. |
 | **One Fluidd card** | Everything sits in the WonderMaker **Toolheads** card, in the look of the ACE Pro card from [acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper). No separate ACE panel. |
 | **Nothing replaced** | WonderMaker's `T0`…`T3`, `PAUSE`, `RESUME`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` stay as they are. The ACE driver is told not to create its own `T0`…`T7`. |
 | **Endless spool (experimental)** | Off by default. When a head runs out the print pauses, and the card offers a spare head with the same colour and material. WonderMaker has no endless spool from the factory (section 8). |
@@ -297,6 +298,26 @@ The ACE has no card of its own. It lives inside the WonderMaker **Toolheads** ca
 - **Toolhead dialog → "ACE feeder · slot N":** Load from ACE, Unload to ACE, Feed assist on/off, manual Feed / Retract with length and speed, Stop motor.
 
 Everything ACE-related is **hidden** when Klipper has no ACE object (`ace_instance_0`). The endless-spool row is hidden when the `WM_ENDLESS_CONTINUE` macro does not exist. So you can install the panel before the ACE hardware.
+
+### Choose toolheads (filament mapping)
+
+When you press **Print** (file list) or **Re-print**, the panel looks at the file first:
+
+- **Everything matches:** no window. The file prints at once, and a message tells you which toolhead each filament uses.
+- **A colour or material does not match:** the **Choose toolheads** window opens. Each filament in the file shows its colour, material and weight, four toolhead buttons (colour + material of what is loaded), and a **Matches** / **Check** tag. One warning per filament explains the problem. You can pick another toolhead, **print anyway**, or cancel.
+
+A toolhead counts as a match when its colour is the closest of WonderMaker's palette colours to the file's colour and the material fits (for example PLA on a PLA head). The suggestion keeps a filament on its own toolhead when that already matches; the rest get the closest loaded toolhead, each used once where possible.
+
+<div align="center">
+<img src="docs/img/fluidd-choose-toolheads.png" alt="Choose toolheads window with warnings" width="60%"><br>
+<em>A file whose colours and materials do not match the loaded toolheads (demo data).</em>
+</div>
+
+- Tapping a toolhead that another filament already uses **swaps** the two.
+- An **empty** toolhead blocks the print, because there is nothing to feed.
+- **Print** saves the mapping to the printer (`box_modify_t0`…`t3`, the same variables WonderMaker's own tool changes read) and starts the print. The map applies to that print only; tools without a colour in the file are reset to direct.
+- It works the same without an ACE Pro.
+- The Toolheads card's own print button opens a file picker first, then this window.
 
 ### Dryer presets
 

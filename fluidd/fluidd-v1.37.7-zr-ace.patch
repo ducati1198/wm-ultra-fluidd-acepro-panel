@@ -1,7 +1,7 @@
 From bcbc963ada67b87055f34cb05fff88bab862c6bf Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 1/7] ZR Ultra-S Toolheads card
+Subject: [PATCH 1/8] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1855,7 +1855,7 @@ index a01c43f..2ede1df 100644
 From a3d1bf315d0cbdf1745f4207b2102bc3b284ab93 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 2/7] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 2/8] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1930,7 +1930,7 @@ index cc15c3d..4693634 100644
 From b84b1eb6f3d8f33d06200d1e2809e0c2513b2784 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 3/7] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 3/8] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2057,7 +2057,7 @@ index 4693634..2b78324 100644
 From a0c98ac6bb4ab15528f0711699709d539bccb4ef Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 4/7] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 4/8] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2129,7 +2129,7 @@ index 2b78324..e1f06c0 100644
 From ab94a53433f6acc4ac6950432914adaa4016274d Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 5/7] fix(zr): only mention the touchscreen when
+Subject: [PATCH 5/8] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2183,7 +2183,7 @@ index e1f06c0..99c90df 100644
 From 183b6e93e31431d32f2e5313b9cccba037234039 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 6/7] feat(zr): ACE feeder and dryer inside the Toolheads card
+Subject: [PATCH 6/8] feat(zr): ACE feeder and dryer inside the Toolheads card
 
 Signed-off-by: t <t@e.x>
 ---
@@ -3083,7 +3083,7 @@ index 99c90df..d18abc1 100644
 From a595ad4286ae55b7385e0d3436ccb29f8f576f23 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 7/7] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 7/8] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3334,6 +3334,344 @@ index d18abc1..43ff04b 100644
    // ---- ACE Pro feeder/dryer (slot N feeds toolhead N). Shown only when the ACE macros/driver exist.
    get zrHasAce (): boolean {
      return this.zrPrinter['gcode_macro _WM_ACE'] != null || this.zrPrinter.ace != null
+-- 
+2.34.1
+
+
+From f5f557cd5e63e41e94b9fabf3827f4947bd833a6 Mon Sep 17 00:00:00 2001
+From: t <zr@local>
+Date: Tue, 3 Nov 2026 05:34:27 +0000
+Subject: [PATCH 8/8] feat(zr): Choose toolheads window, only opens when colour
+ or material do not match
+
+Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
+
+Signed-off-by: t <zr@local>
+---
+ src/components/widgets/zr/ZrPrintDialog.vue | 185 +++++++++++++++-----
+ src/components/widgets/zr/zr.ts             |  11 ++
+ src/components/widgets/zr/zrPrintHook.ts    |  15 +-
+ 3 files changed, 152 insertions(+), 59 deletions(-)
+
+diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
+index 7360e73..147cbff 100644
+--- a/src/components/widgets/zr/ZrPrintDialog.vue
++++ b/src/components/widgets/zr/ZrPrintDialog.vue
+@@ -1,7 +1,7 @@
+ <template>
+   <app-dialog
+     v-model="open"
+-    title="Print with colours"
++    title="Choose toolheads"
+     :sub-title="subTitle"
+     :max-width="$vuetify.breakpoint.smAndDown ? undefined : 620"
+     :loading="loading"
+@@ -87,43 +87,55 @@
+ 
+         <template v-else-if="colours.length">
+           <div class="text-overline secondary--text mt-2">
+-            File colour → toolhead
++            Filament in the file → toolhead
+           </div>
+-          <div
+-            v-for="(c, row) in colours"
+-            :key="c.tool"
+-            class="zr-map-row"
+-          >
+-            <div class="zr-map-file">
+-              <span
+-                class="zr-dot zr-dot--lg"
+-                :style="{ background: c.hex }"
+-              />
+-              <span>
+-                <span class="d-block">File T{{ c.tool }}</span>
+-                <span class="text-caption secondary--text">{{ c.material || '' }}{{ c.grams != null ? ` · ${c.grams.toFixed(1)} g` : '' }}</span>
+-              </span>
+-            </div>
+-            <div class="zr-map-heads">
+-              <button
+-                v-for="head in zrHeads"
+-                :key="head.index"
+-                type="button"
+-                class="zr-head-btn"
+-                :class="{
+-                  'zr-head-btn--selected': map[row] === head.index,
+-                  'zr-head-btn--empty': head.loaded === false
+-                }"
+-                :aria-pressed="map[row] === head.index ? 'true' : 'false'"
+-                :aria-label="`Print file colour T${c.tool} with toolhead ${head.index + 1}${head.loaded === false ? ' (empty)' : ''}`"
+-                @click="setMap(row, head.index)"
+-              >
++          <div class="grey darken-4 pa-2 rounded">
++            <div
++              v-for="(c, row) in colours"
++              :key="c.tool"
++              class="zr-map-row"
++              :class="{ 'zr-map-row--check': !rowOk(row) }"
++            >
++              <div class="zr-map-file">
+                 <span
+-                  class="zr-dot"
+-                  :style="{ background: head.loaded === false ? 'transparent' : head.colorCss }"
++                  class="zr-dot zr-dot--lg"
++                  :style="{ background: c.hex }"
+                 />
+-                T{{ head.index }}
+-              </button>
++                <span>
++                  <span class="d-block text-caption font-weight-bold">Filament {{ c.tool + 1 }}</span>
++                  <span class="d-block text-overline secondary--text">{{ c.material || 'Any material' }}{{ c.grams != null ? ` · ${c.grams.toFixed(1)} g` : '' }}</span>
++                </span>
++              </div>
++              <div class="zr-map-heads">
++                <button
++                  v-for="head in zrHeads"
++                  :key="head.index"
++                  type="button"
++                  class="zr-head-btn"
++                  :class="{
++                    'zr-head-btn--selected': map[row] === head.index,
++                    'zr-head-btn--empty': head.loaded === false
++                  }"
++                  :aria-pressed="map[row] === head.index ? 'true' : 'false'"
++                  :aria-label="`Print filament ${c.tool + 1} with toolhead ${head.index + 1}${head.loaded === false ? ' (empty)' : ''}`"
++                  @click="setMap(row, head.index)"
++                >
++                  <span
++                    class="zr-dot"
++                    :style="{ background: head.loaded === false ? 'transparent' : head.colorCss }"
++                  />
++                  <span class="d-flex flex-column align-start">
++                    <span class="text-caption font-weight-bold">T{{ head.index }}</span>
++                    <span class="zr-head-mat">{{ head.loaded === false ? 'empty' : head.materialName }}</span>
++                  </span>
++                </button>
++              </div>
++              <div
++                class="zr-map-status text-overline"
++                :class="rowOk(row) ? 'success--text' : 'warning--text'"
++              >
++                {{ rowOk(row) ? 'Matches' : 'Check' }}
++              </div>
+             </div>
+           </div>
+ 
+@@ -137,6 +149,9 @@
+           >
+             {{ w.text }}
+           </v-alert>
++          <div class="text-caption secondary--text mt-2">
++            Tap a toolhead that another filament already uses to swap the two.
++          </div>
+         </template>
+       </template>
+     </v-card-text>
+@@ -149,7 +164,7 @@ import { SocketActions } from '@/api/socketActions'
+ import { EventBus } from '@/eventBus'
+ import ZrMixin, { zrShared } from './zrMixin'
+ import {
+-  ZR_HEADS, ZR_PALETTE, colorDistance, fileColoursFromMetadata, fileColoursFromTail,
++  ZR_HEADS, ZR_PALETTE, colorDistance, fileColoursFromMetadata, fileColoursFromTail, nearestPaletteIndex,
+   type ZrFileColour
+ } from './zr'
+ 
+@@ -167,6 +182,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+   meta: Record<string, any> = {}
+   colours: ZrFileColour[] = []
+   map: number[] = []
++  auto = false
+   token = 0
+ 
+   created () {
+@@ -177,8 +193,10 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+     EventBus.bus.$off('zr-print-dialog', this.handleOpen)
+   }
+ 
+-  async handleOpen (payload: { filename: string | null }) {
+-    this.open = true
++  async handleOpen (payload: { filename: string | null, auto?: boolean }) {
++    // auto: look at the file first; only open the window when something does not match.
++    this.auto = !!payload?.auto && !!payload?.filename
++    this.open = !this.auto
+     this.search = ''
+     this.meta = {}
+     this.colours = []
+@@ -261,19 +279,62 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+     this.colours = colours
+     this.map = this.suggest(colours)
+     this.loading = false
++
++    if (this.auto) {
++      this.auto = false
++      if (colours.length > 0 && this.warnings.length === 0 && !this.blocked) {
++        await this.confirm()
++        return
++      }
++      this.open = true
++    }
++  }
++
++  /** A loaded head matches a file filament when its colour is the palette colour nearest to the file colour, and the material fits. */
++  headMatches (row: number, headIndex: number): boolean {
++    const c = this.colours[row]
++    const head = this.zrHeads[headIndex]
++    if (!c || !head || head.loaded === false) return false
++    if (head.slot.color == null || head.slot.color !== nearestPaletteIndex(c.hex)) return false
++    return this.materialFits(c.material, head)
++  }
++
++  materialFits (fileMaterial: string | undefined, head: { slot: { material: number | null }, materialName: string }): boolean {
++    const fileMat = (fileMaterial ?? '').toUpperCase()
++    if (!fileMat || head.slot.material == null) return true
++    return (head.materialName ?? '').toUpperCase().startsWith(fileMat.split(/[-\s]/)[0])
++  }
++
++  rowOk (row: number): boolean {
++    return this.headMatches(row, this.map[row])
+   }
+ 
+-  /** Closest declared colour among loaded heads, each head used once where possible. */
++  /**
++   * Suggested heads. A file filament keeps its own head (or the one set by the
++   * current mapping) when that head already matches; the rest get the closest
++   * loaded head by colour, each head used once where possible.
++   */
+   suggest (colours: ZrFileColour[]): number[] {
+     const heads = this.zrHeads.filter(h => h.loaded !== false && h.colorHex != null)
++    const result: number[] = colours.map(() => -1)
++    const usedHeads = new Set<number>()
++    const variables = this.$typedState.printer.printer.save_variables?.variables ?? {}
++
++    colours.forEach((c, row) => {
++      const own = Number(variables[`box_modify_t${c.tool}`])
++      const candidate = Number.isInteger(own) && own >= 0 && own < ZR_HEADS ? own : c.tool
++      if (!usedHeads.has(candidate) && this.headMatchesIn(colours, row, candidate)) {
++        result[row] = candidate
++        usedHeads.add(candidate)
++      }
++    })
++
+     const pairs: Array<{ row: number, head: number, d: number }> = []
+     colours.forEach((c, row) => {
++      if (result[row] >= 0) return
+       for (const h of heads) pairs.push({ row, head: h.index, d: colorDistance(c.hex, h.colorHex as string) })
+     })
+     pairs.sort((a, b) => a.d - b.d)
+-
+-    const result: number[] = colours.map(() => -1)
+-    const usedHeads = new Set<number>()
+     for (const p of pairs) {
+       if (result[p.row] >= 0 || usedHeads.has(p.head)) continue
+       result[p.row] = p.head
+@@ -288,7 +349,18 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+     return result
+   }
+ 
++  headMatchesIn (colours: ZrFileColour[], row: number, headIndex: number): boolean {
++    const c = colours[row]
++    const head = this.zrHeads[headIndex]
++    if (!c || !head || head.loaded === false) return false
++    if (head.slot.color == null || head.slot.color !== nearestPaletteIndex(c.hex)) return false
++    return this.materialFits(c.material, head)
++  }
++
+   setMap (row: number, head: number) {
++    // Picking a head another filament already uses swaps the two.
++    const other = this.map.findIndex((h, r) => r !== row && h === head)
++    if (other >= 0) this.$set(this.map, other, this.map[row])
+     this.$set(this.map, row, head)
+   }
+ 
+@@ -325,12 +397,17 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+       const head = heads[h]
+       const fileTool = this.colours[row]?.tool
+       if (head?.loaded === false) {
+-        list.push({ type: 'error', text: `File T${fileTool} is set to toolhead ${h + 1}, which has no filament.` })
++        list.push({ type: 'error', text: `Filament ${fileTool + 1} is set to toolhead ${h + 1}, which has no filament.` })
+       }
+-      const fileMat = (this.colours[row]?.material ?? '').toUpperCase()
+-      const headMat = (head?.materialName ?? '').toUpperCase()
+-      if (fileMat && head?.slot.material != null && !headMat.startsWith(fileMat.split(/[-\s]/)[0])) {
+-        list.push({ type: 'warning', text: `File T${fileTool} is ${this.colours[row].material}, toolhead ${h + 1} is set to ${head.materialName}.` })
++      const c = this.colours[row]
++      if (head && head.loaded !== false && c) {
++        const colourOk = head.slot.color == null || head.slot.color === nearestPaletteIndex(c.hex)
++        const materialOk = this.materialFits(c.material, head)
++        if (!colourOk || !materialOk) {
++          const want = [ZR_PALETTE[nearestPaletteIndex(c.hex)].name, c.material].filter(Boolean).join(' ')
++          const have = [head.colorName, head.materialName].filter(Boolean).join(' ')
++          list.push({ type: 'warning', text: `Filament ${fileTool + 1} (${want}) does not match toolhead ${h + 1} (${have}). Pick another toolhead or print anyway.` })
++        }
+       }
+     })
+ 
+@@ -506,6 +583,20 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+   background: rgba(33, 150, 243, 0.2);
+ }
+ 
++.zr-head-mat {
++  font-size: 0.65rem;
++  line-height: 1;
++  opacity: 0.75;
++}
++
++.zr-map-status {
++  margin-left: auto;
++}
++
++.zr-map-row--check {
++  box-shadow: inset 3px 0 0 var(--v-warning-base);
++}
++
+ .zr-head-btn--empty {
+   opacity: 0.55;
+ }
+diff --git a/src/components/widgets/zr/zr.ts b/src/components/widgets/zr/zr.ts
+index 36d5135..3bb113c 100644
+--- a/src/components/widgets/zr/zr.ts
++++ b/src/components/widgets/zr/zr.ts
+@@ -169,6 +169,17 @@ export const colorDistance = (a: string, b: string): number => {
+   return (2 + rm / 256) * dr * dr + 4 * dg * dg + (2 + (255 - rm) / 256) * db * db
+ }
+ 
++/** Index of the palette colour closest to a hex colour. */
++export const nearestPaletteIndex = (hex: string): number => {
++  let best = 0
++  let bestD = Number.MAX_SAFE_INTEGER
++  ZR_PALETTE.forEach((p, i) => {
++    const d = colorDistance(hex, p.hex)
++    if (d < bestD) { bestD = d; best = i }
++  })
++  return best
++}
++
+ export const normaliseHex = (value: string): string | null => {
+   const m = /#?([0-9a-f]{6})/i.exec(value.trim())
+   return m ? `#${m[1].toUpperCase()}` : null
+diff --git a/src/components/widgets/zr/zrPrintHook.ts b/src/components/widgets/zr/zrPrintHook.ts
+index 7e3fcf6..fe9bf2d 100644
+--- a/src/components/widgets/zr/zrPrintHook.ts
++++ b/src/components/widgets/zr/zrPrintHook.ts
+@@ -13,16 +13,7 @@ export const zrInterceptPrint = (printer: Record<string, any>, filename: string,
+   const colours = fileColoursFromMetadata(file)
+   if (colours.length === 0) return false
+ 
+-  let show = colours.length > 1
+-  if (!show) {
+-    const tool = colours[0].tool
+-    const variables = printer.save_variables?.variables ?? {}
+-    const head = Number.isInteger(Number(variables[`box_modify_t${tool}`])) ? Number(variables[`box_modify_t${tool}`]) : tool
+-    show = printer[`filament_switch_sensor filament${head}`]?.filament_detected === false
+-  }
+-
+-  if (show) {
+-    EventBus.bus.$emit('zr-print-dialog', { filename })
+-  }
+-  return show
++  // The dialog looks at the file first and only opens when a colour or material does not match.
++  EventBus.bus.$emit('zr-print-dialog', { filename, auto: true })
++  return true
+ }
 -- 
 2.34.1
 
