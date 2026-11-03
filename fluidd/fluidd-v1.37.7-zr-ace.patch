@@ -1,7 +1,7 @@
-From bcbc963ada67b87055f34cb05fff88bab862c6bf Mon Sep 17 00:00:00 2001
+From 30cd47939dfae6a9b3822d8605829034f771e577 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 1/8] ZR Ultra-S Toolheads card
+Subject: [PATCH 1/9] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1849,13 +1849,12 @@ index a01c43f..2ede1df 100644
      // Otherwise return the opposite of whatever the enabled state is.
      return !item.enabled
 -- 
-2.34.1
+2.43.0
 
-
-From a3d1bf315d0cbdf1745f4207b2102bc3b284ab93 Mon Sep 17 00:00:00 2001
+From 02900b17703aabdd39ba1f8b487c25c7843fea87 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 2/8] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 2/9] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1924,13 +1923,12 @@ index cc15c3d..4693634 100644
      } finally {
        zrShared.loading = false
 -- 
-2.34.1
+2.43.0
 
-
-From b84b1eb6f3d8f33d06200d1e2809e0c2513b2784 Mon Sep 17 00:00:00 2001
+From 1b018558a491400971a1e4a88bb58ba3aaa14535 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 3/8] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 3/9] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2051,13 +2049,12 @@ index 4693634..2b78324 100644
      }
  
 -- 
-2.34.1
+2.43.0
 
-
-From a0c98ac6bb4ab15528f0711699709d539bccb4ef Mon Sep 17 00:00:00 2001
+From c8e28040282253946f5995993a83842ef1afc0bf Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 4/8] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 4/9] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2123,13 +2120,12 @@ index 2b78324..e1f06c0 100644
      try {
        const response = await this.serverFilesGet<string>(TMT1_PATH, { responseType: 'text', transformResponse: [(d: unknown) => d] })
 -- 
-2.34.1
+2.43.0
 
-
-From ab94a53433f6acc4ac6950432914adaa4016274d Mon Sep 17 00:00:00 2001
+From a4974fe78c7c7fca76063d5fdf8094d9821430b4 Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 5/8] fix(zr): only mention the touchscreen when
+Subject: [PATCH 5/9] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2177,13 +2173,12 @@ index e1f06c0..99c90df 100644
  
      zrShared.raw = updated
 -- 
-2.34.1
+2.43.0
 
-
-From 183b6e93e31431d32f2e5313b9cccba037234039 Mon Sep 17 00:00:00 2001
+From 05cc93ee06d53e17c81ccc3cdf351ac971678bb3 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 6/8] feat(zr): ACE feeder and dryer inside the Toolheads card
+Subject: [PATCH 6/9] feat(zr): ACE feeder and dryer inside the Toolheads card
 
 Signed-off-by: t <t@e.x>
 ---
@@ -3077,13 +3072,12 @@ index 99c90df..d18abc1 100644
      return ['printing', 'paused'].includes(this.zrPrintState)
    }
 -- 
-2.34.1
+2.43.0
 
-
-From a595ad4286ae55b7385e0d3436ccb29f8f576f23 Mon Sep 17 00:00:00 2001
+From 0c49c5f00fbf48f6c95c2fe43aafa3e7067acf7c Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 7/8] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 7/9] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3335,13 +3329,12 @@ index d18abc1..43ff04b 100644
    get zrHasAce (): boolean {
      return this.zrPrinter['gcode_macro _WM_ACE'] != null || this.zrPrinter.ace != null
 -- 
-2.34.1
+2.43.0
 
-
-From f5f557cd5e63e41e94b9fabf3827f4947bd833a6 Mon Sep 17 00:00:00 2001
+From 29257944a87b639d522bd91590c1f583d1849af8 Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 8/8] feat(zr): Choose toolheads window, only opens when colour
+Subject: [PATCH 8/9] feat(zr): Choose toolheads window, only opens when colour
  or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3673,5 +3666,378 @@ index 7e3fcf6..fe9bf2d 100644
 +  return true
  }
 -- 
-2.34.1
+2.43.0
+
+From 19ba2664f593ca8752cf6e466ef2600bac708426 Mon Sep 17 00:00:00 2001
+From: ducati1198 <transportcarmelo@gmail.com>
+Date: Tue, 3 Nov 2026 18:13:12 -0500
+Subject: [PATCH 9/9] feat(zr): endless-spool chain, tool-change progress bar
+ and counters in the Toolheads card
+
+Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
+---
+ src/components/widgets/zr/ZrPrintDialog.vue   |  3 +
+ src/components/widgets/zr/ZrToolDialog.vue    | 42 ++++++++
+ src/components/widgets/zr/ZrToolheadsCard.vue | 98 +++++++++++++++++--
+ src/components/widgets/zr/zr.spec.ts          | 30 ++++++
+ src/components/widgets/zr/zr.ts               | 26 +++++
+ src/components/widgets/zr/zrMixin.ts          | 25 ++++-
+ 6 files changed, 215 insertions(+), 9 deletions(-)
+ create mode 100644 src/components/widgets/zr/zr.spec.ts
+
+diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
+index 147cbff..a7d3aec 100644
+--- a/src/components/widgets/zr/ZrPrintDialog.vue
++++ b/src/components/widgets/zr/ZrPrintDialog.vue
+@@ -442,6 +442,9 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+         lines.push(`SAVE_VARIABLE VARIABLE=box_modify_t${tool} VALUE=${head}`)
+         lines.push(`SAVE_VARIABLE VARIABLE=box_modify_t${tool}_backup VALUE=${head}`)
+       })
++      // Remember which file this choice was made for, so an OrcaSlicer tool map (KEEP_EXISTING=1) does not override it.
++      const base = filename.split('/').pop()?.replace(/["'\\]/g, '') ?? ''
++      if (base) lines.push(`SAVE_VARIABLE VARIABLE=wm_map_file VALUE="'${base}'"`)
+       await SocketActions.printerGcodeScript(lines.join('\n'))
+       this.addConsoleEntry(lines.join('\n'))
+ 
+diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
+index 34b5bba..00b948f 100644
+--- a/src/components/widgets/zr/ZrToolDialog.vue
++++ b/src/components/widgets/zr/ZrToolDialog.vue
+@@ -58,6 +58,38 @@
+         />
+       </div>
+ 
++      <template v-if="zrEndlessAvailable">
++        <v-divider class="my-4" />
++        <div class="text-overline secondary--text mb-1">
++          If this spool runs out
++        </div>
++        <v-select
++          v-model="chain"
++          :items="chainItems"
++          multiple
++          chips
++          small-chips
++          deletable-chips
++          dense
++          outlined
++          hide-details
++          label="Take over with, in this order"
++        />
++        <div class="d-flex align-center mt-1">
++          <span class="text-caption secondary--text">Leave empty to use any toolhead with the same colour and material. Needs the endless spool switch on.</span>
++          <v-spacer />
++          <app-btn
++            x-small
++            outlined
++            color="primary"
++            :disabled="!klippyReady"
++            @click="saveChain"
++          >
++            Save chain
++          </app-btn>
++        </div>
++      </template>
++
+       <v-divider class="my-4" />
+ 
+       <template v-if="zrHasAce">
+@@ -218,6 +250,7 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+   color = 0
+   temp = 210
+   saving = false
++  chain: number[] = []
+   moveLength = 50
+   moveSpeed = 25
+ 
+@@ -226,6 +259,15 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+     this.material = slot.material ?? 0
+     this.color = slot.color ?? 0
+     this.temp = this.zrSavedTemp(this.index)
++    this.chain = this.zrEndlessChain(this.index)
++  }
++
++  get chainItems () {
++    return [0, 1, 2, 3].filter(i => i !== this.index).map(i => ({ text: `Toolhead ${i + 1}`, value: i }))
++  }
++
++  saveChain () {
++    this.run(`WM_ENDLESS_CHAIN_SET HEAD=${this.index} CHAIN=${this.chain.join(',')}`, 'Endless chain saved')
+   }
+ 
+   get palette () {
+diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
+index 33519dd..5bebf42 100644
+--- a/src/components/widgets/zr/ZrToolheadsCard.vue
++++ b/src/components/widgets/zr/ZrToolheadsCard.vue
+@@ -61,6 +61,23 @@
+           <span><b>MAPPING:</b> {{ mappingText }}</span>
+         </div>
+ 
++        <div
++          v-if="toolChangeInfo"
++          class="mb-2"
++        >
++          <div class="d-flex text-caption mb-1">
++            <span>{{ toolChangeInfo.text }}</span>
++            <v-spacer />
++            <span>{{ toolChangeInfo.pct }}%</span>
++          </div>
++          <v-progress-linear
++            :value="toolChangeInfo.pct"
++            :color="toolChangeInfo.done ? 'success' : 'primary'"
++            height="6"
++            rounded
++          />
++        </div>
++
+         <v-alert
+           v-if="zrShared.screenNeedsRestart"
+           dense
+@@ -333,9 +350,9 @@
+               x-small
+               label
+               class="mr-2"
+-              title="Another loaded toolhead takes over only if it has the same colour and material"
++              title="Your chain for the empty toolhead is tried first (set it in the toolhead dialog). Otherwise another loaded toolhead takes over only if it has the same colour and material."
+             >
+-              same colour + material
++              {{ anyChain ? 'your chain, then same colour + material' : 'same colour + material' }}
+             </v-chip>
+             <v-spacer />
+             <v-switch
+@@ -349,6 +366,29 @@
+             />
+           </div>
+         </template>
++
++        <template v-if="zrStatsAvailable">
++          <v-divider class="my-2" />
++          <div class="d-flex align-center flex-wrap">
++            <span class="text-body-2 mr-2">Tool changes</span>
++            <b class="mr-3">{{ zrStats.changes }}</b>
++            <span
++              v-for="(n, i) in zrStats.heads"
++              :key="`stat:${i}`"
++              class="text-caption secondary--text mr-2"
++              :title="`Toolhead ${i + 1} was picked up ${n} times`"
++            >T{{ i + 1 }} {{ n }}</span>
++            <v-spacer />
++            <app-btn
++              x-small
++              text
++              :disabled="!klippyReady || zrBusy"
++              @click="resetStats"
++            >
++              Reset
++            </app-btn>
++          </div>
++        </template>
+       </div>
+     </div>
+ 
+@@ -406,7 +446,7 @@ import { SocketActions } from '@/api/socketActions'
+ import { EventBus } from '@/eventBus'
+ import ZrMixin, { zrShared, type ZrHead } from './zrMixin'
+ import ZrToolDialog from './ZrToolDialog.vue'
+-import { fileColoursFromMetadata } from './zr'
++import { fileColoursFromMetadata, zrToolChangeStage, type ZrToolChange } from './zr'
+ 
+ // gcode_button Door_button1/2 report PRESSED when the door switch is closed.
+ const DOOR_CLOSED_STATE = 'PRESSED'
+@@ -421,6 +461,9 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+   confirmRestartScreen = false
+   pollTimer: number | null = null
+   confirmEndless = false
++  toolChange: ZrToolChange | null = null
++  toolChangeDone = false
++  toolChangeTimer: number | null = null
+   endlessMeta: Record<string, unknown> | null = null
+   endlessMetaFile = ''
+   readonly dryPresets = [
+@@ -448,6 +491,42 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+ 
+   beforeDestroy () {
+     if (this.pollTimer != null) window.clearInterval(this.pollTimer)
++    if (this.toolChangeTimer != null) window.clearTimeout(this.toolChangeTimer)
++  }
++
++  get anyChain () {
++    return [0, 1, 2, 3].some(i => this.zrEndlessChain(i).length > 0)
++  }
++
++  get dockStates (): Array<boolean | null> {
++    return this.zrHeads.map(h => h.docked)
++  }
++
++  @Watch('zrChanging')
++  onChanging (changing: boolean) {
++    if (this.toolChangeTimer != null) { window.clearTimeout(this.toolChangeTimer); this.toolChangeTimer = null }
++    if (changing) {
++      const to = Number(this.zrVariables.current_extruder_backup)
++      const from = this.zrActiveTool
++      this.toolChangeDone = false
++      this.toolChange = { from, to: Number.isInteger(to) ? to : -1, start: [...this.dockStates] }
++    } else if (this.toolChange) {
++      this.toolChangeDone = true
++      this.toolChangeTimer = window.setTimeout(() => { this.toolChange = null; this.toolChangeDone = false }, 3000)
++    }
++  }
++
++  /** Progress of a running tool change, read from WonderMaker's own flag and the dock sensors. */
++  get toolChangeInfo (): { pct: number, text: string, done: boolean } | null {
++    const tc = this.toolChange
++    if (!tc || tc.to < 0 || tc.to > 3) return null
++    if (this.toolChangeDone) return { pct: 100, text: `Toolhead ${tc.to + 1} on the carriage`, done: true }
++    return { ...zrToolChangeStage(tc, this.dockStates), done: false }
++  }
++
++  async resetStats () {
++    const ok = await this.$confirm('Set the tool-change counters back to 0?', { title: 'Reset counters', color: 'card-heading', icon: '$error' })
++    if (ok) this.zrSend('WM_STATS_RESET')
+   }
+ 
+   get syncChip () {
+@@ -552,18 +631,21 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+       return { text: `${name} is empty. The print's tool usage is unknown, so no automatic swap is offered. Load filament, then resume.`, from, to: null }
+     }
+ 
++    const free = (h: ZrHead | undefined) => h != null && h.index !== from && h.loaded === true && !used.some(tool => backup(tool) === h.index)
++    const chained = this.zrEndlessChain(from).map(i => heads[i]).find(free)
++    if (chained) {
++      return { text: `${name} is empty. Your chain says Toolhead ${chained.index + 1} takes over (${chained.colorName} ${chained.materialName}).`, from, to: chained.index }
++    }
+     const src = heads[from].slot
+     const spare = heads.find(h =>
+-      h.index !== from &&
+-      h.loaded === true &&
++      free(h) &&
+       src.color != null && h.slot.color === src.color &&
+-      src.material != null && h.slot.material === src.material &&
+-      !used.some(tool => backup(tool) === h.index)
++      src.material != null && h.slot.material === src.material
+     )
+     if (spare) {
+       return { text: `${name} is empty. Toolhead ${spare.index + 1} has the same colour and material (${spare.colorName} ${spare.materialName}).`, from, to: spare.index }
+     }
+-    return { text: `${name} is empty and no other free, loaded toolhead has the same colour and material. Load filament, then resume.`, from, to: null }
++    return { text: `${name} is empty and no free, loaded toolhead is in your chain or has the same colour and material. Load filament, then resume.`, from, to: null }
+   }
+ 
+   setEndless (value: boolean | null) {
+diff --git a/src/components/widgets/zr/zr.spec.ts b/src/components/widgets/zr/zr.spec.ts
+new file mode 100644
+index 0000000..84a9a87
+--- /dev/null
++++ b/src/components/widgets/zr/zr.spec.ts
+@@ -0,0 +1,30 @@
++import { describe, expect, it } from 'vitest'
++import { zrParseChain, zrToolChangeStage } from './zr'
++
++describe('zrParseChain', () => {
++  it('reads an ordered list', () => expect(zrParseChain('2,1', 0)).toEqual([2, 1]))
++  it('drops the head itself, repeats and out-of-range values', () => expect(zrParseChain('0,2,2,7,x, 3', 0)).toEqual([2, 3]))
++  it('handles empty and missing values', () => {
++    expect(zrParseChain('', 1)).toEqual([])
++    expect(zrParseChain(undefined, 1)).toEqual([])
++  })
++})
++
++describe('zrToolChangeStage', () => {
++  const start = [false, false, true, false]
++  it('starts at the beginning', () => {
++    expect(zrToolChangeStage({ from: 0, to: 2, start }, [false, false, true, false]).pct).toBe(10)
++  })
++  it('sees the old head put back', () => {
++    expect(zrToolChangeStage({ from: 0, to: 2, start }, [true, false, true, false]).pct).toBe(45)
++  })
++  it('sees the new head taken', () => {
++    expect(zrToolChangeStage({ from: 0, to: 2, start }, [true, false, false, false]).pct).toBe(80)
++  })
++  it('works for the first pick-up (no head on the carriage)', () => {
++    expect(zrToolChangeStage({ from: -1, to: 2, start }, [false, false, true, false]).pct).toBe(10)
++  })
++  it('ignores unknown sensors', () => {
++    expect(zrToolChangeStage({ from: 0, to: 1, start: [null, null, null, null] }, [true, true, true, true]).pct).toBe(10)
++  })
++})
+diff --git a/src/components/widgets/zr/zr.ts b/src/components/widgets/zr/zr.ts
+index 3bb113c..24c2865 100644
+--- a/src/components/widgets/zr/zr.ts
++++ b/src/components/widgets/zr/zr.ts
+@@ -241,3 +241,29 @@ export const fileColoursFromTail = (tail: string): ZrFileColour[] => {
+   if (types) meta.filament_type = types[1]
+   return fileColoursFromMetadata(meta)
+ }
++
++/** "2,1" (save_variable wm_endless_chain<N>) -> [2, 1]; drops the head itself, repeats and anything outside 0-3. */
++export const zrParseChain = (value: unknown, head: number): number[] => {
++  const out: number[] = []
++  for (const part of String(value ?? '').split(',')) {
++    const n = Number(part.trim())
++    if (part.trim() !== '' && Number.isInteger(n) && n >= 0 && n < ZR_HEADS && n !== head && !out.includes(n)) out.push(n)
++  }
++  return out
++}
++
++export interface ZrToolChange { from: number, to: number, start: Array<boolean | null> }
++
++/**
++ * Where a tool change is, from the dock sensors only (no WonderMaker macro is touched).
++ * `start` is the dock sensor state when the change began; a flip of the old head's sensor means it was
++ * put back, a flip of the new head's sensor means it was taken.
++ */
++export const zrToolChangeStage = (change: ZrToolChange, now: Array<boolean | null>): { pct: number, text: string } => {
++  const flipped = (i: number) => i >= 0 && i < ZR_HEADS && change.start[i] != null && now[i] != null && change.start[i] !== now[i]
++  const from = change.from >= 0 ? `Toolhead ${change.from + 1}` : 'the carriage'
++  const to = `Toolhead ${change.to + 1}`
++  if (flipped(change.to)) return { pct: 80, text: `Locking ${to}` }
++  if (change.from >= 0 && flipped(change.from)) return { pct: 45, text: `Putting ${from} back` }
++  return { pct: 10, text: `Changing to ${to}: lifting Z and moving to the dock` }
++}
+diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
+index 43ff04b..8692f6f 100644
+--- a/src/components/widgets/zr/zrMixin.ts
++++ b/src/components/widgets/zr/zrMixin.ts
+@@ -5,7 +5,7 @@ import FilesMixin from '@/mixins/files'
+ import { encodeGcodeParamValue } from '@/util/gcode-helpers'
+ import {
+   ZR_HEADS, ZR_MATERIALS, ZR_PALETTE,
+-  parseTmt1Slots, updateTmt1Slot, zrColorName, zrMaterialName, zrSwatchCss,
++  parseTmt1Slots, updateTmt1Slot, zrParseChain, zrColorName, zrMaterialName, zrSwatchCss,
+   type ZrSlot
+ } from './zr'
+ 
+@@ -68,6 +68,29 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+     return Number(this.zrVariables.wm_endless ?? 0) === 1
+   }
+ 
++  /** Heads that take over when this head runs out, in order (set in the toolhead dialog). */
++  zrEndlessChain (index: number): number[] {
++    return zrParseChain(this.zrVariables[`wm_endless_chain${index}`], index)
++  }
++
++  // ---- Counters (wm_stats.cfg)
++  get zrStatsAvailable (): boolean {
++    return this.zrPrinter['gcode_macro WM_STATS_RESET'] != null
++  }
++
++  get zrStats (): { changes: number, heads: number[] } {
++    const v = this.zrVariables
++    return {
++      changes: Number(v.wm_stat_changes ?? 0) || 0,
++      heads: Array.from({ length: ZR_HEADS }, (_, i) => Number(v[`wm_stat_head${i}`] ?? 0) || 0)
++    }
++  }
++
++  /** WonderMaker's own flag: 1 while a tool change is running. */
++  get zrChanging (): boolean {
++    return Number(this.zrVariables.changing_tool ?? 0) === 1
++  }
++
+   // ---- ACE Pro feeder/dryer (slot N feeds toolhead N). Shown only when the ACE macros/driver exist.
+   get zrHasAce (): boolean {
+     return this.zrPrinter['gcode_macro _WM_ACE'] != null || this.zrPrinter.ace != null
+-- 
+2.43.0
 

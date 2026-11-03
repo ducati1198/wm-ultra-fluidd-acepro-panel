@@ -65,6 +65,11 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **One Fluidd card** | Everything sits in the WonderMaker **Toolheads** card, in the look of the ACE Pro card from [acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper). No separate ACE panel. |
 | **Nothing replaced** | WonderMaker's `T0`…`T3`, `PAUSE`, `RESUME`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` stay as they are. The ACE driver is told not to create its own `T0`…`T7`. |
 | **Endless spool (experimental)** | Off by default. When a head runs out the print pauses, and the card offers a spare head with the same colour and material. WonderMaker has no endless spool from the factory (section 8). |
+| **Your own endless-spool chain** | In each toolhead's dialog: "If this spool runs out, take over with Toolhead N, then M". The chain is tried first, then the same colour and material (section 8). Not yet tested on a printer. |
+| **Tool-change progress bar** | A bar in the card while WonderMaker changes tools (lifting, putting the old head back, locking the new one), read from WonderMaker's own flag and the dock sensors. Not yet tested on a printer. |
+| **Counters** | Tool changes in total and per toolhead, with a Reset button. Not yet tested on a printer. |
+| **OrcaSlicer plugin** | Pick the toolhead for each filament inside Orca; written into the G-code as `WM_SET_TOOL_MAP` ([`orca_plugin/`](orca_plugin/INSTALL.md)). Not yet tested in OrcaSlicer. |
+| **Orca filament sync** | With an ACE, the slots are published to Moonraker's `lane_data` so Orca's "sync filament from printer" can see them. Not yet tested. |
 | **Safe installer** | Asks plain questions, shows what changes, backs up first, `--undo`, `--check`, `--dry-run`, tests. |
 
 <div align="center">
@@ -248,6 +253,7 @@ The installer adds these for you (the two ACE lines only with an ACE, the endles
 [include wm_ace_driver.cfg]
 [include wm_ace.cfg]
 [include wm_endless.cfg]
+[include wm_stats.cfg]
 ```
 
 Restart Klipper from Fluidd (FIRMWARE_RESTART) or:
@@ -281,7 +287,7 @@ Everything you may want to tune is at the top of `~/printer_data/config/wm_ace.c
 | `variable_fast_timeout_s` / `slow_timeout_s` | 90 / 60 | A load that takes longer stops with an error. |
 | `variable_auto` | 1 | 1 = load automatically when a spool is put into a slot. |
 
-Driver settings (`wm_ace_driver.cfg`): `ace_count: 1`, `register_tool_commands: False` (keeps WonderMaker's own `T0`…`T3`), `feed_speed`, `retract_speed`, `max_dryer_temperature: 65`, `moonraker_lane_sync_enabled: False`.
+Driver settings (`wm_ace_driver.cfg`): `ace_count: 1`, `register_tool_commands: False` (keeps WonderMaker's own `T0`…`T3`), `feed_speed`, `retract_speed`, `max_dryer_temperature: 65`, `moonraker_lane_sync_enabled: True` (publishes the ACE slots to Moonraker's `lane_data` for OrcaSlicer; set `False` to switch it off).
 
 Endless spool settings (`wm_endless.cfg`): `variable_hop` (Z lift while heads are swapped, 4 mm), `variable_prime_mm` (20), `variable_prime_speed` (300).
 
@@ -318,6 +324,12 @@ A toolhead counts as a match when its colour is the closest of WonderMaker's pal
 - **Print** saves the mapping to the printer (`box_modify_t0`…`t3`, the same variables WonderMaker's own tool changes read) and starts the print. The map applies to that print only; tools without a colour in the file are reset to direct.
 - It works the same without an ACE Pro.
 - The Toolheads card's own print button opens a file picker first, then this window.
+
+### Tool-change bar, counters and the OrcaSlicer plugin
+
+- **Tool-change bar.** While WonderMaker changes tools the card shows what it is doing (lifting Z, putting the old head back, locking the new one). It reads WonderMaker's own `changing_tool` flag and the dock sensors; no WonderMaker macro is changed or wrapped. The percentages are rough steps, not a measurement.
+- **Counters.** `wm_stats.cfg` watches WonderMaker's `current_extruder` every 2 seconds and counts every change: in total and per toolhead (`wm_stat_changes`, `wm_stat_head0`…`3`). **Reset** (or `WM_STATS_RESET`) sets them to 0. Purged filament is not counted, because that would mean wrapping WonderMaker's purge macros.
+- **OrcaSlicer plugin.** [`orca_plugin/`](orca_plugin/INSTALL.md) lets you choose the toolhead per filament inside Orca. It writes `WM_SET_TOOL_MAP MAP=0:2,1:3,2:2,3:3 FILE="name.gcode" KEEP_EXISTING=1` at the top of the G-code. If you choose in Fluidd's "Choose toolheads" window for the same file, the Fluidd choice wins.
 
 ### Dryer presets
 
@@ -387,7 +399,7 @@ Loads and unloads are refused while a print is running. Printing, colour mapping
 How it works:
 
 1. A head runs out → WonderMaker pauses the print (its normal behaviour).
-2. The Toolheads card looks for a spare head: loaded, same slot colour and material, not used by the running print.
+2. The Toolheads card looks for a spare head that is loaded and not used by the running print. It tries **your chain** first (set it in the toolhead dialog under "If this spool runs out", or with `WM_ENDLESS_CHAIN_SET HEAD=0 CHAIN=2,1`), then any head with the same slot colour and material.
 3. You tap **Swap & continue** and confirm. The macro `WM_ENDLESS_CONTINUE FROM= TO=` restores the saved print state, lifts Z, changes head with WonderMaker's `_CHANGE_TOOL`, heats and primes the new head, wipes, moves back to the print position with the new head's offsets, and calls WonderMaker's `RESUME`.
 4. If anything is not as expected, it stops and the print stays paused.
 
@@ -438,20 +450,22 @@ wm-ultra-fluidd-acepro-panel/
 ├── config/
 │   ├── wm_ace_driver.cfg           Minimal [ace] driver config (no T0..T7, no cutter, no basket)
 │   ├── wm_ace.cfg                  Load / unload / auto-load / feed assist / dryer macros
-│   └── wm_endless.cfg              Experimental endless spool
+│   ├── wm_endless.cfg              Experimental endless spool (with the per-head chain)
+│   └── wm_stats.cfg                Tool-change counters and the WM_SET_TOOL_MAP macro
 ├── extras/                         The ACE driver (linked into klippy/extras by the installer)
 │   ├── ace/                        Driver from acepro-any-klipper + the register_tool_commands option
 │   ├── virtual_pins.py
 │   └── temperature_ace.py
 ├── fluidd/                         Fluidd 1.37.7 build + patch (Toolheads card with the ACE parts)
+├── orca_plugin/                    OrcaSlicer plugin: pick toolheads in Orca (untested)
 ├── docs/                           Hardware notes, ACE USB adapter wiring, screenshots (demo data)
-├── tests/run_tests.sh              Installer tests (fake home, no printer needed)
+├── tests/                          run_tests.sh (installer), test_macros.py (macros), test_orca_plugin.py
 └── LICENSE                         GPL v3
 ```
 
 The ACE driver in `extras/ace` is a copy of the one in [acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper) with one small addition: a `register_tool_commands` option (default `True`, so nothing changes elsewhere). The WonderMaker config sets it to `False`.
 
-Run the tests: `bash tests/run_tests.sh`.
+Run the tests: `bash tests/run_tests.sh`, `python3 -I tests/test_macros.py` (needs `jinja2`) and `python3 -I tests/test_orca_plugin.py`.
 
 ---
 

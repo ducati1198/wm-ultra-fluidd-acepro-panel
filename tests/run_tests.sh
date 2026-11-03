@@ -39,7 +39,7 @@ H="$(new_home t1)"; C="$(cfg "$H")"
 inst "$H" "$A_ALL"
 check "installer finished"                          test "$RC" -eq 0
 for f in wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm-ultra-install.conf; do check "$f written" test -f "$C/$f"; done
-check "includes sit after [save_variables], above SAVE_CONFIG" test "$(grep -n 'include wm_\|save_variables\|SAVE_CONFIG' "$C/printer.cfg" | cut -d: -f2- | tr '\n' ' ')" = "[save_variables] [include wm_ace_driver.cfg] [include wm_ace.cfg] [include wm_endless.cfg] #*# <---------------------- SAVE_CONFIG ----------------------> "
+check "includes sit after [save_variables], above SAVE_CONFIG" test "$(grep -n 'include wm_\|save_variables\|SAVE_CONFIG' "$C/printer.cfg" | cut -d: -f2- | tr '\n' ' ')" = "[save_variables] [include wm_ace_driver.cfg] [include wm_ace.cfg] [include wm_endless.cfg] [include wm_stats.cfg] #*# <---------------------- SAVE_CONFIG ----------------------> "
 check "other.cfg include still follows zru-s"        test "$(sed -n 2,3p "$C/printer.cfg" | tr '\n' ' ')" = "[include zru-s.cfg] [include other.cfg] "
 check "SAVE_CONFIG block untouched"                 test "$(tail -1 "$C/printer.cfg")" = "#*# control = pid"
 check "register_tool_commands False kept"           grep -q '^register_tool_commands: False' "$C/wm_ace_driver.cfg"
@@ -130,7 +130,8 @@ inst "$H10" 'n\ny\ny\ny\n'
 check "installer finished"                          test "$RC" -eq 0
 check "wm_endless.cfg written"                      test -f "$C10/wm_endless.cfg"
 check "no ACE cfgs"                                 test ! -e "$C10/wm_ace.cfg" -a ! -e "$C10/wm_ace_driver.cfg"
-check "only the endless include added"              bash -c 'grep -q "include wm_endless.cfg" "$0" && ! grep -q "wm_ace" "$0"' "$C10/printer.cfg"
+check "wm_stats.cfg written (counters, tool map)"    test -f "$C10/wm_stats.cfg"
+check "only endless and stats includes added"       bash -c 'grep -q "include wm_endless.cfg" "$0" && grep -q "include wm_stats.cfg" "$0" && ! grep -q "wm_ace" "$0"' "$C10/printer.cfg"
 check "driver not linked"                           test ! -e "$H10/klipper/klippy/extras/ace"
 check "Fluidd has the panel"                        grep -rlq "ACE feeder" "$H10/fluidd/assets"
 check "conf says ACE=0"                             grep -q '^ACE="0"' "$C10/wm-ultra-install.conf"

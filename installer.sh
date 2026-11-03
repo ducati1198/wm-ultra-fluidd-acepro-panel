@@ -19,7 +19,7 @@
 # What this installer never does:
 #   - It never flashes any board (main board, toolheads, hub). No firmware is touched.
 #   - It never starts or restarts Klipper unless you answer yes to that one question.
-#   - It never changes a WonderMaker file. Your printer.cfg only gets three include lines.
+#   - It never changes a WonderMaker file. Your printer.cfg only gets up to four include lines.
 #
 # Needs bash and python3 (Debian based systems).
 # =============================================================================
@@ -66,12 +66,12 @@ STAGE=""
 BACKUP_DIR=""
 declare -a WARNINGS=()
 
-CFG_FILES=(wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg)
-INCLUDE_LINES=("[include wm_ace_driver.cfg]" "[include wm_ace.cfg]" "[include wm_endless.cfg]")
+CFG_FILES=(wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm_stats.cfg)
+INCLUDE_LINES=("[include wm_ace_driver.cfg]" "[include wm_ace.cfg]" "[include wm_endless.cfg]" "[include wm_stats.cfg]")
 # Values the installer keeps when you update (file:key). "var" keys are `variable_<key>:` lines, "opt" keys are `<key>:` lines.
 KEEP_VARS_ACE=(max_total_mm hub_to_head_mm tail_mm fast_speed slow_speed retract_speed tick_s fast_timeout_s slow_timeout_s auto)
 KEEP_VARS_ENDLESS=(hop prime_mm prime_speed)
-KEEP_OPTS_DRIVER=(feed_speed retract_speed max_dryer_temperature)
+KEEP_OPTS_DRIVER=(feed_speed retract_speed max_dryer_temperature moonraker_lane_sync_enabled)
 
 # ============================================================================
 # Output helpers
@@ -555,7 +555,7 @@ remove_include_lines() {
     local pc="$CONFIG_DIR/printer.cfg" l
     [ -f "$pc" ] || return 0
     backup_path "$pc"
-    for l in wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg; do
+    for l in wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm_stats.cfg; do
         sed -i -E "/^[[:space:]]*\[include[[:space:]]+${l//./\\.}\]/d" "$pc"
     done
     print_success "Removed the ACE include lines from printer.cfg"
@@ -578,7 +578,7 @@ do_uninstall() {
     echo "This removes what the installer added:"
     for f in "${CFG_FILES[@]}" "$CONF_NAME"; do [ -e "$CONFIG_DIR/$f" ] && echo "  FILE   $CONFIG_DIR/$f"; done
     for f in ace temperature_ace.py virtual_pins.py; do is_symlink "$x/$f" && echo "  LINK   $x/$f"; done
-    grep -qE '^\s*\[include\s+wm_(ace_driver|ace|endless)\.cfg\]' "$CONFIG_DIR/printer.cfg" 2>/dev/null && echo "  EDIT   printer.cfg (the three ACE include lines)"
+    grep -qE '^\s*\[include\s+wm_(ace_driver|ace|endless|stats)\.cfg\]' "$CONFIG_DIR/printer.cfg" 2>/dev/null && echo "  EDIT   printer.cfg (our include lines)"
     echo
     print_info "Left alone: every WonderMaker file, the Fluidd panel (use --undo to put the old Fluidd back), Python packages."
     why "everything is saved first. ./installer.sh --undo puts it all back."
@@ -640,6 +640,12 @@ do_check() {
         include_present "wm_endless\\.cfg" && print_success "printer.cfg includes wm_endless.cfg" || { print_error "printer.cfg does not include wm_endless.cfg"; bad=1; }
     else
         print_info "wm_endless.cfg not installed (endless spool offer stays hidden)"
+    fi
+    if [ -f "$CONFIG_DIR/wm_stats.cfg" ]; then
+        print_success "wm_stats.cfg present (counters, tool map)"
+        include_present "wm_stats\\.cfg" && print_success "printer.cfg includes wm_stats.cfg" || { print_error "printer.cfg does not include wm_stats.cfg"; bad=1; }
+    else
+        print_info "wm_stats.cfg not installed yet (run ./installer.sh --update)"
     fi
     x="$KLIPPER_DIR/klippy/extras"
     if [ "$have" = 1 ]; then
