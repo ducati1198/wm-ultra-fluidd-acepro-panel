@@ -236,7 +236,7 @@ Restart Klipper and run `ACE_GET_STATUS`. The ACE chip in the Fluidd Toolheads c
 - **With an ACE:** one ACE Pro connected by USB (a powered hub is fine), and the tubes from section 2.1. **Without an ACE:** nothing else.
 - No print running.
 - SSH access to the machine that runs Klipper (user `t13dp`, default password in 3.2).
-- The replacement main board does **not** have to be installed to run the installer. Klipper can stay stopped.
+- The printer's main board does **not** have to be connected to run the installer. Klipper can stay stopped.
 
 ### 3.2 One-command installer
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+- README: "the printer's main board" instead of "replacement main board".
+
 ## 0.3.3
 
 - README: new top part with a Quick start, an everyday cheat sheet (check, update, repair, backup, undo, uninstall), a "How it works" diagram (`docs/img/how-it-works.svg`) and a short "If something goes wrong" table. The detailed sections are unchanged.
