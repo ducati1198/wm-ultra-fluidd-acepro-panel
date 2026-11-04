@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2
+
+- README fixes to match the installer and what was tested: where the include lines go (above SAVE_CONFIG, after `[save_variables]`), the new macros, first tests and unverified items for the new features, two troubleshooting rows, the extra installer options, and what was tried on a fresh Pi.
+- Installer: removed an unused function.
+
 ## 0.3.1
 
 - README: step-by-step install of the OrcaSlicer plugin (section 5).

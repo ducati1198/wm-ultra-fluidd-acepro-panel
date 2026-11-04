@@ -41,7 +41,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 
 - **Use it at your own risk.** You are responsible for what runs on your printer.
 - **I am not responsible for any damage** to your printer, ACE Pro, electronics, hotend, prints or other property, or for any injury, fire or loss, caused by these files, the installer or the instructions.
-- **This project has not been run on a real printer yet.** It was written against WonderMaker's configuration files and tested with a simulated printer (the installer, the Jinja in the macros, the Fluidd panel). The first run on hardware is yours. Section 6 lists what is still open.
+- **This project has not been run on a real printer yet.** It was written against WonderMaker's configuration files and tested with a simulated printer (the installer, the Jinja in the macros, the Fluidd panel). It has also been installed on a fresh Raspberry Pi running WonderMaker's Klipper (no main board, no ACE attached): the installer ran, Klipper loaded the whole config and the ACE driver started. The first run with the printer and an ACE is yours. Section 6 lists what is still open.
 - **Test in small steps**, with the printer empty, your hand near the emergency stop. Never leave a new setup unattended.
 - Back up your config first. The installer makes backups and supports `--undo`, but you are responsible for keeping your own copies.
 - This project is not made by or affiliated with WonderMaker, Anycubic or any other manufacturer. Product names belong to their owners.
@@ -220,7 +220,7 @@ The installer asks a few plain questions, shows exactly what it will change, and
 1. Checks that this is a WonderMaker ZR Ultra config and that no print is running.
 2. With an ACE: checks that the driver compiles and that `pyserial` is available, and looks for the ACE on USB (a warning, not a stop, if it is not there yet).
 3. With an ACE: links the ACE driver (`extras/ace/`), `virtual_pins` and the ACE temperature sensor into Klipper's `extras` folder.
-4. Copies the config files into your config folder and adds the `[include …]` lines to `printer.cfg`, right after `[include zru-s.cfg]` and above the SAVE_CONFIG block. No WonderMaker file is edited.
+4. Copies the config files into your config folder and adds the `[include …]` lines to `printer.cfg` in one block just above the SAVE_CONFIG block, after `[save_variables]` (the ACE driver reads `[save_variables]` while it loads, so the lines must come after it). `wm_stats.cfg` (counters and the tool map) is always added. No WonderMaker file is edited.
 5. Installs the Fluidd panel if you chose it (your `config.json` is kept; the old folder is saved).
 6. Saves everything it touched in `~/acepro-backup/wm-<date>`.
 7. Asks once whether to restart Klipper (default no, and only if Klipper is running).
@@ -236,6 +236,8 @@ The installer asks a few plain questions, shows exactly what it will change, and
 | `./installer.sh --undo` | Put back the files saved before the last install. |
 | `./installer.sh --uninstall` | Remove everything the installer added (saved first, so `--undo` brings it back). |
 | `./installer.sh --dry-run` | Go through the questions and show what would change. Changes nothing. |
+| `./installer.sh --klipper-dir DIR` / `--config-dir DIR` | Use another Klipper folder or config folder than the default (`~/klipper`, `~/printer_data/config`). |
+| `./installer.sh --version` | Print the installer version. |
 
 **Safety checks the installer makes first:**
 
@@ -246,10 +248,9 @@ The installer asks a few plain questions, shows exactly what it will change, and
 
 ### 3.3 Check `printer.cfg`
 
-The installer adds these for you (the two ACE lines only with an ACE, the endless line only if you chose it). Check they are there:
+The installer adds these for you (the two ACE lines only with an ACE, the endless line only if you chose it, the stats line always). They sit in one block near the end of the file, above the `#*# SAVE_CONFIG` block and after `[save_variables]`, not next to `[include zru-s.cfg]`. Check they are there:
 
 ```ini
-[include zru-s.cfg]
 [include wm_ace_driver.cfg]
 [include wm_ace.cfg]
 [include wm_endless.cfg]
@@ -376,7 +377,7 @@ The panel is Fluidd v1.37.7 plus WonderMaker's ZR Toolheads card and the ACE par
 
 ## 6. First tests on the printer
 
-Written for the day the printer is running again. Do them in this order, empty bed, hand near the stop button. Steps 2–8 are for an ACE Pro; without one, only step 1 and step 9 apply.
+Written for the day the printer is running again. Do them in this order, empty bed, hand near the stop button. Steps 2–8 are for an ACE Pro; without one, steps 1 and 9–11 apply.
 
 1. `./installer.sh --check` → no problems. Restart Klipper once, read `~/printer_data/logs/klippy.log` for `[ace]` lines.
 2. **Connection:** the ACE chip in the Toolheads card turns "connected". Temperature and humidity show.
@@ -386,7 +387,9 @@ Written for the day the printer is running again. Do them in this order, empty b
 6. **Measure the tubes** and set `variable_hub_to_head_mm` and `variable_tail_mm`.
 7. `ACE_WM_LOAD T=0`, then `ACE_WM_UNLOAD T=0`, one head at a time.
 8. Auto-load by inserting a spool, then feed assist during a short print.
-9. Endless spool (section 8) only on a cheap print with you standing next to the printer.
+9. Endless spool (section 8) only on a cheap print with you standing next to the printer. Set a chain first (toolhead dialog → "If this spool runs out") and check that the swap offer names the head you chose.
+10. **Counters and bar:** do a manual tool change (`T1`, then `T0`) from the console. The counters in the card should go up by 2 and the progress bar should move and finish.
+11. **OrcaSlicer plugin** (section 5): slice a two-colour file, send it, and check that the first lines of the G-code on the printer hold `WM_SET_TOOL_MAP`, and that the print uses the toolheads you picked.
 
 ### Still unverified (needs the printer)
 
@@ -396,7 +399,10 @@ Written for the day the printer is running again. Do them in this order, empty b
 - What the head sensor `docked<N>` means on the real hardware.
 - Tube lengths, speeds and the overshoot after a sensor trips.
 - `ACE_STOP_FEED` / `ACE_STOP_RETRACT` are harmless when the ACE is idle.
-- The whole endless-spool sequence (tool change while paused, hop, prime).
+- The whole endless-spool sequence (tool change while paused, hop, prime), and the chain choice.
+- The tool-change bar: it assumes that a flip of a head's `docked<N>` sensor means the head was put back or taken, whichever way the sensor reads, and it reads WonderMaker's `changing_tool` flag. Both are untested on the real printer.
+- The counters (they watch `current_extruder` every 2 seconds).
+- The OrcaSlicer plugin inside OrcaSlicer, and Moonraker `lane_data` sync (`moonraker_lane_sync_enabled`).
 
 ---
 
@@ -411,6 +417,11 @@ Written for the day the printer is running again. Do them in this order, empty b
 | `ACE_WM_AUTO ENABLE=1\|0` | Auto-load on spool insert. |
 | `ACE_WM_DRY_START TEMP=55 DURATION=360` | Start drying (max 65 °C). |
 | `ACE_WM_DRY_STOP` | Stop drying. |
+| `WM_ENDLESS_SET ENABLE=1\|0` | Endless spool on / off (the Fluidd switch does the same). |
+| `WM_ENDLESS_CHAIN_SET HEAD=0 CHAIN=2,1` | When head 0 runs out, take over with head 2, then head 1. Empty `CHAIN=` clears it. Heads are numbered 0–3. |
+| `WM_ENDLESS_PLAN FROM= TO=` | Show what a swap would do; moves nothing. |
+| `WM_SET_TOOL_MAP MAP=0:2,1:3 [FILE=] [KEEP_EXISTING=1]` | Print tool → toolhead for the next print (written by the OrcaSlicer plugin; Fluidd's choice wins for the same file with `KEEP_EXISTING=1`). |
+| `WM_STATS_RESET` | Tool-change counters back to 0. |
 | `ACE_FEED T= LENGTH= SPEED=` / `ACE_RETRACT …` | Manual moves (driver commands). |
 | `ACE_ENABLE_FEED_ASSIST T=` / `ACE_DISABLE_FEED_ASSIST T=` | Feed assist on / off for one slot. |
 
@@ -458,6 +469,8 @@ cd ~/wm-ultra-fluidd-acepro-panel && git pull
 | Installer says "does not look like a WonderMaker ZR Ultra config" | Run it on the machine that has WonderMaker's `zru-s.cfg`, `_CHANGE_TOOL`, `UNLOAD_FILAMENT` and the `path_0` sensor. |
 | `--check`: "linked driver is too old" | Update this repository (`git pull`), then run `--repair`. |
 | `--check`: broken link | The repository was moved. Run `--repair` from its new place. |
+| Klipper: "Unknown config object 'save_variables'" | You installed version 0.2.0, which put the include lines above `[save_variables]`. `git pull` and `./installer.sh --update` (or `--repair`) moves them. |
+| Console: "Unknown command WM_SET_TOOL_MAP" (or `WM_STATS_RESET`) | `wm_stats.cfg` is not installed: `git pull`, `./installer.sh --update`, restart Klipper. |
 | Klipper: "Unknown config object temperature_ace" or virtual pins | The links in `klippy/extras` are missing: `--repair`. |
 | Klipper: T0..T3 behave differently | `register_tool_commands: False` is missing in `wm_ace_driver.cfg` (`--check` reports it). |
 | No ACE parts in the Fluidd card | The ACE is not reported yet: restart Klipper, check the USB cable and the ACE power, hard-refresh the browser. |

@@ -311,22 +311,6 @@ add_before_save_config() { # file text
     rm -f "$tmp"
 }
 
-ensure_include() { # "[include x.cfg]"  - goes right after the previous include we added, or after zru-s.cfg
-    local line="$1" pc="$CONFIG_DIR/printer.cfg" tmp after="$2"
-    grep -qF -- "$line" "$pc" && return 0
-    backup_path "$pc"
-    tmp="$(mktemp)"
-    awk -v line="$line" -v after="$after" '
-        { print }
-        !d && index($0, after) == 1 { print line; d=1 }
-        END { if (!d) print "MISSING-INCLUDE-ANCHOR" }' "$pc" > "$tmp" && cat "$tmp" > "$pc" && rm -f "$tmp"
-    if grep -qx "MISSING-INCLUDE-ANCHOR" "$pc"; then
-        sed -i '/^MISSING-INCLUDE-ANCHOR$/d' "$pc"
-        add_before_save_config "$pc" "$line"
-    fi
-    print_success "Added $line to printer.cfg"
-}
-
 ensure_includes() {
     # Klipper loads sections in file order and the ACE driver reads [save_variables] while it loads,
     # so our lines must come AFTER that section: they go in one block just above SAVE_CONFIG.
