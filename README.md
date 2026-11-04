@@ -138,7 +138,9 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 
 <div align="center">
 <img src="docs/img/fluidd-toolhead-dialog.png" alt="Toolhead dialog with the ACE feeder section" width="60%"><br>
-<em>The toolhead dialog with the "ACE feeder · slot N" section (demo data).</em>
+<em>The toolhead dialog with the endless-spool chain and the "ACE feeder · slot N" section (demo data).</em><br><br>
+<img src="docs/img/fluidd-tool-change-progress.png" alt="Tool change in progress" width="60%"><br>
+<em>The tool-change progress bar and the counters (demo data).</em>
 </div>
 
 If no ACE is installed, the card looks exactly like the plain WonderMaker Toolheads card: every ACE element is hidden until Klipper reports an ACE (section 5).
