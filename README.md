@@ -17,7 +17,71 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 ---
 
+> **Status:** tested with a simulated printer, and installed on a fresh Pi running WonderMaker's Klipper (the config and the ACE driver load). **Not run on a printer or with an ACE Pro yet.** Use at your own risk, see the [disclaimer](#disclaimer-use-at-your-own-risk).
+
+## Quick start
+
+The idea: this adds to WonderMaker's own Klipper and Fluidd. It adds config files, an ACE driver and a new Toolheads card; it never replaces WonderMaker's files and never flashes anything.
+
+1. **Have WonderMaker's Klipper running on the machine** (the Raspberry Pi set up with [wm-ultra-rpi](https://github.com/ducati1198/wm-ultra-rpi), or the original board) and log in over SSH as `t13dp`. If `git` is missing, see [3.2](#32-one-command-installer).
+2. **Run the installer:**
+
+   ```bash
+   cd ~ && git clone https://github.com/ducati1198/wm-ultra-fluidd-acepro-panel
+   cd wm-ultra-fluidd-acepro-panel && chmod +x installer.sh && ./installer.sh
+   ```
+
+   It asks four questions: *Do you have an ACE Pro?* (**no is fine**), auto-load, endless spool, and the Fluidd panel. It shows what it will change and saves a backup first.
+3. **Restart Klipper and hard-refresh the browser** (Ctrl/Cmd+Shift+R). *You should see the Toolheads card* with your four toolheads (and the ACE parts if you have an ACE).
+
+   ![Toolhead dialog](docs/img/fluidd-toolhead-dialog.png)
+
+Optional: [pick toolheads inside OrcaSlicer](#install-the-orcaslicer-plugin-optional-works-without-an-ace-pro).
+
+## Everyday cheat sheet
+
+Run these in `~/wm-ultra-fluidd-acepro-panel`.
+
+| I want to... | Run | What happens to my data |
+|---|---|---|
+| **Check** for problems | `./installer.sh --check` | Changes nothing |
+| **Update** to the latest version | `git pull && ./installer.sh --update` | Your tuned distances and speeds are kept |
+| **Repair** (driver links, include lines) | `./installer.sh --repair` | Your tuned values are kept |
+| **Back up** | automatic | Every install and update first saves the files it touches to `~/acepro-backup/wm-<date>` |
+| **Undo** the last install or update | `./installer.sh --undo` | Puts back the files saved before it, including the old Fluidd |
+| **Uninstall** | `./installer.sh --uninstall` | Removes what was added (saved first, so `--undo` brings it back). WonderMaker's files are never touched. |
+| **Preview** | `./installer.sh --dry-run` | Changes nothing |
+
+More options: [3.2](#32-one-command-installer). Safety: a running or paused print stops the installer, it never flashes a board, and it never starts Klipper by itself.
+
+## How it works
+
+![How it works](docs/img/how-it-works.svg)
+
+1. The **Toolheads card** in Fluidd shows your four toolheads and sends commands through Moonraker.
+2. The commands call **macros in three config files** this installer adds (`wm_ace.cfg`, `wm_endless.cfg`, `wm_stats.cfg`). They sit on top of WonderMaker's own macros and call them; none of WonderMaker's macros is replaced.
+3. With an **ACE Pro**, the ACE driver feeds slot N to toolhead N, using WonderMaker's own hub and toolhead sensors to know when to stop. Without one, the ACE parts stay hidden.
+4. The **OrcaSlicer plugin** (optional) writes a `WM_SET_TOOL_MAP` line into the G-code so the print starts with the toolheads you picked.
+5. Everything is **undoable**: the installer saves what it touches and `--undo` puts it back.
+
+## If something goes wrong
+
+| What you see | What to do |
+|---|---|
+| Klipper stops with "Unknown config object 'save_variables'" | You installed version 0.2.0: `git pull && ./installer.sh --update`. |
+| "Unknown command WM_SET_TOOL_MAP" | `git pull && ./installer.sh --update`, then restart Klipper. |
+| No ACE parts in the card | Normal without an ACE. With one: restart Klipper, check USB and the ACE power, hard-refresh. |
+| Not sure what is wrong | `./installer.sh --check` lists problems. |
+
+More in [Troubleshooting](#10-troubleshooting).
+
+---
+
 ## Contents
+
+- [Quick start](#quick-start) · [Everyday cheat sheet](#everyday-cheat-sheet) · [How it works](#how-it-works) · [If something goes wrong](#if-something-goes-wrong)
+
+Details:
 
 0. [Disclaimer: use at your own risk](#disclaimer-use-at-your-own-risk)
 1. [What you get](#1-what-you-get)

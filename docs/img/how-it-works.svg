@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 420" width="840" height="420" font-family="Helvetica,Arial,sans-serif"><title>How the Toolheads panel and ACE Pro add-on work</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker></defs>
+<rect width="840" height="420" rx="14" fill="#0f172a"/>
+<text x="30" y="38" fill="#f1f5f9" font-size="20" font-weight="700">How it works</text>
+<!-- browser -->
+<rect x="30" y="70" width="210" height="110" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+<text x="135" y="98" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="700">Fluidd (browser)</text>
+<text x="135" y="120" text-anchor="middle" fill="#cbd5e1" font-size="12">Toolheads card: colours, ACE,</text>
+<text x="135" y="138" text-anchor="middle" fill="#cbd5e1" font-size="12">dryer, bar, counters, chain</text>
+<text x="135" y="162" text-anchor="middle" fill="#94a3b8" font-size="12">Choose toolheads window</text>
+<!-- orca -->
+<rect x="30" y="230" width="210" height="90" rx="10" fill="#1e293b" stroke="#64748b" stroke-dasharray="4 3" stroke-width="2"/>
+<text x="135" y="258" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="700">OrcaSlicer (optional)</text>
+<text x="135" y="280" text-anchor="middle" fill="#cbd5e1" font-size="12">plugin picks toolheads</text>
+<text x="135" y="298" text-anchor="middle" fill="#94a3b8" font-size="12">writes WM_SET_TOOL_MAP</text>
+<!-- klipper -->
+<rect x="320" y="60" width="270" height="290" rx="10" fill="#14352a" stroke="#22c55e" stroke-width="2"/>
+<text x="455" y="88" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="700">Klipper + Moonraker</text>
+<text x="455" y="106" text-anchor="middle" fill="#86efac" font-size="12">files added by ./installer.sh</text>
+<rect x="340" y="122" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="148" text-anchor="middle" fill="#e2e8f0" font-size="13">wm_ace.cfg: load, unload, dryer</text>
+<rect x="340" y="172" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="198" text-anchor="middle" fill="#e2e8f0" font-size="13">wm_endless.cfg: endless spool</text>
+<rect x="340" y="222" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="248" text-anchor="middle" fill="#e2e8f0" font-size="13">wm_stats.cfg: counters, tool map</text>
+<rect x="340" y="282" width="230" height="52" rx="6" fill="#1e293b" stroke="#64748b"/><text x="455" y="304" text-anchor="middle" fill="#f1f5f9" font-size="13" font-weight="700">WonderMaker's own macros</text><text x="455" y="322" text-anchor="middle" fill="#94a3b8" font-size="11">T0-T3, _CHANGE_TOOL ... never changed</text>
+<line x1="240" y1="125" x2="320" y2="125" stroke="#94a3b8" stroke-width="2" marker-end="url(#a)" marker-start="url(#a)"/>
+<line x1="240" y1="275" x2="320" y2="275" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#a)"/>
+<text x="280" y="116" text-anchor="middle" fill="#94a3b8" font-size="11">Moonraker</text>
+<!-- ace -->
+<rect x="660" y="90" width="160" height="110" rx="10" fill="#1e293b" stroke="#64748b" stroke-dasharray="4 3" stroke-width="2"/>
+<text x="740" y="120" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="700">ACE Pro</text>
+<text x="740" y="142" text-anchor="middle" fill="#cbd5e1" font-size="12">optional feeder + dryer</text>
+<text x="740" y="162" text-anchor="middle" fill="#94a3b8" font-size="12">slot N feeds toolhead N</text>
+<line x1="590" y1="145" x2="660" y2="145" stroke="#94a3b8" stroke-width="2" marker-end="url(#a)" marker-start="url(#a)"/>
+<text x="625" y="136" text-anchor="middle" fill="#94a3b8" font-size="11">USB</text>
+<rect x="660" y="250" width="160" height="100" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+<text x="740" y="280" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="700">Printer</text>
+<text x="740" y="302" text-anchor="middle" fill="#cbd5e1" font-size="12">toolheads, hub sensors</text>
+<text x="740" y="322" text-anchor="middle" fill="#94a3b8" font-size="12">(WonderMaker's, untouched)</text>
+<line x1="590" y1="308" x2="660" y2="300" stroke="#94a3b8" stroke-width="2" marker-end="url(#a)" marker-start="url(#a)"/>
+<text x="30" y="404" fill="#64748b" font-size="11">Nothing is flashed. The add-on only adds config files, an ACE driver and a Fluidd build; WonderMaker's files stay as they are.</text>
+</svg>
