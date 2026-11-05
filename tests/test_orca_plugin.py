@@ -58,5 +58,10 @@ check("printer kind: ace object -> ace", m.detect_kind(["configfile", "ace"]) ==
 check("printer kind: filament0..3 sensors -> wm", m.detect_kind(["filament_switch_sensor filament0"]) == "wm")
 check("printer kind: anything else -> nothing written", m.detect_kind(["configfile"]) == "")
 
+w = m.warnings_for(m.project_filaments(["#FF0000", "#FF0000"], ["PLA", "PLA"], ["a", "b"]), heads, {0: 1, 1: 1}, "wm")
+check("warning when two filaments use one toolhead", "also used by filament 2" in w[0][0])
+check("warning when the chosen toolhead shows empty", any("shows empty" in x for x in m.warnings_for(fil, heads, {0: 2, 1: 1}, "wm").get(0, [])))
+check("no warning for a good match", m.warnings_for(fil, heads, {0: 0, 1: 1}, "wm") == {})
+
 print(f"\npassed: {PASS}  failed: {FAIL}")
 sys.exit(1 if FAIL else 0)

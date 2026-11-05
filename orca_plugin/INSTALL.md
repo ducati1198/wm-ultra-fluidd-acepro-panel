@@ -4,6 +4,8 @@
 
 ![Spools and Toolheads panel on a WonderMaker ZR Ultra-S](spool-toolhead-mapper-wm.png)
 
+**What the panel does for you:** it refreshes by itself when you switch printer preset (a few seconds), it remembers your picks per printer between Orca sessions (they are dropped when a filament's colour or type changes), and it shows hints under a filament when two filaments use the same slot or toolhead, when the colour is clearly different, or (WonderMaker) when the chosen toolhead shows empty. Empty WonderMaker toolheads can be picked, with a warning; empty ACE slots stay blocked. Picks are saved in `~/.spool_toolhead_mapper.json` (if Orca does not allow writing it, they last for the session).
+
 
 > Adapted from the ACE Spool Mapper plugin of [acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper). Use at your own risk (see the main README).
 
