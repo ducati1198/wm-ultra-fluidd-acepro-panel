@@ -1,4 +1,4 @@
-"""Tests for the pure helpers of orca_plugin/wm_toolhead_mapper.py (OrcaSlicer itself is stubbed).
+"""Tests for the pure helpers of orca_plugin/spool_toolhead_mapper.py (WonderMaker and ACE Pro) (OrcaSlicer itself is stubbed).
 Run:  python3 -I tests/test_orca_plugin.py"""
 import importlib.util, os, sys, types
 
@@ -14,7 +14,7 @@ orca.host = types.SimpleNamespace()
 orca.ExecutionResult = types.SimpleNamespace(success=lambda *a: a)
 orca.register_capability = lambda c: None
 sys.modules["orca"] = orca
-spec = importlib.util.spec_from_file_location("wmm", os.path.join(HERE, "..", "orca_plugin", "wm_toolhead_mapper.py"))
+spec = importlib.util.spec_from_file_location("stm", os.path.join(HERE, "..", "orca_plugin", "spool_toolhead_mapper.py"))
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 
 PASS = FAIL = 0
@@ -43,16 +43,20 @@ check("auto swaps when the slicer order differs", m.auto_match(fil2, heads) == {
 res = m.resolve_mapping(fil2, heads, {"0": "sliced"})
 check("pinned 'as sliced' is kept", res[0] == 0)
 
-lines = m.map_lines({0: 1, 1: 0}, "benchy.gcode", "x")
+lines = m.map_lines({0: 1, 1: 0}, "benchy.gcode", "x", "wm")
 check("full map written", lines[1].strip() == "WM_SET_TOOL_MAP MAP=0:1,1:0,2:2,3:3 FILE=benchy.gcode KEEP_EXISTING=1")
-check("identity map still written", "MAP=0:0,1:1,2:2,3:3" in m.map_lines({}, "", "s")[1])
-check("file name with spaces is quoted", 'FILE="my part.gcode"' in m.map_lines({}, "my part.gcode", "s")[1])
+check("identity map still written", "MAP=0:0,1:1,2:2,3:3" in m.map_lines({}, "", "s", "wm")[1])
+check("file name with spaces is quoted", 'FILE="my part.gcode"' in m.map_lines({}, "my part.gcode", "s", "wm")[1])
 
 g = ["; header\n", "; thumb\n", "M104 S0\n", "T1\n"]
 out = m.insert_before_first_command(g, ["X\n"])
 check("inserted before the first command", out.index("X\n") == 2)
 check("tools found in the G-code", m.tools_in_gcode(["T0\n", "T2 ; x\n", "G1 X1\n"]) == [0, 2])
-check("describe names toolheads from 1", m.describe({0: 2}, fil, heads).startswith("T0->Toolhead 3"))
+check("describe names toolheads from 1", m.describe({0: 2}, fil, heads, "wm").startswith("T0->Toolhead 3"))
+check("ACE printer: only changed tools, ACE macro", m.map_lines({0: 0, 1: 3}, "f.gcode", "s", "ace")[1].startswith("ACE_SET_TOOL_MAP MAP=1:3 "))
+check("printer kind: ace object -> ace", m.detect_kind(["configfile", "ace"]) == "ace")
+check("printer kind: filament0..3 sensors -> wm", m.detect_kind(["filament_switch_sensor filament0"]) == "wm")
+check("printer kind: anything else -> nothing written", m.detect_kind(["configfile"]) == "")
 
 print(f"\npassed: {PASS}  failed: {FAIL}")
 sys.exit(1 if FAIL else 0)

@@ -410,13 +410,13 @@ The plugin lets you pick, inside Orca, which toolhead prints each filament. When
 
 **In OrcaSlicer (once):**
 
-1. Download the plugin file: [`wm_toolhead_mapper.py`](https://raw.githubusercontent.com/ducati1198/wm-ultra-fluidd-acepro-panel/main/orca_plugin/wm_toolhead_mapper.py) (right-click, save as; keep the `.py` name). It is also in this repository under `orca_plugin/`.
+1. Download the plugin file `spool_toolhead_mapper.py` from the [`orca_plugin/`](https://github.com/ducati1198/wm-ultra-fluidd-acepro-panel/tree/main/orca_plugin) folder (open the file, then use the download button; keep the `.py` name). The same plugin also works with an ACE Pro printer: it detects which printer it is talking to.
 2. Open Orca's **Printer settings → Connection** and make sure the host is your printer's address, for example `192.168.0.50:7125`. The plugin uses it to read the toolheads.
-3. Open **File → Plugins**, use the split button **Browse plugins → Install local plugin**, and pick `wm_toolhead_mapper.py`.
+3. Open **File → Plugins**, use the split button **Browse plugins → Install local plugin**, and pick `spool_toolhead_mapper.py`.
 4. When Orca asks whether the plugin may connect to your printer, click **Yes**.
-5. The plugin brings two parts, **WM Toolheads** (the panel) and **WM Tool Map** (the G-code step). If the Plugins window shows them disabled, enable both.
-6. Switch Orca to **Advanced** mode. Open your **Process** settings → **Others** → **Slicing Pipeline Plugin**, add **WM Tool Map**, and save the process preset. Do this for each process preset you print with.
-7. Restart Orca. The **WM Toolheads** panel docks on the right of the 3D view.
+5. The plugin brings two parts, **Spools and Toolheads** (the panel) and **Spool and Toolhead Map** (the G-code step). If the Plugins window shows them disabled, enable both.
+6. Switch Orca to **Advanced** mode. Open your **Process** settings → **Others** → **Slicing Pipeline Plugin**, add **Spool and Toolhead Map**, and save the process preset. Do this for each process preset you print with.
+7. Restart Orca. The **Spools and Toolheads** panel docks on the right of the 3D view.
 
 **Use it:** in the panel, each filament shows its best toolhead (**Auto**: same material, closest colour, each toolhead used once). Change a row to a specific toolhead or **As sliced**, then slice and use **Upload and Print**. The G-code gets a line like:
 

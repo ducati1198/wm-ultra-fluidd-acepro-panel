@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5
+
+- OrcaSlicer plugin: `orca_plugin/spool_toolhead_mapper.py` (one plugin for the WonderMaker toolheads and ACE Pro printers) replaces `wm_toolhead_mapper.py`, which is removed. README and `orca_plugin/INSTALL.md` use the new names (panel **Spools and Toolheads**, step **Spool and Toolhead Map**). The README download link now points to the `orca_plugin/` folder. Tests updated.
+
 ## 0.3.4
 
 - README: "the printer's main board" instead of "replacement main board".

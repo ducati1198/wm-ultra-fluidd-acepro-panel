@@ -1,6 +1,6 @@
-# WM Toolhead Mapper: OrcaSlicer 2.5 plugin
+# Spool and Toolhead Mapper: OrcaSlicer 2.5 plugin
 
-> **New: one plugin for both printers.** [`spool_toolhead_mapper.py`](spool_toolhead_mapper.py) combines the ACE Spool Mapper (ACE Pro, acepro-any-klipper) and the WM Toolhead Mapper (WonderMaker ZR Ultra-S). It asks the printer (Moonraker) what it is: a printer with the `ace` object gets the ACE panel and `ACE_SET_TOOL_MAP`; a printer with the WonderMaker `filament0..3` sensors gets the toolhead panel and `WM_SET_TOOL_MAP`; any other printer is left alone (nothing is written into its G-code). Install it the same way as below (**Install local plugin**), enable its two parts (**Spools and Toolheads** and **Spool and Toolhead Map**), add **Spool and Toolhead Map** in Process > Others > Slicing Pipeline Plugin, and remove the older plugin first so the line is not written twice. It uses the print host of each printer preset, so set that on every printer preset.
+> This one plugin works with both the WonderMaker ZR Ultra-S (toolheads, `WM_SET_TOOL_MAP`) and an ACE Pro printer such as a K1 (spools, `ACE_SET_TOOL_MAP`). It asks the printer (Moonraker) which one it is; for any other printer it writes nothing into the G-code. It uses the print host of each printer preset, so set that on every printer preset. Remove any older ACE Spool Mapper or WM Toolhead Mapper plugin first so the line is not written twice.
 
 ![Spools and Toolheads panel on a WonderMaker ZR Ultra-S](spool-toolhead-mapper-wm.png)
 
@@ -20,12 +20,12 @@ file reaches the printer.
 ## Install (once)
 
 1. In OrcaSlicer open **File → Plugins**.
-2. **Browse plugins** (split button) → **Install local plugin** → pick `wm_toolhead_mapper.py`.
+2. **Browse plugins** (split button) → **Install local plugin** → pick `spool_toolhead_mapper.py`.
 3. Orca asks once whether the plugin may connect to your printer: click **Yes**.
-4. The plugin brings two parts: **WM Toolheads** (the panel) and **WM Tool Map** (the G-code step). Enable both.
+4. The plugin brings two parts: **Spools and Toolheads** (the panel) and **Spool and Toolhead Map** (the G-code step). Enable both.
 5. Turn on the G-code step: switch Orca to **Advanced** mode, open your **Process** settings → **Others** →
-   **Slicing Pipeline Plugin**, add **WM Tool Map**, save the process preset (for each process preset you print with).
-6. Restart Orca. The **WM Toolheads** panel docks on the right of the 3D view.
+   **Slicing Pipeline Plugin**, add **Spool and Toolhead Map**, save the process preset (for each process preset you print with).
+6. Restart Orca. The **Spools and Toolheads** panel docks on the right of the 3D view.
 
 ## Use
 
@@ -38,7 +38,7 @@ file reaches the printer.
 The G-code gets two lines before the start G-code:
 
 ```
-; WM Toolhead Mapper: T0 as sliced, T1->Toolhead 4 PETG
+; Spool and Toolhead Mapper (wm): T0 as sliced, T1->Toolhead 4 PETG
 WM_SET_TOOL_MAP MAP=0:0,1:3,2:2,3:3 FILE="benchy.gcode" KEEP_EXISTING=1
 ```
 
