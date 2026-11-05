@@ -132,7 +132,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Your own endless-spool chain** | In each toolhead's dialog: "If this spool runs out, take over with Toolhead N, then M". The chain is tried first, then the same colour and material (section 8). Not yet tested on a printer. |
 | **Tool-change progress bar** | A bar in the card while WonderMaker changes tools (lifting, putting the old head back, locking the new one), read from WonderMaker's own flag and the dock sensors. Not yet tested on a printer. |
 | **Counters** | Tool changes in total and per toolhead, with a Reset button. Not yet tested on a printer. |
-| **OrcaSlicer plugin** | Pick the toolhead for each filament inside Orca; written into the G-code as `WM_SET_TOOL_MAP` ([`orca_plugin/`](orca_plugin/INSTALL.md)). Not yet tested in OrcaSlicer. |
+| **OrcaSlicer plugin** | Pick the toolhead for each filament inside Orca; written into the G-code as `WM_SET_TOOL_MAP` ([`orca_plugin/`](orca_plugin/INSTALL.md)). |
 | **Orca filament sync** | With an ACE, the slots are published to Moonraker's `lane_data` so Orca's "sync filament from printer" can see them. Not yet tested. |
 | **Safe installer** | Asks plain questions, shows what changes, backs up first, `--undo`, `--check`, `--dry-run`, tests. |
 
@@ -400,9 +400,11 @@ A toolhead counts as a match when its colour is the closest of WonderMaker's pal
 
 ### Install the OrcaSlicer plugin (optional, works without an ACE Pro)
 
-> **Not yet tested in OrcaSlicer or on a printer.** You need OrcaSlicer **2.5 or newer** (it has the plugin system).
-
 The plugin lets you pick, inside Orca, which toolhead prints each filament. When you send or export, it writes the choice at the top of the G-code, so the print needs no popup at start. It reads your four toolheads (colour, material, loaded or empty) from the printer, so an ACE Pro is not needed.
+
+<div align="center">
+<img src="orca_plugin/spool-toolhead-mapper-wm.png" alt="Spools and Toolheads panel in OrcaSlicer with a WonderMaker ZR Ultra-S" width="80%">
+</div>
 
 **On the printer (once):** run `./installer.sh` or `./installer.sh --update` from this repository. That installs `wm_stats.cfg`, which holds the `WM_SET_TOOL_MAP` macro the plugin calls. Then restart Klipper.
 
@@ -468,7 +470,7 @@ Written for the day the printer is running again. Do them in this order, empty b
 - The whole endless-spool sequence (tool change while paused, hop, prime), and the chain choice.
 - The tool-change bar: it assumes that a flip of a head's `docked<N>` sensor means the head was put back or taken, whichever way the sensor reads, and it reads WonderMaker's `changing_tool` flag. Both are untested on the real printer.
 - The counters (they watch `current_extruder` every 2 seconds).
-- The OrcaSlicer plugin inside OrcaSlicer, and Moonraker `lane_data` sync (`moonraker_lane_sync_enabled`).
+- Moonraker `lane_data` sync (`moonraker_lane_sync_enabled`).
 
 ---
 
@@ -562,7 +564,7 @@ wm-ultra-fluidd-acepro-panel/
 │   ├── virtual_pins.py
 │   └── temperature_ace.py
 ├── fluidd/                         Fluidd 1.37.7 build + patch (Toolheads card with the ACE parts)
-├── orca_plugin/                    OrcaSlicer plugin: pick toolheads in Orca (untested)
+├── orca_plugin/                    OrcaSlicer plugin: pick toolheads in Orca
 ├── docs/                           Hardware notes, ACE USB adapter wiring, screenshots (demo data)
 ├── tests/                          run_tests.sh (installer), test_macros.py (macros), test_orca_plugin.py
 └── LICENSE                         GPL v3
