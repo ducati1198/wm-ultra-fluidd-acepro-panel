@@ -176,9 +176,19 @@ The WonderMaker hub is passive (no motor). The ACE pushes and pulls the filament
 | Unit | What the 4-pin connector carries | What to use |
 |---|---|---|
 | **ACE Pro** (first generation) | Native USB data | A plain USB-A adapter (below). It appears in Linux as `/dev/ttyACM*`. |
-| **ACE 2 Pro** | RS-485, not USB | Not covered here. It needs the RS485-to-USB conversion cable from Anycubic's ACE 2 kit; a home-made USB cable will not work. |
+| **ACE 2 Pro** | RS-485, not USB | Not tested here (see below). It needs the RS485-to-USB conversion cable from Anycubic's ACE 2 kit; a home-made USB cable will not work. |
 
 The driver detects which protocol a unit speaks (`protocol: auto` in `wm_ace_driver.cfg`). The rest of this section is about the first-generation ACE Pro.
+
+
+#### ACE 2 Pro: what is known (not tested in this project)
+
+- **It talks RS-485, not USB.** Use Anycubic's own [ACE 2 PRO USB to RS485 Signal Cable](https://ca.anycubic.com/products/ace-2-pro-usb-to-rs485-signal-cable) (the store lists it for the Kobra S1 ACE 2 Pro, Kobra 3, Kobra 3 V2, Kobra 3 Max and Kobra 3 Max V2). Do not build one yourself: no wiring or pinout is published. Anycubic's wiki has a page called [compatibility guide for other models](https://wiki.anycubic.com/en/fdm-3d-printer/ace-2-pro/compatibility-guide-for-other-models).
+- **Use the right cable.** The upstream [Kobra-S1/ACEPRO](https://github.com/Kobra-S1/ACEPRO) project, which this driver comes from, says you need the KS1/K3 ACE 2 conversion cable, and that a Kobra-X or KS1-Max cable will not work on a KS1, K3 or Raspberry Pi.
+- **Driver.** The ACE driver here has an ACE 2 adapter (protobuf over a shared RS-485 bus, 230400 baud). `protocol: auto` picks the right one, and `protocol: ace2` forces it. Nobody has tried it with the WonderMaker Ultra yet.
+- **Installer.** Its "do I see an ACE on USB" check looks for `anycubic`, `ace` or `28e9` in the device list. An RS-485 adapter may be listed under another name. The installer then only prints a warning and carries on.
+
+If you try it, please report what `lsusb` and the driver log show.
 
 ### 2.3 USB adapter for the ACE Pro
 

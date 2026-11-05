@@ -17,7 +17,7 @@ The WonderMaker hub is passive: four filament switches `path_0`…`path_3` on th
 
 The ACE has its own power supply. Plug its USB into the Klipper host (a powered USB hub is fine). It shows up as `/dev/ttyACM*`.
 
-The ACE 2 Pro speaks RS-485, not USB, and is not covered here.
+The ACE 2 Pro speaks RS-485, not USB, and is not tested in this project. See "ACE 2 Pro: what is known" in the main README (section 2.2).
 
 ## 2. USB adapter for the ACE Pro
 
