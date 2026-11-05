@@ -19,6 +19,8 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 > **Status:** tested with a simulated printer, and installed on a fresh Pi running WonderMaker's Klipper (the config and the ACE driver load). **Not run on a printer or with an ACE Pro yet.** Use at your own risk, see the [disclaimer](#disclaimer-use-at-your-own-risk).
 
+> **The ACE Pro is not an MMU here.** The WonderMaker ZR Ultra has four toolheads that do the switching. The ACE Pro in this project is used **only to load and unload the filament and to dry it**.
+
 ## Quick start
 
 The idea: this adds to WonderMaker's own Klipper and Fluidd. It adds config files, an ACE driver and a new Toolheads card; it never replaces WonderMaker's files and never flashes anything.
