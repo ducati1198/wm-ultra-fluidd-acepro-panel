@@ -13,6 +13,10 @@
 # ./installer.sh --repair      restore links and include lines
 # ./installer.sh --undo [DIR]  put back the files saved before the last install
 # ./installer.sh --uninstall   remove everything the installer added (saved first, --undo brings it back)
+# ./installer.sh --menu        numbered menu (this is what you get with no options at a terminal)
+# ./installer.sh --install     install without the menu
+# ./installer.sh --check-updates  see what is new on GitHub (changes nothing)
+# ./installer.sh --get-latest  download the newest installer files (git pull, or a tarball without git)
 # ./installer.sh --dry-run     go through the questions, show what would change, change nothing
 # ./installer.sh --help
 #
@@ -672,11 +676,144 @@ do_repair() {
     print_success "Repair finished. Run ./installer.sh --check"
 }
 
+# ============================================================================
+# Update without git, and the numbered menu
+# ============================================================================
+
+RAW_URL="https://raw.githubusercontent.com/ducati1198/wm-ultra-fluidd-acepro-panel/main"
+TARBALL_URL="https://github.com/ducati1198/wm-ultra-fluidd-acepro-panel/archive/refs/heads/main.tar.gz"
+
+latest_version() { # newest version on GitHub (reads only the VERSION file)
+    [ -n "${ACE_TEST_NEW_VERSION:-}" ] && { echo "$ACE_TEST_NEW_VERSION"; return 0; }
+    command -v curl >/dev/null 2>&1 || return 1
+    curl -fsS --max-time 15 "$RAW_URL/VERSION" 2>/dev/null | tr -d '[:space:]'
+}
+
+do_check_updates() {
+    local new; print_header "What is new"
+    new="$(latest_version || true)"
+    [ -n "$new" ] || die_with_fix "could not reach GitHub" "check the internet connection (curl -I https://github.com), then try again"
+    echo "  This download: v$VERSION     newest on GitHub: v$new"
+    if [ "$new" = "$VERSION" ]; then print_success "You have the newest version."; return 0; fi
+    print_info "A newer version is available. Newest changes:"
+    if [ -n "${ACE_TEST_NEW_VERSION:-}" ]; then echo "  (test: no download)"; else
+        curl -fsS --max-time 15 "$RAW_URL/CHANGELOG.md" 2>/dev/null | sed -n '1,/^## /{/^## /!p}; /^## /{p; :a; n; /^## /q; p; ba}' | head -25 | sed 's/^/  /'
+    fi
+    echo "  Update with: ./installer.sh --get-latest   (then ./installer.sh --update to apply it)"
+}
+
+do_get_latest() { # refresh THIS folder from GitHub (git pull, or a tarball when there is no git)
+    local tmp
+    print_header "Downloading the newest installer files"
+    if [ -d "$REPO_DIR/.git" ] && command -v git >/dev/null 2>&1; then
+        (cd "$REPO_DIR" && git pull --ff-only) || die_with_fix "git pull did not work" "run: cd $REPO_DIR && git status"
+    else
+        command -v curl >/dev/null 2>&1 && command -v tar >/dev/null 2>&1 || die_with_fix "curl or tar is missing" "sudo apt-get install -y curl tar"
+        tmp="$(mktemp -d)"
+        if [ -n "${ACE_TEST_TARBALL:-}" ]; then cp "$ACE_TEST_TARBALL" "$tmp/x.tgz"
+        else curl -fsSL --max-time 120 "$TARBALL_URL" -o "$tmp/x.tgz" || { rm -rf "$tmp"; die_with_fix "download failed" "check the internet connection"; }; fi
+        mkdir "$tmp/x" && tar -xzf "$tmp/x.tgz" -C "$tmp/x" --strip-components=1 && [ -f "$tmp/x/installer.sh" ] || { rm -rf "$tmp"; die_with_fix "the download is not the installer" "try again later"; }
+        cp -a "$tmp/x/." "$REPO_DIR/" && rm -rf "$tmp"
+    fi
+    VERSION="$(tr -d '[:space:]' < "$REPO_DIR/VERSION" 2>/dev/null || echo dev)"
+    print_success "Installer files are now v$VERSION. Apply them to the printer with ./installer.sh --update"
+}
+
+menu_item() { printf '   %s) %-30s %b%s%b\n' "$1" "$2" "$DIM" "$3" "$NC"; }
+menu_read() { local a; read -r -p "  $1 " a || return 1; REPLY_MENU="$(echo "$a" | tr -d '[:space:]')"; return 0; }
+menu_sub() { # run this script again with options, then pause so the output can be read
+    echo; bash "$SCRIPT_DIR/installer.sh" "$@"; echo
+    [ -t 0 ] && read -r -p "  Press Enter to go back to the menu " _ || true
+}
+menu_bad() { echo "  Choose a number from the list."; }
+
+menu_update() {
+    while true; do
+        echo; echo -e "${BLUE}Update${NC}"
+        menu_item 1 "See what is new" "reads GitHub, changes nothing"
+        menu_item 2 "Update now" "downloads the newest files, then applies them (backup first)"
+        menu_item 0 "Back" ""
+        menu_read "Choose:" || return 0
+        case "$REPLY_MENU" in
+            1) menu_sub --check-updates ;;
+            2) menu_sub --get-latest; menu_sub --update; return 0 ;;
+            0|"") return 0 ;; *) menu_bad ;;
+        esac
+    done
+}
+
+menu_fix() {
+    while true; do
+        echo; echo -e "${BLUE}Check and fix${NC}"
+        menu_item 1 "Check" "reports problems, changes nothing"
+        menu_item 2 "Repair" "restores links and include lines, then checks again"
+        menu_item 0 "Back" ""
+        menu_read "Choose:" || return 0
+        case "$REPLY_MENU" in
+            1) menu_sub --check ;;
+            2) menu_sub --repair; menu_sub --check ;;
+            0|"") return 0 ;; *) menu_bad ;;
+        esac
+    done
+}
+
+menu_backup() {
+    local d n
+    while true; do
+        echo; echo -e "${BLUE}Backup and restore${NC}"
+        echo "  Backups are made automatically before every install, update and uninstall, in $BACKUP_ROOT"
+        menu_item 1 "List my backups" ""
+        menu_item 2 "Restore the newest backup" "puts back the files saved before the last change"
+        menu_item 3 "Restore a backup from the list" "pick one"
+        menu_item 0 "Back" ""
+        menu_read "Choose:" || return 0
+        case "$REPLY_MENU" in
+            1) ls -d "$BACKUP_ROOT"/wm-*/ 2>/dev/null | sed 's#/$##' | sort || true; [ -d "$BACKUP_ROOT" ] || echo "  No backups yet." ;;
+            2) menu_sub --undo ;;
+            3) mapfile -t BK < <(ls -d "$BACKUP_ROOT"/wm-*/ 2>/dev/null | sed 's#/$##' | sort)
+               if [ "${#BK[@]}" -eq 0 ]; then echo "  No backups yet."; continue; fi
+               local i=1; for d in "${BK[@]}"; do echo "   $i) $d"; i=$((i+1)); done
+               menu_read "Number:" || return 0; n="$REPLY_MENU"
+               if [[ "$n" =~ ^[0-9]+$ ]] && [ "$n" -ge 1 ] && [ "$n" -le "${#BK[@]}" ]; then menu_sub --undo "${BK[$((n-1))]}"; else menu_bad; fi ;;
+            0|"") return 0 ;; *) menu_bad ;;
+        esac
+    done
+}
+
+menu_main() {
+    [ -t 0 ] || [ "${ACE_MENU_TEST:-0}" = 1 ] || die_with_fix "the menu needs a terminal." "run it in an ssh session, or use the options (--help)."
+    while true; do
+        echo; echo -e "${BLUE}WonderMaker Ultra panel / ACE Pro${NC}   installer v$VERSION"
+        menu_item 1 "Install" "asks a few plain questions, shows the plan, then asks"
+        menu_item 2 "Update" "see what is new, then update (your tuned values are kept)"
+        menu_item 3 "Check and fix" "check, repair"
+        menu_item 4 "Backup and restore" "list backups, put one back"
+        menu_item 5 "Dry run of the install" "shows what would change, changes nothing"
+        menu_item 6 "Uninstall" "removes everything the installer added (saved first)"
+        menu_item 0 "Exit" ""
+        menu_read "Choose:" || return 0
+        case "$REPLY_MENU" in
+            1) menu_sub --install ;;
+            2) menu_update ;;
+            3) menu_fix ;;
+            4) menu_backup ;;
+            5) menu_sub --dry-run ;;
+            6) menu_sub --uninstall ;;
+            0|"") return 0 ;;
+            *) menu_bad ;;
+        esac
+    done
+}
+
 usage() { sed -n '/^# \.\/installer\.sh/p' "$0" | sed 's/^# //'; }
 
 parse_args() {
     while [ $# -gt 0 ]; do
         case "$1" in
+            --menu) MODE=menu ;;
+            --install) MODE=install ;;
+            --check-updates) MODE=whatsnew ;;
+            --get-latest) MODE=getlatest ;;
             --update) MODE=update ;;
             --check) MODE=check ;;
             --repair) MODE=repair ;;
@@ -694,9 +831,13 @@ parse_args() {
 }
 
 main() {
+    [ $# -eq 0 ] && { [ -t 0 ] || [ "${ACE_MENU_TEST:-0}" = 1 ]; } && set -- --menu
     parse_args "$@"
     command -v python3 >/dev/null 2>&1 || die_with_fix "python3 is not installed" "sudo apt-get install -y python3"
     case "$MODE" in
+        menu) menu_main ;;
+        whatsnew) do_check_updates ;;
+        getlatest) do_get_latest ;;
         install|update) do_install ;;
         check) do_check ;;
         repair) do_repair ;;

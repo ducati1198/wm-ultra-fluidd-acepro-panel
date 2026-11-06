@@ -144,5 +144,29 @@ inst "$H11" 'n\nn\nn\n'
 check "nothing selected is refused"                 test "$RC" -eq 1
 
 echo
+echo "Menu"
+HM="$(new_home tm)"
+menu() { OUT="$(printf '%b' "$1" | ACE_INSTALL_HOME="$HM" ACE_INSTALLER_TEST=1 ACE_MENU_TEST=1 ACE_TEST_NEW_VERSION="${2:-}" bash "$INST" 2>&1)"; RC=$?; }
+menu '0\n'
+check "menu opens with no options"                  bash -c 'echo "$0" | grep -q "6) Uninstall"' "$OUT"
+check "menu has Update and Dry run"                 bash -c 'echo "$0" | grep -q "2) Update" && echo "$0" | grep -q "5) Dry run"' "$OUT"
+menu '2\n1\n0\n0\n0\n' 9.9.9
+check "see what is new shows both versions"         bash -c 'echo "$0" | grep -q "newest on GitHub: v9.9.9"' "$OUT"
+menu '3\n1\n0\n0\n0\n'
+check "menu check runs"                             bash -c 'echo "$0" | grep -q "ACE Pro check"' "$OUT"
+menu '4\n1\n0\n0\n'
+check "backup menu says no backups"                 bash -c 'echo "$0" | grep -q "No backups yet"' "$OUT"
+menu '9\n0\n'
+check "bad number is refused"                       bash -c 'echo "$0" | grep -q "Choose a number"' "$OUT"
+menu '5\ny\ny\ny\ny\ny\n0\n'
+check "menu dry run changes nothing"                test ! -e "$(cfg "$HM")/wm_ace.cfg"
+OUT="$(printf '' | bash "$INST" 2>&1 </dev/null)"
+check "no terminal and no options does not hang on a menu" bash -c '! echo "$0" | grep -q "6) Uninstall"' "$OUT"
+GL="$ROOT/gl"; mkdir -p "$GL/src"; cp "$REPO/installer.sh" "$GL/src/"; echo 7.7.7 > "$GL/src/VERSION"; tar -czf "$GL/t.tgz" -C "$GL" src
+cp -a "$REPO" "$ROOT/copy"; rm -rf "$ROOT/copy/.git"
+OUT="$(ACE_TEST_TARBALL="$GL/t.tgz" ACE_INSTALLER_TEST=1 bash "$ROOT/copy/installer.sh" --get-latest 2>&1)"
+check "--get-latest without git refreshes the folder" test "$(tr -d '[:space:]' < "$ROOT/copy/VERSION")" = 7.7.7
+
+echo
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

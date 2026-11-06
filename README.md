@@ -49,7 +49,7 @@ Run these in `~/wm-ultra-fluidd-acepro-panel`.
 | I want to... | Run | What happens to my data |
 |---|---|---|
 | **Check** for problems | `./installer.sh --check` | Changes nothing |
-| **Update** to the latest version | `git pull && ./installer.sh --update` | Your tuned distances and speeds are kept |
+| **Update** to the latest version | `./installer.sh   # menu: Update > Update now (or: git pull && ./installer.sh --update)` | Your tuned distances and speeds are kept |
 | **Repair** (driver links, include lines) | `./installer.sh --repair` | Your tuned values are kept |
 | **Back up** | automatic | Every install and update first saves the files it touches to `~/acepro-backup/wm-<date>` |
 | **Undo** the last install or update | `./installer.sh --undo` | Puts back the files saved before it, including the old Fluidd |
@@ -646,3 +646,8 @@ Built on:
 Config files and Fluidd panel by **ducati1198**.
 
 **License:** GNU General Public License v3.0, see [`LICENSE`](LICENSE).
+
+
+## Installer menu
+
+Run `./installer.sh` at a terminal (or `./installer.sh --menu`) for a numbered menu: **1 Install, 2 Update** (See what is new / Update now, works without git), **3 Check and fix, 4 Backup and restore, 5 Dry run, 6 Uninstall**. Every entry runs the same option as before (`--install`, `--update`, `--check`, `--repair`, `--undo`, `--dry-run`, `--uninstall`), so the options still work for scripts. `--check-updates` shows what is new without downloading; `--get-latest` refreshes the installer folder.

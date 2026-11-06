@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+
+- New numbered menu, same style as the wm-ultra-rpi installers: Install, Update (See what is new / Update now), Check and fix, Backup and restore, Dry run, Uninstall. Run `./installer.sh` with no options at a terminal, or `./installer.sh --menu`.
+- New options: `--install` (skip the menu), `--check-updates` (reads only the VERSION and CHANGELOG on GitHub), `--get-latest` (git pull, or a downloaded tarball when there is no git). Update now runs `--get-latest` and then `--update`.
+- Scripts and pipes are unaffected: with no terminal the installer installs as before. The installer still never starts Klipper by itself.
+
 ## 1.1.1
 
 - README (section 3.2a): how to install on the original WonderMaker screen board, which has no `git`: fix the clock and point apt at the Debian archive, then install git, or download this repository with `curl` (no git needed). Notes on updating without git and on the free USB port for the ACE. No code changes; the installer already works from a downloaded copy.
