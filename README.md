@@ -37,19 +37,13 @@ The idea: this adds to WonderMaker's own Klipper and Fluidd. It adds config file
 
    This opens the installer menu. Press **1** to install:
 
-   ```text
-   WonderMaker Ultra panel / ACE Pro   installer v1.2.0
-      1) Install                        asks a few plain questions, shows the plan, then asks
-      2) Update                         see what is new, then update (your tuned values are kept)
-      3) Check and fix                  check, repair
-      4) Backup and restore             list backups, put one back
-      5) Dry run of the install         shows what would change, changes nothing
-      6) Uninstall                      removes everything the installer added (saved first)
-      0) Exit
-     Choose:
-   ```
+   ![Installer menu](docs/img/menu-main.png)
 
-   Update opens a second page: `1) See what is new` (reads GitHub, changes nothing) and `2) Update now` (downloads the newest files, then applies them). Backup and restore has `1) List my backups`, `2) Restore the newest backup`, `3) Restore a backup from the list`.
+   Update opens a second page:
+
+   ![Update page](docs/img/menu-update.png)
+
+    `1) See what is new` (reads GitHub, changes nothing) and `2) Update now` (downloads the newest files, then applies them). Backup and restore has `1) List my backups`, `2) Restore the newest backup`, `3) Restore a backup from the list`.
 
    It asks four questions: *Do you have an ACE Pro?* (**no is fine**), auto-load, endless spool, and the Fluidd panel. It shows what it will change and saves a backup first.
 3. **Restart Klipper and hard-refresh the browser** (Ctrl/Cmd+Shift+R). *You should see the Toolheads card* with your four toolheads (and the ACE parts if you have an ACE).
