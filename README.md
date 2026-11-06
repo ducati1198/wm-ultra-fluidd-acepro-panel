@@ -39,11 +39,9 @@ The idea: this adds to WonderMaker's own Klipper and Fluidd. It adds config file
 
    ![Installer menu](docs/img/menu-main.png)
 
-   Update opens a second page:
+   Update opens a second page. `1) See what is new` (reads GitHub, changes nothing) and `2) Update now` (downloads the newest files, then applies them). Backup and restore has `1) List my backups`, `2) Restore the newest backup`, `3) Restore a backup from the list`.
 
    ![Update page](docs/img/menu-update.png)
-
-    `1) See what is new` (reads GitHub, changes nothing) and `2) Update now` (downloads the newest files, then applies them). Backup and restore has `1) List my backups`, `2) Restore the newest backup`, `3) Restore a backup from the list`.
 
    It asks four questions: *Do you have an ACE Pro?* (**no is fine**), auto-load, endless spool, and the Fluidd panel. It shows what it will change and saves a backup first.
 3. **Restart Klipper and hard-refresh the browser** (Ctrl/Cmd+Shift+R). *You should see the Toolheads card* with your four toolheads (and the ACE parts if you have an ACE).
