@@ -25,7 +25,7 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 The idea: this adds to WonderMaker's own Klipper and Fluidd. It adds config files, an ACE driver and a new Toolheads card; it never replaces WonderMaker's files and never flashes anything.
 
-1. **Have WonderMaker's Klipper running on the machine** (the Raspberry Pi set up with [wm-ultra-rpi](https://github.com/ducati1198/wm-ultra-rpi), or the original board) and log in over SSH as `t13dp`. If `git` is missing, see [3.2](#32-one-command-installer).
+1. **Have WonderMaker's Klipper running on the machine** (the Raspberry Pi set up with [wm-ultra-rpi](https://github.com/ducati1198/wm-ultra-rpi), or the original board) and log in over SSH as `t13dp`. If `git` is missing (the factory screen board has none), see [3.2a](#32a-the-factory-screen-board-no-git-old-clock-archived-apt).
 2. **Run the installer:**
 
    ```bash
@@ -324,6 +324,49 @@ The installer asks a few plain questions, shows exactly what it will change, and
 - It warns, and carries on, if it **sees no ACE on USB**.
 - It **never flashes any board and never starts Klipper by itself.**
 
+### 3.2a The factory screen board: no git, old clock, archived apt
+
+If Klipper runs on the **original WonderMaker screen board**, `git` is not installed and `sudo apt-get install -y git` fails: Debian 11 was moved to an archive and the board's clock is often wrong, so even HTTPS to GitHub can fail. Log in over SSH as `t13dp` and do this once. You can skip steps 1 to 3 if you use the download in step 4 and `curl` already works.
+
+```bash
+# 1. Set the date and time (HTTPS to GitHub fails if the clock is wrong). Use your own date/time, UTC:
+date                                   # check it first
+sudo date -s "2026-11-03 18:00:00"     # example only: put today's date and time here
+# 2. Point apt at the Debian archive and stop it rejecting old package lists
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.orig
+sudo sed -i -E 's#https?://[^ /]+/debian-security#http://archive.debian.org/debian-security#; t; s#https?://[^ /]+/debian/?#http://archive.debian.org/debian/#' /etc/apt/sources.list
+printf 'Acquire::Check-Valid-Until "false";\nAcquire::Check-Date "false";\n' | sudo tee /etc/apt/apt.conf.d/99no-check-valid-until
+# 3. Now this works
+sudo apt-get update
+sudo apt-get install -y git
+```
+
+Never run `apt upgrade` or `apt full-upgrade` on this board: it can replace WonderMaker's held X server and break the screen. `apt-get install` of one package is fine.
+
+Then get this repository in one of two ways:
+
+**Option A: no git needed** (works even if apt is broken)
+
+```bash
+cd ~
+curl -fsSL https://codeload.github.com/ducati1198/wm-ultra-fluidd-acepro-panel/tar.gz/refs/heads/main | tar xz
+cd wm-ultra-fluidd-acepro-panel-main
+chmod +x installer.sh && ./installer.sh
+```
+
+**Option B: with git** (after steps 1 to 3 above)
+
+```bash
+cd ~
+git clone https://github.com/ducati1198/wm-ultra-fluidd-acepro-panel
+cd wm-ultra-fluidd-acepro-panel
+chmod +x installer.sh && ./installer.sh
+```
+
+With Option A there is no `git pull`: to update, delete the old `wm-ultra-fluidd-acepro-panel-main` folder, download again as above, and run `./installer.sh --update`. Your settings and backups are not in that folder (they are in `~/printer_data` and `~/acepro-backup`), so deleting it loses nothing.
+
+If the ACE does not show up on this board, check the free USB port first: the main board already uses one, so the ACE needs a second host port or a powered hub (`lsusb` shows what is connected).
+
 ### 3.3 Check `printer.cfg`
 
 The installer adds these for you (the two ACE lines only with an ACE, the endless line only if you chose it, the stats line always). They sit in one block near the end of the file, above the `#*# SAVE_CONFIG` block and after `[save_variables]`, not next to `[include zru-s.cfg]`. Check they are there:
@@ -537,6 +580,8 @@ Dry run: `WM_ENDLESS_PLAN FROM=0 TO=2` prints what a swap would do and moves not
 cd ~/wm-ultra-fluidd-acepro-panel && git pull
 ./installer.sh --update
 ```
+
+(If you downloaded it without git, see [3.2a](#32a-the-factory-screen-board-no-git-old-clock-archived-apt): download again instead of `git pull`.)
 
 `--update` keeps your tuned distances and speeds. Undo the last install or update with `./installer.sh --undo`. `--uninstall` removes the config files, the include lines and the driver links; WonderMaker's files are never touched. The Fluidd panel is put back by `--undo`.
 
