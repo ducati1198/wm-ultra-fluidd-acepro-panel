@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+
+- Version renumbered to 1.1.0 so it matches [acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper) 1.1.0. No code changes. The earlier numbers below are kept as history.
+
 ## 0.3.6
 
 - OrcaSlicer plugin 0.3.0: refreshes by itself when you switch printer preset, keeps your picks per printer between sessions, shows warnings (toolhead used twice, colour clearly different, empty toolhead), and lets you pick an empty WonderMaker toolhead (with a warning).
