@@ -25,6 +25,8 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 The idea: this adds to WonderMaker's own Klipper and Fluidd. It adds config files, an ACE driver and a new Toolheads card; it never replaces WonderMaker's files and never flashes anything.
 
+> **Running Klipper on the original WonderMaker screen board (no Raspberry Pi)?** It works, but the board has **no `git`**, its clock is often wrong, and its apt sources point to a Debian archive, so `sudo apt-get install -y git` fails. Follow [3.2a](#32a-the-factory-screen-board-no-git-old-clock-archived-apt) first: it fixes the clock and apt, or lets you download this repository with `curl` and no git at all. The ACE also needs a free USB port on that board (the main board already uses one), or a powered hub. This has not been run on the factory board yet.
+
 1. **Have WonderMaker's Klipper running on the machine** (the Raspberry Pi set up with [wm-ultra-rpi](https://github.com/ducati1198/wm-ultra-rpi), or the original board) and log in over SSH as `t13dp`. If `git` is missing (the factory screen board has none), see [3.2a](#32a-the-factory-screen-board-no-git-old-clock-archived-apt).
 2. **Run the installer:**
 
