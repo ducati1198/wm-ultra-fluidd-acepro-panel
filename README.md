@@ -327,6 +327,7 @@ The installer asks a few plain questions, shows exactly what it will change, and
 | `./installer.sh --undo` | Put back the files saved before the last install. |
 | `./installer.sh --uninstall` | Remove everything the installer added (saved first, so `--undo` brings it back). |
 | `./installer.sh --dry-run` | Go through the questions and show what would change. Changes nothing. |
+| `./installer.sh --free-space` | Lists what is safe to erase (sizes and a warning for each), erases only what you pick and confirm. Also offered by the install when space is short (about 300 MB needed). |
 | `./installer.sh --fix-clock` | Original WonderMaker screen board only: turn on automatic time sync (NTP) and fix apt (Debian archive). Skipped on other machines. |
 | `./installer.sh --klipper-dir DIR` / `--config-dir DIR` | Use another Klipper folder or config folder than the default (`~/klipper`, `~/printer_data/config`). |
 | `./installer.sh --version` | Print the installer version. |
@@ -664,4 +665,4 @@ Config files and Fluidd panel by **ducati1198**.
 
 ## Installer menu
 
-Run `./installer.sh` at a terminal (or `./installer.sh --menu`) for a numbered menu (screen shown in the [Quick start](#quick-start)): **1 Install, 2 Update** (See what is new / Update now, works without git), **3 Check and fix, 4 Backup and restore, 5 Dry run, 6 Uninstall**. Every entry runs the same option as before (`--install`, `--update`, `--check`, `--repair`, `--undo`, `--dry-run`, `--uninstall`), so the options still work for scripts. `--check-updates` shows what is new without downloading; `--get-latest` refreshes the installer folder.
+Run `./installer.sh` at a terminal (or `./installer.sh --menu`) for a numbered menu (screen shown in the [Quick start](#quick-start)): **1 Install, 2 Update** (See what is new / Update now, works without git), **3 Check and fix, 4 Backup and restore, 5 Dry run, 6 Uninstall, 7 Free up disk space**. Every entry runs the same option as before (`--install`, `--update`, `--check`, `--repair`, `--undo`, `--dry-run`, `--uninstall`), so the options still work for scripts. `--check-updates` shows what is new without downloading; `--get-latest` refreshes the installer folder.

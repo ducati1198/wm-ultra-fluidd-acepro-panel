@@ -189,5 +189,28 @@ check "factory board dry run changes nothing"       bash -c '! grep -q "timedate
 OUT="$(ACE_INSTALL_HOME="$HH" ACE_INSTALLER_TEST=1 bash "$INST" --fix-clock 2>&1)"
 check "--fix-clock elsewhere says nothing to fix"   bash -c 'echo "$0" | grep -q "nothing to fix"' "$OUT"
 echo
+echo "Free up disk space"
+FB="$ROOT/fsb"; FT="$ROOT/fst"; mkdir -p "$FB/.cache/pip" "$FB/printer_data/logs" "$FB/printer_data/gcodes" "$FT/tmp.AAA/orca_plugin" "$FT/tmp.keep"
+dd if=/dev/zero of="$FB/.cache/pip/x" bs=1M count=3 2>/dev/null; dd if=/dev/zero of="$FT/tmp.AAA/pad" bs=1M count=3 2>/dev/null
+echo 1.0.0 > "$FT/tmp.AAA/VERSION"; touch "$FT/tmp.AAA/installer.sh"; echo mine > "$FT/tmp.keep/file"; echo gcode > "$FB/printer_data/gcodes/a.gcode"
+dd if=/dev/zero of="$FB/printer_data/logs/klippy.log.1" bs=1M count=2 2>/dev/null
+fsx() { local ans="$1"; shift; printf "$ans" | ACE_TEST_TMP="$FT" ACE_INSTALL_HOME="$FB" ACE_INSTALLER_TEST=1 ACE_TEST_APT_KB=204800 ACE_TEST_JOURNAL_KB=102400 "$@" bash "$INST" --free-space 2>&1; }
+fsx '\n' env > "$ROOT/fs1.out"
+check "free space: lists what can go, with sizes and warnings" bash -c 'grep -q "Leftover installer downloads" "$0" && grep -q "apt package cache" "$0" && grep -q "Old rotated printer logs" "$0" && grep -q "never in this list" "$0"' "$ROOT/fs1.out"
+check "free space: Enter cancels and erases nothing" bash -c '[ -d "$0/tmp.AAA" ] && [ -d "$1/.cache/pip" ]' "$FT" "$FB"
+fsx '1\nn\n' env > "$ROOT/fs2.out"
+check "free space: warning and 'This will ERASE' before the confirmation; no erases nothing" bash -c 'grep -q "This will ERASE" "$0" && grep -q "Copies of this installer" "$0" && [ -d "$1/tmp.AAA" ]' "$ROOT/fs2.out" "$FT"
+fsx '1\ny\n' env >/dev/null
+check "free space: erases only the chosen item after confirming" bash -c '[ ! -d "$0/tmp.AAA" ] && [ -d "$0/tmp.keep" ] && [ -d "$1/.cache/pip" ] && [ -f "$1/printer_data/gcodes/a.gcode" ]' "$FT" "$FB"
+fsx 'all\ny\n' env >/dev/null
+check "free space: all uses sudo for apt and the journal, keeps gcode and the real repository" bash -c 'grep -q "apt-get clean" "$0/.sudo.log" && grep -q "vacuum-size=50M" "$0/.sudo.log" && [ ! -d "$0/.cache/pip" ] && [ ! -f "$0/printer_data/logs/klippy.log.1" ] && [ -f "$0/printer_data/gcodes/a.gcode" ] && [ -d "$1/.git" -o ! -e "$1/.git" ]' "$FB" "$REPO"
+check "free space: the menu has the entry"        bash -c 'printf "7\n0\n0\n" | ACE_MENU_TEST=1 ACE_INSTALLER_TEST=1 ACE_INSTALL_HOME="$0" bash "$1" 2>&1 | grep -q "Free up disk space"' "$FB" "$INST"
+HL="$(new_home tl)"
+OUT="$(ACE_TEST_DISK_MB=100 ACE_INSTALL_HOME="$HL" ACE_INSTALLER_TEST=1 bash "$INST" </dev/null 2>&1)"
+check "install: not enough space and no terminal stops with the --free-space hint" bash -c 'echo "$0" | grep -q "free-space"' "$OUT"
+HM2="$(new_home tm2)"; mkdir -p "$HM2/.cache/pip"; dd if=/dev/zero of="$HM2/.cache/pip/x" bs=1M count=3 2>/dev/null; mkdir -p "$FT/tmp.AAA/orca_plugin"; dd if=/dev/zero of="$FT/tmp.AAA/pad" bs=1M count=3 2>/dev/null; echo 1 > "$FT/tmp.AAA/VERSION"; touch "$FT/tmp.AAA/installer.sh"
+OUT="$(printf 'y\n1\ny\n%b' "$A_ALL" | ACE_TEST_FREE_OFFER=1 ACE_TEST_DISK_MB=299 ACE_TEST_TMP="$FT" ACE_INSTALL_HOME="$HM2" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1)"
+check "install: not enough space offers the cleanup, warns, then goes on" bash -c 'echo "$0" | grep -q "Only 299 MB free" && echo "$0" | grep -q "This will ERASE" && echo "$0" | grep -q "Disk space ok"' "$OUT"
+echo
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

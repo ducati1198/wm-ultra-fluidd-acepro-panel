@@ -14,6 +14,7 @@
 # ./installer.sh --undo [DIR]  put back the files saved before the last install
 # ./installer.sh --uninstall   remove everything the installer added (saved first, --undo brings it back)
 # ./installer.sh --fix-clock   factory screen board only: automatic time sync (NTP) and apt (Debian archive)
+# ./installer.sh --free-space  list what is safe to erase (sizes, warnings), erase what you pick and confirm
 # ./installer.sh --menu        numbered menu (this is what you get with no options at a terminal)
 # ./installer.sh --install     install without the menu
 # ./installer.sh --check-updates  see what is new on GitHub (changes nothing)
@@ -512,6 +513,7 @@ do_install() {
     find_dirs
     check_is_wondermaker
     fix_factory_board
+    check_disk_space
     { [ -f "$CONFIG_DIR/wm_ace.cfg" ] || [ -f "$(CONF_FILE)" ]; } && existing=1
 
     if [ "$MODE" = "update" ] && [ "$existing" = 0 ]; then
@@ -773,6 +775,82 @@ do_get_latest() { # refresh THIS folder from GitHub (git pull, or a tarball when
     print_success "Installer files are now v$VERSION. Apply them to the printer with ./installer.sh --update"
 }
 
+# ============================================================================
+# Free up disk space
+# ============================================================================
+FREE_NEED_MB=300
+declare -a FS_ID FS_LABEL FS_KB FS_WARN FS_SUDO
+fs_add() { FS_ID+=("$1"); FS_LABEL+=("$2"); FS_KB+=("$3"); FS_WARN+=("$4"); FS_SUDO+=("$5"); }
+fs_kb() { local k; [ $# -gt 0 ] || { echo 0; return; }; k="$(du -sk "$@" 2>/dev/null | awk '{s+=$1} END{print s+0}')"; echo "${k:-0}"; }
+fs_tmpdirs() {   # leftover downloads of this installer in /tmp: only folders made by this user that hold a copy of wm-ultra-rpi
+    local base="${ACE_TEST_TMP:-/tmp}" d
+    for d in "$base"/tmp.*; do [ -d "$d" ] && [ -f "$d/VERSION" ] && [ -d "$d/orca_plugin" ] && [ -f "$d/installer.sh" ] && [ "$(stat -c %U "$d" 2>/dev/null)" = "$(id -un)" ] && echo "$d"; done
+}
+fs_scan() {
+    FS_ID=(); FS_LABEL=(); FS_KB=(); FS_WARN=(); FS_SUDO=()
+    local kb d list=()
+    while read -r d; do [ -n "$d" ] && list+=("$d"); done < <(fs_tmpdirs)
+    if [ ${#list[@]} -gt 0 ]; then kb="$(fs_kb "${list[@]}")"; fs_add tmp "Leftover installer downloads in /tmp (${#list[@]} folder(s))" "$kb" "Copies of this installer that an older 'Update now' left behind. Nothing else is in them." 0; fi
+    kb="$(fs_kb "$INSTALL_HOME/.cache/pip")"; fs_add pip "pip download cache (~/.cache/pip)" "$kb" "Downloaded Python packages. They are downloaded again only if you reinstall something." 0
+    if [ "$TESTING" = 1 ]; then kb="${ACE_TEST_APT_KB:-0}"; else kb="$(fs_kb /var/cache/apt/archives)"; fi
+    fs_add apt "apt package cache (/var/cache/apt/archives)" "$kb" "Downloaded .deb files of packages that are already installed. Installed programs are not touched." 1
+    if [ "$TESTING" = 1 ]; then kb="${ACE_TEST_JOURNAL_KB:-0}"; else kb="$(fs_kb /var/log/journal)"; kb=$(( kb > 51200 ? kb - 51200 : 0 )); fi
+    fs_add journal "Old system log history (keeps the newest 50 MB)" "$kb" "Erases older system messages (journalctl). Only useful when looking for an old problem." 1
+    kb="$(fs_kb $(ls "$INSTALL_HOME/printer_data/logs"/*.log.* 2>/dev/null))"; fs_add oldlogs "Old rotated printer logs (~/printer_data/logs/*.log.*)" "$kb" "Older copies of klippy/moonraker logs. The current logs stay." 0
+    # (tests only ever touch a copy of the installer folder, never the real repository)
+    if [ -d "$REPO_DIR/.git" ] && case "$(basename "$REPO_DIR")" in wm-ultra-fluidd-acepro-panel*) true ;; *) false ;; esac && { [ "$TESTING" != 1 ] || [ "${ACE_TEST_REFRESH_REPO:-0}" = 1 ]; }; then kb="$(fs_kb "$REPO_DIR/.git")"; fs_add gitdir "Git history of the downloaded installer ($REPO_DIR/.git)" "$kb" "After this, 'git pull' no longer works in that folder; 'Update now' in the menu downloads the newest files instead." 0; fi
+}
+fs_free_text() { echo "  Free space now: $(disk_free_mb) MB   (the install needs about $FREE_NEED_MB MB)"; }
+fs_do() {   # id
+    case "$1" in
+        tmp) local d; while read -r d; do [ -n "$d" ] && rm -rf "$d"; done < <(fs_tmpdirs) ;;
+        pip) rm -rf "$INSTALL_HOME/.cache/pip" ;;
+        apt) sudo_run apt-get clean ;;
+        journal) sudo_run journalctl --vacuum-size=50M ;;
+        oldlogs) rm -f "$INSTALL_HOME/printer_data/logs"/*.log.* ;;
+        gitdir) rm -rf "$REPO_DIR/.git" ;;
+    esac
+}
+do_free_space() {   # lists what can be erased safely, with sizes and a warning for each; erases only what you pick and confirm
+    print_header "Free up disk space"
+    fs_free_text
+    fs_scan
+    local i n=0 idx=() ans pick=() total=0 k
+    for i in "${!FS_ID[@]}"; do
+        [ "${FS_KB[$i]}" -ge 1024 ] || continue
+        n=$((n+1)); idx+=("$i")
+        printf '   %s) %-62s %5s MB%s\n' "$n" "${FS_LABEL[$i]}" "$(( FS_KB[i] / 1024 ))" "$([ "${FS_SUDO[$i]}" = 1 ] && echo '  (asks for sudo)')"
+        echo -e "      ${DIM}${FS_WARN[$i]}${NC}"
+    done
+    [ "$n" -gt 0 ] || { print_info "Nothing safe to erase was found. Free space yourself: old files in ~/printer_data/gcodes, or other large files (du -xh ~ --max-depth=1 | sort -rh | head)."; return 0; }
+    echo "  Your gcode files, your settings, KlipperScreen and the factory software are never in this list."
+    if false; then ans="all"; else read -r -p "  Type the numbers to erase (for example 1 3), 'all', or press Enter to cancel: " ans || ans=""; fi
+    ans="$(echo "$ans" | tr ',' ' ')"
+    [ -n "$ans" ] || { echo "  Nothing was erased."; return 0; }
+    if [ "$ans" = all ]; then pick=("${idx[@]}"); else
+        for k in $ans; do [[ "$k" =~ ^[0-9]+$ ]] && [ "$k" -ge 1 ] && [ "$k" -le "$n" ] && pick+=("${idx[$((k-1))]}") || { print_warning "'$k' is not in the list."; return 0; }; done
+    fi
+    echo; echo -e "  ${YELLOW}This will ERASE:${NC}"
+    for i in "${pick[@]}"; do echo "    - ${FS_LABEL[$i]}  (about $(( FS_KB[i] / 1024 )) MB)"; echo -e "      ${DIM}${FS_WARN[$i]}${NC}"; total=$((total + FS_KB[i])); done
+    if [ "$DRY" = 1 ]; then echo -e "  ${DIM}(dry run: nothing is erased)${NC}"; return 0; fi
+    ask_yn "Erase these now? About $((total/1024)) MB will be freed" N || { echo "  Nothing was erased."; return 0; }
+    for i in "${pick[@]}"; do fs_do "${FS_ID[$i]}"; done
+    [ "$TESTING" = 1 ] && export ACE_TEST_DISK_MB=$(( ${ACE_TEST_DISK_MB:-4000} + total/1024 ))
+    print_success "Erased. Free space now: $(disk_free_mb) MB"
+}
+
+disk_free_mb() { [ "$TESTING" = 1 ] && { echo "${ACE_TEST_DISK_MB:-4000}"; return; }; df -Pm "$INSTALL_HOME" | awk 'NR==2{print $4}'; }
+check_disk_space() {
+    local free; free="$(disk_free_mb)"
+    if [ "${free:-0}" -le "$FREE_NEED_MB" ] && { [ -t 0 ] || [ "${ACE_TEST_FREE_OFFER:-0}" = 1 ]; } && [ "$DRY" != 1 ]; then
+        print_warning "Only ${free} MB free; the install needs about $FREE_NEED_MB MB."
+        echo "  I can look for files that are safe to erase and show you each one before anything is deleted."
+        ask_yn "Look for files to erase now?" Y && { do_free_space; free="$(disk_free_mb)"; }
+    fi
+    [ "${free:-0}" -gt "$FREE_NEED_MB" ] || die_with_fix "only ${free} MB free." "free space first: ./installer.sh --free-space  (it shows what is safe to erase and asks before deleting)"
+    print_success "Disk space ok (${free} MB free)"
+}
+
 menu_item() { printf '   %s) %-30s %b%s%b\n' "$1" "$2" "$DIM" "$3" "$NC"; }
 menu_read() { local a; read -r -p "  $1 " a || return 1; REPLY_MENU="$(echo "$a" | tr -d '[:space:]')"; return 0; }
 menu_sub() { # run this script again with options, then pause so the output can be read
@@ -852,6 +930,7 @@ menu_main() {
         menu_item 4 "Backup and restore" "list backups, put one back"
         menu_item 5 "Dry run of the install" "shows what would change, changes nothing"
         menu_item 6 "Uninstall" "removes everything the installer added (saved first)"
+        menu_item 7 "Free up disk space" "shows what is safe to erase (sizes, warnings), erases only what you pick"
         menu_item 0 "Exit" ""
         menu_read "Choose:" || return 0
         case "$REPLY_MENU" in
@@ -861,6 +940,7 @@ menu_main() {
             4) menu_backup ;;
             5) menu_sub --dry-run ;;
             6) menu_sub --uninstall ;;
+            7) menu_sub --free-space ;;
             0|"") return 0 ;;
             *) menu_bad ;;
         esac
@@ -873,6 +953,7 @@ parse_args() {
     while [ $# -gt 0 ]; do
         case "$1" in
             --menu) MODE=menu ;;
+            --free-space) MODE=freespace ;;
             --fix-clock) MODE=fixclock ;;
             --install) MODE=install ;;
             --check-updates) MODE=whatsnew ;;
@@ -899,6 +980,7 @@ main() {
     command -v python3 >/dev/null 2>&1 || die_with_fix "python3 is not installed" "sudo apt-get install -y python3"
     case "$MODE" in
         menu) menu_main ;;
+        freespace) do_free_space ;;
         fixclock) on_factory_board && fix_factory_board || print_info "This is not the factory screen board, so there is nothing to fix." ;;
         whatsnew) do_check_updates ;;
         getlatest) do_get_latest ;;

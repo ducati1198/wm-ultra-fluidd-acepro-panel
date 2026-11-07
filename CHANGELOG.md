@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0
+
+- New **Free up disk space**: menu entry 7 and `./installer.sh --free-space`. It lists what is safe to erase with its size and a warning (leftover installer downloads in /tmp, the pip cache, the apt package cache, old system log history, old rotated printer logs, the installer's git history), you type the numbers, it shows "This will ERASE" and asks before deleting. Your gcode files, settings and backups are never listed.
+- The install now checks for about 300 MB of free space and, if there is less, offers that cleanup right there, then checks again.
+
 ## 1.3.2
 
 - `--get-latest`: the downloaded copy in /tmp is now also removed when copying the files fails (it was the only path that left it behind).
