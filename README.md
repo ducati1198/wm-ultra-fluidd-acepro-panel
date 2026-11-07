@@ -318,12 +318,16 @@ The installer asks a few plain questions, shows exactly what it will change, and
 
 | Command | What it does |
 |---|---|
+| `./installer.sh` (or `--menu`) | Open the numbered menu (at a terminal). `--install` skips it. |
+| `./installer.sh --check-updates` | See what is new on GitHub. Downloads nothing. |
+| `./installer.sh --get-latest` | Download the newest installer files (git pull, or a tarball when there is no git). Then run `--update`. |
 | `./installer.sh --update` | Update the files. Your tuned values (distances, speeds) are kept. |
 | `./installer.sh --check` | Look for problems. Changes nothing. |
 | `./installer.sh --repair` | Restore the driver links and the include lines. |
 | `./installer.sh --undo` | Put back the files saved before the last install. |
 | `./installer.sh --uninstall` | Remove everything the installer added (saved first, so `--undo` brings it back). |
 | `./installer.sh --dry-run` | Go through the questions and show what would change. Changes nothing. |
+| `./installer.sh --fix-clock` | Original WonderMaker screen board only: turn on automatic time sync (NTP) and fix apt (Debian archive). Skipped on other machines. |
 | `./installer.sh --klipper-dir DIR` / `--config-dir DIR` | Use another Klipper folder or config folder than the default (`~/klipper`, `~/printer_data/config`). |
 | `./installer.sh --version` | Print the installer version. |
 
