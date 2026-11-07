@@ -789,7 +789,13 @@ menu_update() {
         menu_read "Choose:" || return 0
         case "$REPLY_MENU" in
             1) menu_sub --check-updates ;;
-            2) menu_sub --get-latest; menu_sub --update; exec bash "$SCRIPT_DIR/installer.sh" --menu ;;   # restart the menu so the new version is the one running
+            2) menu_sub --get-latest
+               local cd_="${CONFIG_DIR:-$INSTALL_HOME/printer_data/config}"
+               if [ ! -f "$cd_/$CONF_NAME" ] && [ ! -f "$cd_/wm_ace.cfg" ]; then   # nothing installed yet: the installer files are current, there is nothing to update
+                   echo; print_info "Nothing is installed on this machine yet, so there is nothing to update. The installer files above are the newest. Go back and choose 1 (Install)."
+                   [ -t 0 ] && read -r -p "  Press Enter to go back to the menu " _ || true
+               else menu_sub --update; fi
+               exec bash "$SCRIPT_DIR/installer.sh" --menu ;;   # restart the menu so the new version is the one running
             0|"") return 0 ;; *) menu_bad ;;
         esac
     done

@@ -169,6 +169,8 @@ check "--get-latest without git refreshes the folder" test "$(tr -d '[:space:]' 
 
 OUT="$(printf '2\n2\nn\nn\nn\nn\n0\n' | ACE_TEST_TARBALL="$GL/t.tgz" ACE_MENU_TEST=1 ACE_INSTALLER_TEST=1 ACE_INSTALL_HOME="$HM" bash "$ROOT/copy/installer.sh" 2>&1)"
 check "Update now restarts the menu on the new version" bash -c 'echo "$0" | grep -q "installer v7.7.7"' "$OUT"
+OUT="$(printf '2\n2\n0\n0\n' | ACE_TEST_TARBALL="$GL/t.tgz" ACE_MENU_TEST=1 ACE_INSTALLER_TEST=1 ACE_INSTALL_HOME="$ROOT/emptyhome" bash "$ROOT/copy/installer.sh" 2>&1)"
+check "Update now with nothing installed explains it instead of a red error" bash -c 'echo "$0" | grep -q "Nothing is installed on this machine yet" && ! echo "$0" | grep -q "Can.t continue"' "$OUT"
 echo
 echo "Factory screen board: clock and apt"
 HF="$(new_home tf)"

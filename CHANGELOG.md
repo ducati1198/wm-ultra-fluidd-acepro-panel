@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1
+
+- Menu: Update now on a machine where nothing is installed yet no longer ends with a red error. It updates the installer files, says that nothing is installed yet (choose 1 to install), and reopens the menu on the new version.
+
 ## 1.3.0
 
 - On the original WonderMaker screen board only (Debian 11 with the factory app `makerbase-client`), the install now starts with the clock and apt: it asks once to turn on automatic time sync (NTP; if no time server answers it sets the clock once from GitHub's reply), points apt at the Debian archive (a copy of `sources.list` is kept) and makes apt ignore the old package-list dates. On a Raspberry Pi or any other machine this step is skipped. Also available alone as `./installer.sh --fix-clock`, and in the menu under Check and fix (shown only on the factory board).
