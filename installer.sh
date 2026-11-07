@@ -756,7 +756,7 @@ do_check_updates() {
 }
 
 do_get_latest() { # refresh THIS folder from GitHub (git pull, or a tarball when there is no git)
-    local tmp
+    local tmp rc
     print_header "Downloading the newest installer files"
     if [ -d "$REPO_DIR/.git" ] && command -v git >/dev/null 2>&1; then
         (cd "$REPO_DIR" && git pull --ff-only) || die_with_fix "git pull did not work" "run: cd $REPO_DIR && git status"
@@ -766,7 +766,8 @@ do_get_latest() { # refresh THIS folder from GitHub (git pull, or a tarball when
         if [ -n "${ACE_TEST_TARBALL:-}" ]; then cp "$ACE_TEST_TARBALL" "$tmp/x.tgz"
         else curl -fsSL --max-time 120 "$TARBALL_URL" -o "$tmp/x.tgz" || { rm -rf "$tmp"; die_with_fix "download failed" "check the internet connection"; }; fi
         mkdir "$tmp/x" && tar -xzf "$tmp/x.tgz" -C "$tmp/x" --strip-components=1 && [ -f "$tmp/x/installer.sh" ] || { rm -rf "$tmp"; die_with_fix "the download is not the installer" "try again later"; }
-        cp -a "$tmp/x/." "$REPO_DIR/" && rm -rf "$tmp"
+        cp -a "$tmp/x/." "$REPO_DIR/"; rc=$?; rm -rf "$tmp"   # the downloaded copy never stays in /tmp
+        [ "$rc" = 0 ] || die_with_fix "could not copy the new files into $REPO_DIR" "check the folder permissions"
     fi
     VERSION="$(tr -d '[:space:]' < "$REPO_DIR/VERSION" 2>/dev/null || echo dev)"
     print_success "Installer files are now v$VERSION. Apply them to the printer with ./installer.sh --update"

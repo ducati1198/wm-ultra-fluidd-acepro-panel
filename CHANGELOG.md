@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2
+
+- `--get-latest`: the downloaded copy in /tmp is now also removed when copying the files fails (it was the only path that left it behind).
+
 ## 1.3.1
 
 - Menu: Update now on a machine where nothing is installed yet no longer ends with a red error. It updates the installer files, says that nothing is installed yet (choose 1 to install), and reopens the menu on the new version.
