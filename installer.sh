@@ -736,7 +736,7 @@ menu_update() {
         menu_read "Choose:" || return 0
         case "$REPLY_MENU" in
             1) menu_sub --check-updates ;;
-            2) menu_sub --get-latest; menu_sub --update; return 0 ;;
+            2) menu_sub --get-latest; menu_sub --update; exec bash "$SCRIPT_DIR/installer.sh" --menu ;;   # restart the menu so the new version is the one running
             0|"") return 0 ;; *) menu_bad ;;
         esac
     done

@@ -167,6 +167,8 @@ cp -a "$REPO" "$ROOT/copy"; rm -rf "$ROOT/copy/.git"
 OUT="$(ACE_TEST_TARBALL="$GL/t.tgz" ACE_INSTALLER_TEST=1 bash "$ROOT/copy/installer.sh" --get-latest 2>&1)"
 check "--get-latest without git refreshes the folder" test "$(tr -d '[:space:]' < "$ROOT/copy/VERSION")" = 7.7.7
 
+OUT="$(printf '2\n2\nn\nn\nn\nn\n0\n' | ACE_TEST_TARBALL="$GL/t.tgz" ACE_MENU_TEST=1 ACE_INSTALLER_TEST=1 ACE_INSTALL_HOME="$HM" bash "$ROOT/copy/installer.sh" 2>&1)"
+check "Update now restarts the menu on the new version" bash -c 'echo "$0" | grep -q "installer v7.7.7"' "$OUT"
 echo
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

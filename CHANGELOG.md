@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+- Menu: Update, Update now restarts the menu after the update, so the new version is the one running (no need to quit and reopen). Same as the other two installers.
+
 ## 1.2.0
 
 - New numbered menu, same style as the wm-ultra-rpi installers: Install, Update (See what is new / Update now), Check and fix, Backup and restore, Dry run, Uninstall. Run `./installer.sh` with no options at a terminal, or `./installer.sh --menu`.
