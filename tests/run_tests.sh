@@ -170,5 +170,22 @@ check "--get-latest without git refreshes the folder" test "$(tr -d '[:space:]' 
 OUT="$(printf '2\n2\nn\nn\nn\nn\n0\n' | ACE_TEST_TARBALL="$GL/t.tgz" ACE_MENU_TEST=1 ACE_INSTALLER_TEST=1 ACE_INSTALL_HOME="$HM" bash "$ROOT/copy/installer.sh" 2>&1)"
 check "Update now restarts the menu on the new version" bash -c 'echo "$0" | grep -q "installer v7.7.7"' "$OUT"
 echo
+echo "Factory screen board: clock and apt"
+HF="$(new_home tf)"
+inst() { local h="$1" answers="$2"; shift 2
+    OUT="$(printf '%b' "$answers" | ACE_INSTALL_HOME="$h" ACE_INSTALLER_TEST=1 ${ACE_TEST_FACTORY_BOARD:+ACE_TEST_FACTORY_BOARD=$ACE_TEST_FACTORY_BOARD} bash "$INST" "$@" 2>&1)"; RC=$?; }
+inst "$HF" "$A_ALL"
+check "not a factory board: no clock or apt step"   bash -c '! echo "$0" | grep -q "factory screen board"; ! test -f "$1/.sudo.log"' "$OUT" "$HF"
+HG="$(new_home tg)"
+OUT="$(printf '%b' "y\n$A_ALL" | ACE_TEST_FACTORY_BOARD=1 ACE_INSTALL_HOME="$HG" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1)"
+check "factory board: the clock and apt step runs"  bash -c 'echo "$0" | grep -q "This is the factory screen board"' "$OUT"
+check "factory board: NTP turned on"                grep -q "timedatectl set-ntp true" "$HG/.sudo.log"
+check "factory board: apt date check switched off"  grep -q "99no-check-valid-until" "$HG/.sudo.log"
+HH="$(new_home th)"
+OUT="$(printf '%b' "$A_ALL" | ACE_TEST_NTP_SYNCED=yes ACE_TEST_FACTORY_BOARD=1 ACE_INSTALL_HOME="$HH" ACE_INSTALLER_TEST=1 bash "$INST" --dry-run 2>&1)"
+check "factory board dry run changes nothing"       bash -c '! grep -q "timedatectl" "$0/.sudo.log" 2>/dev/null' "$HH"
+OUT="$(ACE_INSTALL_HOME="$HH" ACE_INSTALLER_TEST=1 bash "$INST" --fix-clock 2>&1)"
+check "--fix-clock elsewhere says nothing to fix"   bash -c 'echo "$0" | grep -q "nothing to fix"' "$OUT"
+echo
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

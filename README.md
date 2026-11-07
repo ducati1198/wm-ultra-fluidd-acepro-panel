@@ -351,6 +351,8 @@ sudo apt-get update
 sudo apt-get install -y git
 ```
 
+**The installer can do steps 1 and 2 for you** (only on this factory board; it is skipped on a Raspberry Pi or any other machine): it asks once to turn on automatic time sync (NTP) and to point apt at the Debian archive. Run it alone with `./installer.sh --fix-clock`, or from the menu: 3 Check and fix > Fix the clock and apt. If you cannot download this repository yet because the clock is wrong, use the manual steps above first.
+
 Never run `apt upgrade` or `apt full-upgrade` on this board: it can replace WonderMaker's held X server and break the screen. `apt-get install` of one package is fine.
 
 Then get this repository in one of two ways:

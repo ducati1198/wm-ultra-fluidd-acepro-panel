@@ -13,6 +13,7 @@
 # ./installer.sh --repair      restore links and include lines
 # ./installer.sh --undo [DIR]  put back the files saved before the last install
 # ./installer.sh --uninstall   remove everything the installer added (saved first, --undo brings it back)
+# ./installer.sh --fix-clock   factory screen board only: automatic time sync (NTP) and apt (Debian archive)
 # ./installer.sh --menu        numbered menu (this is what you get with no options at a terminal)
 # ./installer.sh --install     install without the menu
 # ./installer.sh --check-updates  see what is new on GitHub (changes nothing)
@@ -446,6 +447,57 @@ final_steps() {
 # Install / update
 # ============================================================================
 
+# ============================================================================
+# The factory screen board only: wrong clock and archived apt (other machines do not need this)
+# ============================================================================
+
+on_factory_board() { # 0 = this is the original WonderMaker screen board (Debian 11 with the factory app makerbase-client)
+    [ "$TESTING" = 1 ] && { [ "${ACE_TEST_FACTORY_BOARD:-0}" = 1 ]; return; }
+    grep -q 'VERSION_ID="11"' /etc/os-release 2>/dev/null && systemctl cat makerbase-client.service >/dev/null 2>&1
+}
+sudo_run() { if [ "$TESTING" = 1 ]; then echo "[test] sudo $*" >> "$INSTALL_HOME/.sudo.log"; return 0; fi; if [ "$(id -u)" = 0 ]; then "$@"; else sudo "$@"; fi; }
+
+fix_factory_board() { # clock (NTP) + apt, asked once. Does nothing on a Raspberry Pi or any other machine.
+    on_factory_board || return 0
+    print_header "This is the factory screen board: date, time and apt"
+    local synced now
+    if [ "$TESTING" = 1 ]; then synced="${ACE_TEST_NTP_SYNCED:-no}"; else synced="$(timedatectl show -p NTPSynchronized --value 2>/dev/null)"; fi
+    now="$(date '+%Y-%m-%d %H:%M %Z')"
+    if [ "$synced" = yes ]; then print_success "The clock is set automatically (NTP): $now"
+    else
+        echo "  The board's clock is not synchronised automatically. Now: $now"
+        why "A wrong date makes HTTPS downloads and apt fail. Automatic time sync keeps it right whenever the board is online."
+        if [ "$DRY" = 1 ]; then echo -e "  ${DIM}would run: sudo timedatectl set-ntp true${NC}"
+        elif ask_yn "Turn on automatic time sync (NTP)?" Y; then
+            sudo_run timedatectl set-ntp true || sudo_run systemctl enable --now systemd-timesyncd || true
+            if [ "$TESTING" != 1 ]; then
+                local i; for i in $(seq 1 15); do [ "$(timedatectl show -p NTPSynchronized --value 2>/dev/null)" = yes ] && break; sleep 2; done
+                if [ "$(timedatectl show -p NTPSynchronized --value 2>/dev/null)" != yes ]; then   # no time server reachable: take the time once from a web server's Date header
+                    local d; d="$(curl -sIk -m 8 https://github.com 2>/dev/null | sed -n 's/^[Dd]ate: *//p' | tr -d '\r' | head -1)"
+                    [ -n "$d" ] && sudo date -u -s "$d" >/dev/null 2>&1 && print_info "No time server answered; the clock was set once from GitHub's reply."
+                fi
+            fi
+            print_success "Automatic time sync is on: $(date '+%Y-%m-%d %H:%M %Z')"
+        else print_info "Left as it is."; fi
+    fi
+    # apt: Debian 11 is archived. Same fix as README 3.2a; apt upgrade is never run.
+    local sl=/etc/apt/sources.list conf=/etc/apt/apt.conf.d/99no-check-valid-until
+    if grep -qE '^deb .*(mirrors|deb\.debian|security\.debian|ftp\.)' "$sl" 2>/dev/null && [ "$TESTING" != 1 ]; then
+        if [ "$DRY" = 1 ]; then echo -e "  ${DIM}would point apt at archive.debian.org (a copy of sources.list is kept)${NC}"
+        elif ask_yn "Point apt at the Debian archive (a copy of $sl is kept as $sl.orig)?" Y; then
+            [ -f "$sl.orig" ] || sudo_run cp "$sl" "$sl.orig"
+            sudo_run sed -i -E 's#https?://[^ /]+/debian-security#http://archive.debian.org/debian-security#; t; s#https?://[^ /]+/debian/?#http://archive.debian.org/debian/#' "$sl"
+            print_success "apt now uses archive.debian.org"
+        fi
+    fi
+    if [ ! -f "$conf" ]; then
+        if [ "$DRY" = 1 ]; then echo -e "  ${DIM}would write $conf (apt ignores the old package-list dates)${NC}"
+        else printf 'Acquire::Check-Valid-Until "false";\nAcquire::Check-Date "false";\n' | sudo_run tee "$conf" >/dev/null; [ "$TESTING" = 1 ] && echo "[test] write $conf" >> "$INSTALL_HOME/.sudo.log"; print_success "apt ignores the old package-list dates"; fi
+    else print_success "apt already ignores the old package-list dates"; fi
+    print_info "Never run apt upgrade on this board: it can replace WonderMaker's held X server."
+}
+
+
 do_install() {
     local existing=0
     echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
@@ -459,6 +511,7 @@ do_install() {
     [ "$DRY" = 1 ] || guard_not_printing
     find_dirs
     check_is_wondermaker
+    fix_factory_board
     { [ -f "$CONFIG_DIR/wm_ace.cfg" ] || [ -f "$(CONF_FILE)" ]; } && existing=1
 
     if [ "$MODE" = "update" ] && [ "$existing" = 0 ]; then
@@ -747,11 +800,13 @@ menu_fix() {
         echo; echo -e "${BLUE}Check and fix${NC}"
         menu_item 1 "Check" "reports problems, changes nothing"
         menu_item 2 "Repair" "restores links and include lines, then checks again"
+        on_factory_board && menu_item 3 "Fix the clock and apt" "factory screen board only: automatic time sync and the Debian archive"
         menu_item 0 "Back" ""
         menu_read "Choose:" || return 0
         case "$REPLY_MENU" in
             1) menu_sub --check ;;
             2) menu_sub --repair; menu_sub --check ;;
+            3) on_factory_board && menu_sub --fix-clock || menu_bad ;;
             0|"") return 0 ;; *) menu_bad ;;
         esac
     done
@@ -811,6 +866,7 @@ parse_args() {
     while [ $# -gt 0 ]; do
         case "$1" in
             --menu) MODE=menu ;;
+            --fix-clock) MODE=fixclock ;;
             --install) MODE=install ;;
             --check-updates) MODE=whatsnew ;;
             --get-latest) MODE=getlatest ;;
@@ -836,6 +892,7 @@ main() {
     command -v python3 >/dev/null 2>&1 || die_with_fix "python3 is not installed" "sudo apt-get install -y python3"
     case "$MODE" in
         menu) menu_main ;;
+        fixclock) on_factory_board && fix_factory_board || print_info "This is not the factory screen board, so there is nothing to fix." ;;
         whatsnew) do_check_updates ;;
         getlatest) do_get_latest ;;
         install|update) do_install ;;
