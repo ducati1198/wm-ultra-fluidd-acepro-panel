@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.5
+
+- The progress bar no longer repeats itself on a timer (the repeated lines landed on top of questions). It is printed once at the start of each step.
+
 ## 1.5.4
 
 - Pressing Ctrl-C during `--get-latest` now removes the downloaded copy from /tmp.

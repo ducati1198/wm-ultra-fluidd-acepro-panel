@@ -238,29 +238,30 @@ check "support bundle has the system report and configs" bash -c 'test -s "$0/ac
 menu '3\n3\n0\n0\n0\n'
 check "check and fix menu has Doctor and Support bundle" bash -c 'echo "$0" | grep -q "3) Doctor" && echo "$0" | grep -q "4) Support bundle"' "$OUT"
 
-echo "Live progress bar"
-live_check() {   # script-with-progress_bar : in a terminal the bar line is repainted every second, and given back at 100 percent
+echo "Progress bar never gets in the way of a question"
+bar_check() {   # script-with-progress_bar : the bar is printed once, never redrawn, and no background job is started
     local LB; LB="$(mktemp -d)"
     cat > "$LB/lt.sh" <<EOT
-GREEN=; NC=; TESTING=0; DRY=0; LIVE_BAR_EVERY=1
-eval "\$(sed -n '/^prog_repeat()/p;/^progress_bar()/,/^}/p;/^live_bar_stop()/,/^}/p;/^live_bar_start()/,/^}/p' $1)"
-progress_bar 1 5 "Step 2 of 5"; sleep 2.5; progress_bar 5 5 Done
+GREEN=; NC=; TESTING=0; DRY=0
+eval "\$(sed -n '/^prog_repeat()/p;/^progress_bar()/,/^}/p' $1)"
+progress_bar 1 5 "Step 2 of 5"; read -r -p "question? " a; echo "[\$a]"; sleep 2; jobs -p | wc -l
 EOT
     python3 - "$LB/lt.sh" <<'EOP'
 import pty,os,struct,fcntl,termios,time,sys
 pid,fd=pty.fork()
 if pid==0: os.execvp('bash',['bash',sys.argv[1]])
 fcntl.ioctl(fd,termios.TIOCSWINSZ,struct.pack('HHHH',24,80,0,0))
-out=b''; t=time.time()
+out=b''; t=time.time(); sent=False
 while time.time()-t<6:
     try: d=os.read(fd,4096)
     except OSError: break
     if not d: break
     out+=d
-sys.exit(0 if b'0m01s' in out and b'\x1b[' not in out.replace(b'\x1b[0m',b'') and out.count(b'Step 2 of 5')>=2 else 1)
+    if b'question?' in out and not sent: time.sleep(1.2); os.write(fd,b'hello\n'); sent=True
+sys.exit(0 if out.count(b'Step 2 of 5')==1 and b'\x1b[' not in out.replace(b'\x1b[0m',b'').replace(b'\x1b[0;32m',b'') and b'[hello]' in out and b'\n0' in out.replace(b'\r',b'') else 1)
 EOP
 }
-check "fluidd installer: the bar is repeated with the time so far, on its own line, while a step runs (no cursor tricks)" live_check $INST
+check "fluidd installer: the bar is printed once and a question after it stays clean" bar_check $INST
 check "get-latest: the download in /tmp is removed on Ctrl-C" grep -qF 'trap '"'"'rm -rf "$tmp"; exit 130'"'"' INT TERM' "$INST"
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

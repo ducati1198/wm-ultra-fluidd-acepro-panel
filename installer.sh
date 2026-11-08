@@ -99,24 +99,8 @@ progress_bar() {   # steps-done total label : a bar like [██████░�
     [ "$n" -gt "$t" ] && n="$t"; [ "$n" -lt 0 ] && n=0
     pct=$((n*100/t)); f=$((n*w/t))
     printf '  %b[%s%s]%b %3d%%  %s\n' "$GREEN" "$(prog_repeat '█' "$f")" "$(prog_repeat '░' $((w-f)))" "$NC" "$pct" "$label"
-    local txt; txt="$(printf '%b[%s%s]%b %3d%%  %s' "$GREEN" "$(prog_repeat '█' "$f")" "$(prog_repeat '░' $((w-f)))" "$NC" "$pct" "$label")"
-    if [ "$n" -ge "$t" ]; then live_bar_stop; else live_bar_start "$txt"; fi
 }
-live_bar_stop() {   # stop the "still running" bar lines
-    [ -n "${LIVE_PID:-}" ] || return 0
-    kill "$LIVE_PID" 2>/dev/null; wait "$LIVE_PID" 2>/dev/null; LIVE_PID=""
-}
-live_bar_start() {   # text : while a slow step runs, print the same bar again on its own line every 15 s with the time so far (works in every terminal)
-    live_bar_stop
-    [ -t 1 ] && [ "${TESTING:-0}" != 1 ] && [ "${DRY:-0}" != 1 ] || return 0
-    local main=$$ text="$1" every="${LIVE_BAR_EVERY:-15}"
-    ( local t0 s; t0="$(date +%s)"
-      while sleep "$every" && kill -0 "$main" 2>/dev/null; do
-          s=$(( $(date +%s) - t0 ))
-          printf '  %s  | %dm%02ds\n' "$text" $((s/60)) $((s%60))
-      done ) &
-    LIVE_PID=$!
-}
+live_bar_stop() { return 0; }   # (the bar is printed once per step; it never redraws, so it cannot get in the way of a question)
 
 die_with_fix() {
     local msg="$1" fix="$2"
