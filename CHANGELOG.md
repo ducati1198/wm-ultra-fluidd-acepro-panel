@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.3
+
+- The live bar no longer uses a pinned bottom line (it came out garbled in some phone terminal apps). While a slow step runs, the bar is printed again on its own line every 15 seconds with the time so far.
+
 ## 1.5.2
 
 - The live bar now also covers Check, Doctor, support bundle, Undo, the clock fix and Free up disk space.
