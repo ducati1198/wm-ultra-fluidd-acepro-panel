@@ -237,5 +237,29 @@ check "support bundle removes passwords and private addresses" bash -c '! grep -
 check "support bundle has the system report and configs" bash -c 'test -s "$0/ace-support/system.txt" && test -s "$0/ace-support/config/printer.cfg"' "$BX"
 menu '3\n3\n0\n0\n0\n'
 check "check and fix menu has Doctor and Support bundle" bash -c 'echo "$0" | grep -q "3) Doctor" && echo "$0" | grep -q "4) Support bundle"' "$OUT"
+
+echo "Live progress bar"
+live_check() {   # script-with-progress_bar : in a terminal the bar line is repainted every second, and given back at 100 percent
+    local LB; LB="$(mktemp -d)"
+    cat > "$LB/lt.sh" <<EOT
+GREEN=; NC=; TESTING=0; DRY=0
+eval "\$(sed -n '/^prog_repeat()/p;/^progress_bar()/,/^}/p;/^live_bar_stop()/,/^}/p;/^live_bar_start()/,/^}/p' $1)"
+progress_bar 1 5 "Step 2 of 5"; sleep 2.5; progress_bar 5 5 Done
+EOT
+    python3 - "$LB/lt.sh" <<'EOP'
+import pty,os,struct,fcntl,termios,time,sys
+pid,fd=pty.fork()
+if pid==0: os.execvp('bash',['bash',sys.argv[1]])
+fcntl.ioctl(fd,termios.TIOCSWINSZ,struct.pack('HHHH',24,80,0,0))
+out=b''; t=time.time()
+while time.time()-t<6:
+    try: d=os.read(fd,4096)
+    except OSError: break
+    if not d: break
+    out+=d
+sys.exit(0 if out.count(b'\x1b[24;1H')>=2 and b'0m01s' in out and b'\x1b[r' in out else 1)
+EOP
+}
+check "fluidd installer: the bar line is repainted every second and released at 100 percent" live_check $INST
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]
