@@ -261,5 +261,6 @@ sys.exit(0 if b'0m01s' in out and b'\x1b[' not in out.replace(b'\x1b[0m',b'') an
 EOP
 }
 check "fluidd installer: the bar is repeated with the time so far, on its own line, while a step runs (no cursor tricks)" live_check $INST
+check "get-latest: the download in /tmp is removed on Ctrl-C" grep -qF 'trap '"'"'rm -rf "$tmp"; exit 130'"'"' INT TERM' "$INST"
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

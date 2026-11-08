@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.4
+
+- Pressing Ctrl-C during `--get-latest` now removes the downloaded copy from /tmp.
+
 ## 1.5.3
 
 - The live bar no longer uses a pinned bottom line (it came out garbled in some phone terminal apps). While a slow step runs, the bar is printed again on its own line every 15 seconds with the time so far.
