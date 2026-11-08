@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0
+
+- **Progress bars** during install, repair and uninstall: `[██████░░░░░░]  60%  Step 3 of 5: include lines in printer.cfg`.
+- New **Doctor** (`./installer.sh --doctor`, Check and fix > 3): looks at printer.cfg, free disk space, the installed version, the driver links, config files and include lines, and the Fluidd panel. For each problem it offers a fix and asks first. A config file that is there (maybe tuned) is never overwritten; only a missing one is put back.
+- New **Support bundle** (`./installer.sh --support-bundle`, Check and fix > 4): a `.tgz` in your home folder with a system report, your Klipper config files and the end of the klippy and moonraker logs. Passwords, tokens, Wi-Fi names, private IP and MAC addresses are removed. Gcode files and backups are not included.
+- The clock fix on the factory screen board no longer skips certificate checks: the time fallback reads the `Date` header over plain http. It also asks about automatic time sync only once an hour.
+
 ## 1.4.0
 
 - New **Free up disk space**: menu entry 7 and `./installer.sh --free-space`. It lists what is safe to erase with its size and a warning (leftover installer downloads in /tmp, the pip cache, the apt package cache, old system log history, old rotated printer logs, the installer's git history), you type the numbers, it shows "This will ERASE" and asks before deleting. Your gcode files, settings and backups are never listed.

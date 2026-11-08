@@ -216,5 +216,26 @@ HM2="$(new_home tm2)"; mkdir -p "$HM2/.cache/pip"; dd if=/dev/zero of="$HM2/.cac
 OUT="$(printf 'y\n1\ny\n%b' "$A_ALL" | ACE_TEST_FREE_OFFER=1 ACE_TEST_DISK_MB=299 ACE_TEST_TMP="$FT" ACE_INSTALL_HOME="$HM2" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1)"
 check "install: not enough space offers the cleanup, warns, then goes on" bash -c 'echo "$0" | grep -q "Only 299 MB free" && echo "$0" | grep -q "This will ERASE" && echo "$0" | grep -q "Disk space ok"' "$OUT"
 echo
+echo "Doctor, support bundle and progress bars"
+DH="$(new_home doc)"
+inst "$DH" "$A_ALL"
+check "install shows a progress bar that reaches 100 percent" bash -c 'echo "$0" | grep -q "100%  Done"' "$OUT"
+check "install bar names its steps"                 bash -c 'echo "$0" | grep -q "Step 3 of 5"' "$OUT"
+inst "$DH" "" --doctor
+check "doctor on a healthy install finds nothing"   bash -c 'echo "$0" | grep -q "No problems found"' "$OUT"
+rm -f "$(cfg "$DH")/wm_ace.cfg"
+inst "$DH" "n\n" --doctor
+check "doctor reports the missing file" bash -c 'echo "$0" | grep -q "are missing"' "$OUT"
+check "doctor changes nothing when you say no"      test ! -e "$(cfg "$DH")/wm_ace.cfg"
+inst "$DH" "y\n" --doctor
+check "doctor restores the file when you say yes"   test -e "$(cfg "$DH")/wm_ace.cfg"
+echo "password: hunter2 on 192.168.1.50" >> "$(cfg "$DH")/moonraker.conf"
+inst "$DH" "" --support-bundle
+check "support bundle is written"                   bash -c 'ls "$0"/ace-support-*.tgz' "$DH"
+BX="$ROOT/bx"; mkdir -p "$BX"; tar xzf "$DH"/ace-support-*.tgz -C "$BX"
+check "support bundle removes passwords and private addresses" bash -c '! grep -rq "hunter2\|192.168.1.50" "$0"' "$BX"
+check "support bundle has the system report and configs" bash -c 'test -s "$0/ace-support/system.txt" && test -s "$0/ace-support/config/printer.cfg"' "$BX"
+menu '3\n3\n0\n0\n0\n'
+check "check and fix menu has Doctor and Support bundle" bash -c 'echo "$0" | grep -q "3) Doctor" && echo "$0" | grep -q "4) Support bundle"' "$OUT"
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

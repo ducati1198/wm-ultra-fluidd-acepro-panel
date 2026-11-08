@@ -11,6 +11,8 @@
 # ./installer.sh --update      update the files, keep your tuned values
 # ./installer.sh --check       report problems, change nothing
 # ./installer.sh --repair      restore links and include lines
+# ./installer.sh --doctor      find problems and offer a fix for each (asks first)
+# ./installer.sh --support-bundle  make a scrubbed .tgz of logs and config to share when asking for help
 # ./installer.sh --undo [DIR]  put back the files saved before the last install
 # ./installer.sh --uninstall   remove everything the installer added (saved first, --undo brings it back)
 # ./installer.sh --fix-clock   factory screen board only: automatic time sync (NTP) and apt (Debian archive)
@@ -90,6 +92,14 @@ print_warning() { echo -e "${YELLOW}⚠ ${1}${NC}"; }
 print_error()   { echo -e "${RED}✗ ${1}${NC}"; }
 why()           { echo -e "  ${DIM}Why: $1${NC}"; }
 warn_later()    { WARNINGS+=("$1"); }
+prog_repeat()   { local i out=""; for ((i=0;i<$2;i++)); do out+="$1"; done; printf '%s' "$out"; }
+progress_bar() {   # steps-done total label : a bar like [██████░░░░░░]  42%  label
+    local n="$1" t="$2" label="${3:-}" w=24 f pct
+    [ "$t" -gt 0 ] 2>/dev/null || return 0
+    [ "$n" -gt "$t" ] && n="$t"; [ "$n" -lt 0 ] && n=0
+    pct=$((n*100/t)); f=$((n*w/t))
+    printf '  %b[%s%s]%b %3d%%  %s\n' "$GREEN" "$(prog_repeat '█' "$f")" "$(prog_repeat '░' $((w-f)))" "$NC" "$pct" "$label"
+}
 
 die_with_fix() {
     local msg="$1" fix="$2"
@@ -469,12 +479,14 @@ fix_factory_board() { # clock (NTP) + apt, asked once. Does nothing on a Raspber
         echo "  The board's clock is not synchronised automatically. Now: $now"
         why "A wrong date makes HTTPS downloads and apt fail. Automatic time sync keeps it right whenever the board is online."
         if [ "$DRY" = 1 ]; then echo -e "  ${DIM}would run: sudo timedatectl set-ntp true${NC}"
+        elif [ -f "$INSTALL_HOME/.wm-ntp-asked" ] && [ $(( $(date +%s) - $(cat "$INSTALL_HOME/.wm-ntp-asked" 2>/dev/null || echo 0) )) -lt 3600 ]; then print_info "Automatic time sync was turned on a few minutes ago; the clock can take a little while to catch up. Not asking again."
         elif ask_yn "Turn on automatic time sync (NTP)?" Y; then
+            date +%s > "$INSTALL_HOME/.wm-ntp-asked"
             sudo_run timedatectl set-ntp true || sudo_run systemctl enable --now systemd-timesyncd || true
             if [ "$TESTING" != 1 ]; then
                 local i; for i in $(seq 1 15); do [ "$(timedatectl show -p NTPSynchronized --value 2>/dev/null)" = yes ] && break; sleep 2; done
                 if [ "$(timedatectl show -p NTPSynchronized --value 2>/dev/null)" != yes ]; then   # no time server reachable: take the time once from a web server's Date header
-                    local d; d="$(curl -sIk -m 8 https://github.com 2>/dev/null | sed -n 's/^[Dd]ate: *//p' | tr -d '\r' | head -1)"
+                    local d; d="$(curl -sI -m 8 http://github.com 2>/dev/null | sed -n 's/^[Dd]ate: *//p' | tr -d '\r' | head -1)"
                     [ -n "$d" ] && sudo date -u -s "$d" >/dev/null 2>&1 && print_info "No time server answered; the clock was set once from GitHub's reply."
                 fi
             fi
@@ -578,11 +590,17 @@ do_install() {
     echo "$VERSION" > "$BACKUP_DIR/installer-version.txt"
     print_success "Backup folder: $BACKUP_DIR"
 
+    local pt=5; progress_bar 0 $pt "Step 1 of $pt: driver links"
     [ "$HAVE_ACE" = 1 ] && link_driver
+    progress_bar 1 $pt "Step 2 of $pt: config files"
     apply_stage
+    progress_bar 2 $pt "Step 3 of $pt: include lines in printer.cfg"
     ensure_includes
+    progress_bar 3 $pt "Step 4 of $pt: Fluidd panel"
     [ "$WANT_FLUIDD" = 1 ] && install_fluidd_panel "$FLUIDD_DIR"
+    progress_bar 4 $pt "Step 5 of $pt: saving your answers"
     save_answers
+    progress_bar 5 $pt "Done"
     find "$REPO_DIR/extras" -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
 
     [ "$UPDATING" = 1 ] && [ -n "$OLD_VERSION" ] && [ "$OLD_VERSION" != "$VERSION" ] && print_info "Updated from v$OLD_VERSION to v$VERSION."
@@ -630,11 +648,15 @@ do_uninstall() {
 
     BACKUP_DIR="$BACKUP_ROOT/wm-$(timestamp)-uninstall"
     mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
+    progress_bar 0 3 "Step 1 of 3: include lines in printer.cfg"
     remove_include_lines
+    progress_bar 1 3 "Step 2 of 3: config files"
     for f in "${CFG_FILES[@]}" "$CONF_NAME"; do
         if [ -e "$CONFIG_DIR/$f" ]; then backup_path "$CONFIG_DIR/$f"; rm -f "$CONFIG_DIR/$f"; print_success "Removed $f"; fi
     done
+    progress_bar 2 3 "Step 3 of 3: driver links"
     for f in ace temperature_ace.py virtual_pins.py; do remove_link "$x/$f" "$f"; done
+    progress_bar 3 3 "Done"
     echo
     print_success "ACE Pro is uninstalled. Saved in: $BACKUP_DIR"
     print_info "Restart Klipper when you next use the printer. To bring it all back: ./installer.sh --undo"
@@ -726,9 +748,94 @@ do_repair() {
     mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
     [ -f "$CONFIG_DIR/wm_endless.cfg" ] || WANT_ENDLESS=0
     HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
+    progress_bar 0 2 "Step 1 of 2: driver links"
+    [ "$HAVE_ACE" = 1 ] && link_driver
+    progress_bar 1 2 "Step 2 of 2: include lines"
+    ensure_includes
+    progress_bar 2 2 "Done"
+    print_success "Repair finished. Run ./installer.sh --check"
+}
+
+# ============================================================================
+# Doctor and support bundle
+# ============================================================================
+scrub() {  # remove secrets and private addresses from a stream
+    sed -E 's/((password|passwd|token|api_?key|secret|ssid|psk|key)[[:space:]]*[:=][[:space:]]*).*/\1<removed>/I;
+            s/\b(10\.[0-9]+\.[0-9]+\.[0-9]+|192\.168\.[0-9]+\.[0-9]+|172\.(1[6-9]|2[0-9]|3[01])\.[0-9]+\.[0-9]+)\b/<private-ip>/g;
+            s/([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}/<mac>/g'
+}
+doc_ok()  { echo -e "  ${GREEN}[ok]${NC}      $1"; }
+doc_bad() { echo -e "  ${RED}[problem]${NC} $1"; echo -e "            ${DIM}$2${NC}"; DOC_PROBLEMS=$((DOC_PROBLEMS+1)); }
+offer_fix() {  # description, command...
+    local d="$1"; shift
+    if ask_yn "  Fix: $d?" Y; then "$@" && print_success "done" || print_warning "the fix did not work"; fi
+}
+doc_relink() {   # restore driver links and include lines (same as --repair, saved first)
+    BACKUP_DIR="$BACKUP_ROOT/wm-$(timestamp)-doctor"
+    mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
+    [ -f "$CONFIG_DIR/wm_endless.cfg" ] || WANT_ENDLESS=0
+    local f
+    if [ "$HAVE_ACE" = 1 ]; then   # put back a missing file only; a file that is there (maybe tuned) is never overwritten
+        for f in wm_ace_driver.cfg wm_ace.cfg; do
+            [ -f "$CONFIG_DIR/$f" ] || { cp "$SCRIPT_DIR/config/$f" "$CONFIG_DIR/$f" && echo "NEW $CONFIG_DIR/$f" >> "$BACKUP_DIR/manifest.txt" && print_success "Restored $f"; }
+        done
+    fi
     [ "$HAVE_ACE" = 1 ] && link_driver
     ensure_includes
-    print_success "Repair finished. Run ./installer.sh --check"
+}
+do_doctor() {
+    DOC_PROBLEMS=0
+    print_header "Doctor (asks before changing anything)"
+    find_dirs
+    HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
+    local x f broken=0 free inst
+    [ -f "$CONFIG_DIR/printer.cfg" ] && doc_ok "printer.cfg found" || doc_bad "printer.cfg not found in $CONFIG_DIR" "run the installer on the machine that runs Klipper, or pass --config-dir"
+    free="$(disk_free_mb)"
+    [ "${free:-0}" -gt 300 ] && doc_ok "disk space ${free} MB free" || { doc_bad "only ${free} MB free" "Klipper and Fluidd need room to write logs and files."; offer_fix "look for files to erase" do_free_space; }
+    inst="$(kv_get "$(CONF_FILE)" VERSION || true)"
+    if [ -z "$inst" ]; then doc_bad "the ACE / panel install is not recorded here" "run ./installer.sh to install."
+    elif [ "$inst" != "$VERSION" ]; then doc_bad "installed v$inst, this download is v$VERSION" "update: ./installer.sh --update"
+    else doc_ok "installed version matches this download (v$VERSION)"; fi
+    x="$KLIPPER_DIR/klippy/extras"
+    if [ "$HAVE_ACE" = 1 ] && [ -n "$inst" ]; then
+        for f in wm_ace_driver.cfg wm_ace.cfg; do
+            [ -f "$CONFIG_DIR/$f" ] && include_present "${f//./\\.}" || broken=1
+        done
+        for f in ace temperature_ace.py virtual_pins.py; do [ -e "$x/$f" ] || broken=1; done
+        if [ "$broken" = 1 ]; then doc_bad "driver links, config files or include lines are missing" "this is what --repair restores"; offer_fix "restore the links and include lines (saved first)" doc_relink
+        else doc_ok "driver links, config files and include lines are in place"; fi
+        grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/wm_ace_driver.cfg" 2>/dev/null && doc_ok "driver will not replace WonderMaker's T0..T3" || doc_bad "register_tool_commands: False is missing in wm_ace_driver.cfg" "the driver would replace WonderMaker's T0..T3; re-run ./installer.sh --update"
+    fi
+    [ -d "$INSTALL_HOME/fluidd/assets" ] && { grep -rlq "ACE feeder" "$INSTALL_HOME/fluidd/assets" 2>/dev/null && doc_ok "Fluidd has the Toolheads panel" || print_info "Fluidd is not the panel build (./installer.sh --update, and say yes to the panel)"; }
+    grep -qE '^\[update_manager[[:space:]]+fluidd\]' "$CONFIG_DIR/moonraker.conf" 2>/dev/null && print_info "moonraker.conf has [update_manager fluidd]: updating Fluidd there replaces this panel build."
+    if [ "$TESTING" = 0 ] && command -v curl >/dev/null 2>&1; then
+        local st; st="$(curl -s -m 3 "$MOONRAKER_URL/printer/info" 2>/dev/null | python3 -I -c 'import sys,json; print(json.load(sys.stdin)["result"]["state"])' 2>/dev/null || true)"
+        [ -n "$st" ] && doc_ok "Klipper state: $st" || print_info "Moonraker is not answering on $MOONRAKER_URL (Klipper may be stopped)"
+    fi
+    echo; [ "$DOC_PROBLEMS" = 0 ] && print_success "No problems found." || { print_warning "$DOC_PROBLEMS problem(s) found. For a report to share: ./installer.sh --support-bundle"; return 1; }
+}
+do_support_bundle() {
+    print_header "Support bundle"
+    find_dirs
+    local w out b f lf; w="$(mktemp -d)"; out="$INSTALL_HOME/ace-support-$(timestamp).tgz"; b="$w/ace-support"; mkdir -p "$b/config" "$b/logs"
+    {
+        echo "wm-ultra-fluidd-acepro-panel installer $VERSION   date: $(date -u +%FT%TZ)"
+        uname -a; [ -r /etc/os-release ] && grep PRETTY /etc/os-release
+        echo "python3: $(python3 --version 2>&1)"; df -h "$INSTALL_HOME" | tail -1; free -m 2>/dev/null | sed -n 2p
+        echo "--- services"; local s; for s in klipper moonraker nginx; do printf '%-10s active=%s\n' $s "$(systemctl is-active $s 2>/dev/null || echo unknown)"; done
+        echo "--- usb"; lsusb 2>/dev/null
+        echo "--- check"; do_check 2>&1 | sed 's/\x1b\[[0-9;]*m//g'
+    } 2>&1 | scrub > "$b/system.txt"
+    cp "$(CONF_FILE)" "$b/install.conf" 2>/dev/null
+    for f in "$CONFIG_DIR"/wm_*.cfg "$CONFIG_DIR/printer.cfg" "$CONFIG_DIR/moonraker.conf"; do [ -f "$f" ] && scrub < "$f" > "$b/config/$(basename "$f")"; done
+    for f in klippy moonraker; do [ -f "$INSTALL_HOME/printer_data/logs/$f.log" ] && tail -n 400 "$INSTALL_HOME/printer_data/logs/$f.log" | scrub > "$b/logs/$f.log"; done
+    [ -d "$BACKUP_ROOT" ] && ls -1 "$BACKUP_ROOT" > "$b/backups-list.txt" 2>/dev/null
+    cat > "$b/README.txt" <<E
+This bundle was made by ./installer.sh --support-bundle. Passwords, tokens, keys, Wi-Fi names, private IP and MAC addresses
+were removed from the text files. Gcode files and backups are NOT included. Please look through it before sharing.
+E
+    tar czf "$out" -C "$w" ace-support; rm -rf "$w"; chmod 600 "$out"
+    print_success "Saved $out ($(du -h "$out" | cut -f1)). Look through it, then send it along with your question."
 }
 
 # ============================================================================
@@ -885,13 +992,17 @@ menu_fix() {
         echo; echo -e "${BLUE}Check and fix${NC}"
         menu_item 1 "Check" "reports problems, changes nothing"
         menu_item 2 "Repair" "restores links and include lines, then checks again"
-        on_factory_board && menu_item 3 "Fix the clock and apt" "factory screen board only: automatic time sync and the Debian archive"
+        menu_item 3 "Doctor" "finds problems and offers a fix for each (asks first)"
+        menu_item 4 "Support bundle" "a .tgz of logs and config with passwords and addresses removed"
+        on_factory_board && menu_item 5 "Fix the clock and apt" "factory screen board only: automatic time sync and the Debian archive"
         menu_item 0 "Back" ""
         menu_read "Choose:" || return 0
         case "$REPLY_MENU" in
             1) menu_sub --check ;;
             2) menu_sub --repair; menu_sub --check ;;
-            3) on_factory_board && menu_sub --fix-clock || menu_bad ;;
+            3) menu_sub --doctor ;;
+            4) menu_sub --support-bundle ;;
+            5) on_factory_board && menu_sub --fix-clock || menu_bad ;;
             0|"") return 0 ;; *) menu_bad ;;
         esac
     done
@@ -926,7 +1037,7 @@ menu_main() {
         echo; echo -e "${BLUE}WonderMaker Ultra panel / ACE Pro${NC}   installer v$VERSION"
         menu_item 1 "Install" "asks a few plain questions, shows the plan, then asks"
         menu_item 2 "Update" "see what is new, then update (your tuned values are kept)"
-        menu_item 3 "Check and fix" "check, repair"
+        menu_item 3 "Check and fix" "check, repair, doctor, support bundle"
         menu_item 4 "Backup and restore" "list backups, put one back"
         menu_item 5 "Dry run of the install" "shows what would change, changes nothing"
         menu_item 6 "Uninstall" "removes everything the installer added (saved first)"
@@ -954,6 +1065,8 @@ parse_args() {
         case "$1" in
             --menu) MODE=menu ;;
             --free-space) MODE=freespace ;;
+            --doctor) MODE=doctor ;;
+            --support-bundle) MODE=bundle ;;
             --fix-clock) MODE=fixclock ;;
             --install) MODE=install ;;
             --check-updates) MODE=whatsnew ;;
@@ -981,6 +1094,8 @@ main() {
     case "$MODE" in
         menu) menu_main ;;
         freespace) do_free_space ;;
+        doctor) do_doctor ;;
+        bundle) do_support_bundle ;;
         fixclock) on_factory_board && fix_factory_board || print_info "This is not the factory screen board, so there is nothing to fix." ;;
         whatsnew) do_check_updates ;;
         getlatest) do_get_latest ;;
