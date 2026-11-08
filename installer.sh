@@ -123,6 +123,7 @@ live_bar_start() {   # text : keeps the bar on the last screen line with a spinn
 
 die_with_fix() {
     local msg="$1" fix="$2"
+    live_bar_stop
     print_error "Can't continue: $msg"
     [ -n "$fix" ] && echo -e "  Fix: $fix"
     echo "  Nothing was changed."
@@ -491,6 +492,7 @@ sudo_run() { if [ "$TESTING" = 1 ]; then echo "[test] sudo $*" >> "$INSTALL_HOME
 fix_factory_board() { # clock (NTP) + apt, asked once. Does nothing on a Raspberry Pi or any other machine.
     on_factory_board || return 0
     print_header "This is the factory screen board: date, time and apt"
+    progress_bar 0 3 "Step 1 of 3: date and time"
     local synced now
     if [ "$TESTING" = 1 ]; then synced="${ACE_TEST_NTP_SYNCED:-no}"; else synced="$(timedatectl show -p NTPSynchronized --value 2>/dev/null)"; fi
     now="$(date '+%Y-%m-%d %H:%M %Z')"
@@ -515,6 +517,7 @@ fix_factory_board() { # clock (NTP) + apt, asked once. Does nothing on a Raspber
     fi
     # apt: Debian 11 is archived. Same fix as README 3.2a; apt upgrade is never run.
     local sl=/etc/apt/sources.list conf=/etc/apt/apt.conf.d/99no-check-valid-until
+    progress_bar 1 3 "Step 2 of 3: apt sources"
     if grep -qE '^deb .*(mirrors|deb\.debian|security\.debian|ftp\.)' "$sl" 2>/dev/null && [ "$TESTING" != 1 ]; then
         if [ "$DRY" = 1 ]; then echo -e "  ${DIM}would point apt at archive.debian.org (a copy of sources.list is kept)${NC}"
         elif ask_yn "Point apt at the Debian archive (a copy of $sl is kept as $sl.orig)?" Y; then
@@ -523,10 +526,12 @@ fix_factory_board() { # clock (NTP) + apt, asked once. Does nothing on a Raspber
             print_success "apt now uses archive.debian.org"
         fi
     fi
+    progress_bar 2 3 "Step 3 of 3: apt date check"
     if [ ! -f "$conf" ]; then
         if [ "$DRY" = 1 ]; then echo -e "  ${DIM}would write $conf (apt ignores the old package-list dates)${NC}"
         else printf 'Acquire::Check-Valid-Until "false";\nAcquire::Check-Date "false";\n' | sudo_run tee "$conf" >/dev/null; [ "$TESTING" = 1 ] && echo "[test] write $conf" >> "$INSTALL_HOME/.sudo.log"; print_success "apt ignores the old package-list dates"; fi
     else print_success "apt already ignores the old package-list dates"; fi
+    progress_bar 3 3 "Done"
     print_info "Never run apt upgrade on this board: it can replace WonderMaker's held X server."
 }
 
@@ -692,7 +697,9 @@ do_undo() {
     sed 's/^/  /' "$dir/manifest.txt"
     [ "$DRY" = 1 ] && { print_info "Dry run: nothing restored."; return 0; }
     ask_yn "Put these files back?" Y || { print_info "Cancelled."; return 0; }
+    local un ui=0; un="$(wc -l < "$dir/manifest.txt" | tr -d ' ')"
     while IFS= read -r line; do
+        progress_bar "$ui" "$un" "Putting files back (step $((ui+1)) of $un)"; ui=$((ui+1))
         kind="${line%% *}"; a="${line#* }"
         case "$kind" in
             MOD)  mkdir -p "$(dirname "$a")"; rm -rf "$a"; cp -a "$dir/files$a" "$a" && print_success "Restored $a" ;;
@@ -701,6 +708,7 @@ do_undo() {
             FLUIDD) b="${a#* }"; a="${a%% *}"; if [ -d "$b" ]; then rm -rf "$a" && cp -a "$b" "$a" && print_success "Fluidd restored from $b"; fi ;;
         esac
     done < <(tac "$dir/manifest.txt")
+    progress_bar "$un" "$un" "Done"
     print_success "Done. Restart Klipper when you next use the printer."
 }
 
@@ -708,6 +716,7 @@ do_check() {
     local bad=0 f x state py have
     find_dirs
     echo -e "${BLUE}WonderMaker Ultra panel / ACE Pro check${NC}   installer v$VERSION"
+    progress_bar 0 4 "Check 1 of 4: installed version and config files"
     have="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; have="${have:-1}"
     local inst; inst="$(kv_get "$(CONF_FILE)" VERSION || true)"
     [ -n "$inst" ] && [ "$inst" != "$VERSION" ] && print_warning "Installed with v$inst, this download is v$VERSION. Run ./installer.sh --update."
@@ -733,6 +742,7 @@ do_check() {
         print_info "wm_stats.cfg not installed yet (run ./installer.sh --update)"
     fi
     x="$KLIPPER_DIR/klippy/extras"
+    progress_bar 1 4 "Check 2 of 4: ACE driver"
     if [ "$have" = 1 ]; then
         grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/wm_ace_driver.cfg" 2>/dev/null \
             && print_success "driver will not create T0..T7 (WonderMaker owns them)" \
@@ -749,6 +759,7 @@ do_check() {
         "$py" -m py_compile "$x"/ace/*.py 2>/dev/null && print_success "driver compiles" || { print_error "driver does not compile"; bad=1; }
         find "$REPO_DIR/extras" -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
     fi
+    progress_bar 2 4 "Check 3 of 4: Fluidd panel"
     if [ -d "$INSTALL_HOME/fluidd/assets" ]; then
         grep -rlq "ACE feeder" "$INSTALL_HOME/fluidd/assets" 2>/dev/null && print_success "Fluidd has the Toolheads panel" || print_info "Fluidd is not the panel build"
     fi
@@ -756,6 +767,7 @@ do_check() {
         state="$(curl -s -m 3 "$MOONRAKER_URL/printer/info" 2>/dev/null | python3 -I -c 'import sys,json; print(json.load(sys.stdin)["result"]["state"])' 2>/dev/null || true)"
         echo; [ -n "$state" ] && print_info "Klipper state: $state" || print_info "Moonraker is not answering on $MOONRAKER_URL (Klipper may be stopped)"
     fi
+    progress_bar 4 4 "Check 4 of 4 done"
     echo; [ "$bad" = 0 ] && print_success "No problems found." || print_error "Problems found (see above). ./installer.sh --repair fixes links and include lines."
     return $bad
 }
@@ -806,17 +818,20 @@ doc_relink() {   # restore driver links and include lines (same as --repair, sav
 do_doctor() {
     DOC_PROBLEMS=0
     print_header "Doctor (asks before changing anything)"
+    progress_bar 0 5 "Doctor 1 of 5: config folder and disk space"
     find_dirs
     HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
     local x f broken=0 free inst
     [ -f "$CONFIG_DIR/printer.cfg" ] && doc_ok "printer.cfg found" || doc_bad "printer.cfg not found in $CONFIG_DIR" "run the installer on the machine that runs Klipper, or pass --config-dir"
     free="$(disk_free_mb)"
     [ "${free:-0}" -gt 300 ] && doc_ok "disk space ${free} MB free" || { doc_bad "only ${free} MB free" "Klipper and Fluidd need room to write logs and files."; offer_fix "look for files to erase" do_free_space; }
+    progress_bar 1 5 "Doctor 2 of 5: installed version"
     inst="$(kv_get "$(CONF_FILE)" VERSION || true)"
     if [ -z "$inst" ]; then doc_bad "the ACE / panel install is not recorded here" "run ./installer.sh to install."
     elif [ "$inst" != "$VERSION" ]; then doc_bad "installed v$inst, this download is v$VERSION" "update: ./installer.sh --update"
     else doc_ok "installed version matches this download (v$VERSION)"; fi
     x="$KLIPPER_DIR/klippy/extras"
+    progress_bar 2 5 "Doctor 3 of 5: driver links and config files"
     if [ "$HAVE_ACE" = 1 ] && [ -n "$inst" ]; then
         for f in wm_ace_driver.cfg wm_ace.cfg; do
             [ -f "$CONFIG_DIR/$f" ] && include_present "${f//./\\.}" || broken=1
@@ -826,17 +841,21 @@ do_doctor() {
         else doc_ok "driver links, config files and include lines are in place"; fi
         grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/wm_ace_driver.cfg" 2>/dev/null && doc_ok "driver will not replace WonderMaker's T0..T3" || doc_bad "register_tool_commands: False is missing in wm_ace_driver.cfg" "the driver would replace WonderMaker's T0..T3; re-run ./installer.sh --update"
     fi
+    progress_bar 3 5 "Doctor 4 of 5: Fluidd panel"
     [ -d "$INSTALL_HOME/fluidd/assets" ] && { grep -rlq "ACE feeder" "$INSTALL_HOME/fluidd/assets" 2>/dev/null && doc_ok "Fluidd has the Toolheads panel" || print_info "Fluidd is not the panel build (./installer.sh --update, and say yes to the panel)"; }
     grep -qE '^\[update_manager[[:space:]]+fluidd\]' "$CONFIG_DIR/moonraker.conf" 2>/dev/null && print_info "moonraker.conf has [update_manager fluidd]: updating Fluidd there replaces this panel build."
+    progress_bar 4 5 "Doctor 5 of 5: Klipper and Moonraker"
     if [ "$TESTING" = 0 ] && command -v curl >/dev/null 2>&1; then
         local st; st="$(curl -s -m 3 "$MOONRAKER_URL/printer/info" 2>/dev/null | python3 -I -c 'import sys,json; print(json.load(sys.stdin)["result"]["state"])' 2>/dev/null || true)"
         [ -n "$st" ] && doc_ok "Klipper state: $st" || print_info "Moonraker is not answering on $MOONRAKER_URL (Klipper may be stopped)"
     fi
+    progress_bar 5 5 "Doctor finished"
     echo; [ "$DOC_PROBLEMS" = 0 ] && print_success "No problems found." || { print_warning "$DOC_PROBLEMS problem(s) found. For a report to share: ./installer.sh --support-bundle"; return 1; }
 }
 do_support_bundle() {
     print_header "Support bundle"
     find_dirs
+    progress_bar 0 4 "Bundle 1 of 4: system report"
     local w out b f lf; w="$(mktemp -d)"; out="$INSTALL_HOME/ace-support-$(timestamp).tgz"; b="$w/ace-support"; mkdir -p "$b/config" "$b/logs"
     {
         echo "wm-ultra-fluidd-acepro-panel installer $VERSION   date: $(date -u +%FT%TZ)"
@@ -846,15 +865,19 @@ do_support_bundle() {
         echo "--- usb"; lsusb 2>/dev/null
         echo "--- check"; do_check 2>&1 | sed 's/\x1b\[[0-9;]*m//g'
     } 2>&1 | scrub > "$b/system.txt"
+    progress_bar 1 4 "Bundle 2 of 4: config files"
     cp "$(CONF_FILE)" "$b/install.conf" 2>/dev/null
     for f in "$CONFIG_DIR"/wm_*.cfg "$CONFIG_DIR/printer.cfg" "$CONFIG_DIR/moonraker.conf"; do [ -f "$f" ] && scrub < "$f" > "$b/config/$(basename "$f")"; done
+    progress_bar 2 4 "Bundle 3 of 4: logs"
     for f in klippy moonraker; do [ -f "$INSTALL_HOME/printer_data/logs/$f.log" ] && tail -n 400 "$INSTALL_HOME/printer_data/logs/$f.log" | scrub > "$b/logs/$f.log"; done
     [ -d "$BACKUP_ROOT" ] && ls -1 "$BACKUP_ROOT" > "$b/backups-list.txt" 2>/dev/null
     cat > "$b/README.txt" <<E
 This bundle was made by ./installer.sh --support-bundle. Passwords, tokens, keys, Wi-Fi names, private IP and MAC addresses
 were removed from the text files. Gcode files and backups are NOT included. Please look through it before sharing.
 E
+    progress_bar 3 4 "Bundle 4 of 4: packing the file"
     tar czf "$out" -C "$w" ace-support; rm -rf "$w"; chmod 600 "$out"
+    progress_bar 4 4 "Done"
     print_success "Saved $out ($(du -h "$out" | cut -f1)). Look through it, then send it along with your question."
 }
 
@@ -961,7 +984,8 @@ do_free_space() {   # lists what can be erased safely, with sizes and a warning 
     for i in "${pick[@]}"; do echo "    - ${FS_LABEL[$i]}  (about $(( FS_KB[i] / 1024 )) MB)"; echo -e "      ${DIM}${FS_WARN[$i]}${NC}"; total=$((total + FS_KB[i])); done
     if [ "$DRY" = 1 ]; then echo -e "  ${DIM}(dry run: nothing is erased)${NC}"; return 0; fi
     ask_yn "Erase these now? About $((total/1024)) MB will be freed" N || { echo "  Nothing was erased."; return 0; }
-    for i in "${pick[@]}"; do fs_do "${FS_ID[$i]}"; done
+    local fi_=0; for i in "${pick[@]}"; do progress_bar "$fi_" "${#pick[@]}" "Erasing (step $((fi_+1)) of ${#pick[@]})"; fs_do "${FS_ID[$i]}"; fi_=$((fi_+1)); done
+    progress_bar "${#pick[@]}" "${#pick[@]}" "Done"
     [ "$TESTING" = 1 ] && export ACE_TEST_DISK_MB=$(( ${ACE_TEST_DISK_MB:-4000} + total/1024 ))
     print_success "Erased. Free space now: $(disk_free_mb) MB"
 }
@@ -1111,6 +1135,7 @@ main() {
     [ $# -eq 0 ] && { [ -t 0 ] || [ "${ACE_MENU_TEST:-0}" = 1 ]; } && set -- --menu
     parse_args "$@"
     command -v python3 >/dev/null 2>&1 || die_with_fix "python3 is not installed" "sudo apt-get install -y python3"
+    local rc=0
     case "$MODE" in
         menu) menu_main ;;
         freespace) do_free_space ;;
@@ -1125,6 +1150,9 @@ main() {
         undo) do_undo "$UNDO_ARG" ;;
         uninstall) do_uninstall ;;
     esac
+    rc=$?
+    live_bar_stop
+    return $rc
 }
 
 if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
