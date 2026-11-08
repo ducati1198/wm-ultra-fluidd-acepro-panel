@@ -289,8 +289,9 @@ chmod +x installer.sh
 > ```bash
 > cd ~/wm-ultra-fluidd-acepro-panel
 > ./installer.sh --get-latest
-> ./installer.sh --update
 > ```
+>
+> That only gets the newest files from GitHub and changes nothing else. To also apply the update to the printer, run `./installer.sh --update` afterwards (optional).
 >
 > If it complains about local changes, see [section 9](#9-update-undo-and-uninstall).
 
