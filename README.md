@@ -292,7 +292,7 @@ chmod +x installer.sh
 > ./installer.sh --update
 > ```
 >
-> `--get-latest` works whether the folder is a git clone or was downloaded without git (a plain `git pull` stops with "not a git repository" on a downloaded folder). If it complains about local changes, see [section 9](#9-update-undo-and-uninstall).
+> If it complains about local changes, see [section 9](#9-update-undo-and-uninstall).
 
 The installer asks a few plain questions, shows exactly what it will change, and only then does it. It saves a backup first, so `./installer.sh --undo` puts everything back.
 
