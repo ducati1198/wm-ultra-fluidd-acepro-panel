@@ -236,6 +236,7 @@ echo "password: hunter2 on 192.168.1.50" >> "$(cfg "$DH")/moonraker.conf"
 inst "$DH" "" --support-bundle
 check "support bundle is written"                   bash -c 'ls "$0"/ace-support-*.tgz' "$DH"
 BX="$ROOT/bx"; mkdir -p "$BX"; tar xzf "$DH"/ace-support-*.tgz -C "$BX"
+check "support bundle report has the USB tree and serial port sections" bash -c 'grep -q "usb tree" "$0/ace-support/system.txt" && grep -q "serial ports the ACE driver sees" "$0/ace-support/system.txt"' "$BX"
 check "support bundle removes passwords and private addresses" bash -c '! grep -rq "hunter2\|192.168.1.50" "$0"' "$BX"
 check "support bundle has the system report and configs" bash -c 'test -s "$0/ace-support/system.txt" && test -s "$0/ace-support/config/printer.cfg"' "$BX"
 menu '3\n3\n0\n0\n0\n'

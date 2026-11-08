@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.7
+
+- Support bundle: the system report now also has `lsusb -t`, the serial ports in `/dev` (`ttyACM*`, `ttyUSB*`), the list of serial ports the ACE driver sees (name, description, hwid), and the last USB/serial kernel messages. This shows why "No ACE device found" appears even when `lsusb` lists the ACE.
+
 ## 1.5.6
 
 - Old saved copies no longer pile up: after an install only the newest 5 Fluidd copies (`fluidd_backup_*`) and the newest 5 backup folders (`~/acepro-backup/wm-*`) are kept. The newest is always kept, so `--undo` still works.

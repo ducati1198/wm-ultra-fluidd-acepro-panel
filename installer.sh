@@ -851,6 +851,11 @@ do_support_bundle() {
         echo "python3: $(python3 --version 2>&1)"; df -h "$INSTALL_HOME" | tail -1; free -m 2>/dev/null | sed -n 2p
         echo "--- services"; local s; for s in klipper moonraker nginx; do printf '%-10s active=%s\n' $s "$(systemctl is-active $s 2>/dev/null || echo unknown)"; done
         echo "--- usb"; lsusb 2>/dev/null
+        echo "--- usb tree (hubs and what hangs on them)"; lsusb -t 2>/dev/null
+        echo "--- serial ports in /dev (an ACE Pro should show as ttyACM*)"; ls -l /dev/ttyACM* /dev/ttyUSB* /dev/serial/by-id/* 2>&1 | head -20
+        echo "--- serial ports the ACE driver sees (name, description, hwid)"
+        "$(klippy_python)" -m serial.tools.list_ports -v 2>&1 | head -40
+        echo "--- kernel messages about USB and serial (last 40)"; dmesg 2>&1 | grep -iE "usb|tty|cdc_acm|ch341|cp210|ftdi" | tail -40
         echo "--- check"; do_check 2>&1 | sed 's/\x1b\[[0-9;]*m//g'
     } 2>&1 | scrub > "$b/system.txt"
     progress_bar 1 4 "Bundle 2 of 4: config files"
