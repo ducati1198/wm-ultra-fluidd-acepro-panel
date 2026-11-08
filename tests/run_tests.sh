@@ -5,6 +5,10 @@
 #   bash tests/run_tests.sh
 #
 set -u
+if [ -z "${ACE_TESTS_IN_COPY:-}" ]; then   # always test a throwaway copy of the repository, never the real folder
+    CP="$(mktemp -d)"; cp -a "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/." "$CP/"
+    ACE_TESTS_IN_COPY=1 bash "$CP/tests/run_tests.sh" "$@"; rc=$?; rm -rf "$CP"; exit $rc
+fi
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INST="$REPO/installer.sh"
 PASS=0; FAIL=0
