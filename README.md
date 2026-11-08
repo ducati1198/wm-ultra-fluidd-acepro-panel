@@ -288,11 +288,11 @@ chmod +x installer.sh
 >
 > ```bash
 > cd ~/wm-ultra-fluidd-acepro-panel
-> git pull
+> ./installer.sh --get-latest
 > ./installer.sh --update
 > ```
 >
-> If `git pull` complains about local changes, see [section 9](#9-update-undo-and-uninstall).
+> `--get-latest` works whether the folder is a git clone or was downloaded without git (a plain `git pull` stops with "not a git repository" on a downloaded folder). If it complains about local changes, see [section 9](#9-update-undo-and-uninstall).
 
 The installer asks a few plain questions, shows exactly what it will change, and only then does it. It saves a backup first, so `./installer.sh --undo` puts everything back.
 
