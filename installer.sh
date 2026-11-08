@@ -134,6 +134,11 @@ ask_yn() { # "Question" Y|N ["why"]
 }
 
 timestamp() { date +"%Y%m%d_%H%M%S"; }
+prune_backups() {   # keeps the newest 5 saved copies of Fluidd and the newest 5 backup folders; older ones are deleted (the newest always stays, so --undo still works)
+    local o
+    [ -n "${1:-}" ] && ls -1dt "$1"_backup_* 2>/dev/null | tail -n +6 | while read -r o; do rm -rf "$o"; done
+    ls -1dt "$BACKUP_ROOT"/wm-*/ 2>/dev/null | tail -n +6 | while read -r o; do rm -rf "$o"; done
+}
 is_symlink() { [ -L "$1" ]; }
 CONF_FILE() { echo "$CONFIG_DIR/$CONF_NAME"; }
 
@@ -384,6 +389,7 @@ install_fluidd_panel() {
     backup="${fluidd_dir}_backup_$(timestamp)"
     cp -a "$fluidd_dir" "$backup" && echo "FLUIDD $fluidd_dir $backup" >> "$BACKUP_DIR/manifest.txt"
     print_success "Backed up Fluidd → $backup"
+    prune_backups "$fluidd_dir"
     rm -rf "$fluidd_dir/assets"
     if command -v unzip >/dev/null 2>&1; then unzip -qo "$zip" -x config.json -d "$fluidd_dir"
     else python3 -I - "$zip" "$fluidd_dir" <<'PYZIP'
@@ -595,6 +601,7 @@ do_install() {
     mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
     echo "$VERSION" > "$BACKUP_DIR/installer-version.txt"
     print_success "Backup folder: $BACKUP_DIR"
+    prune_backups
 
     local pt=5; progress_bar 0 $pt "Step 1 of $pt: driver links"
     [ "$HAVE_ACE" = 1 ] && link_driver

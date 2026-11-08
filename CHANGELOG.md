@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.6
+
+- Old saved copies no longer pile up: after an install only the newest 5 Fluidd copies (`fluidd_backup_*`) and the newest 5 backup folders (`~/acepro-backup/wm-*`) are kept. The newest is always kept, so `--undo` still works.
+
 ## 1.5.5
 
 - The progress bar no longer repeats itself on a timer (the repeated lines landed on top of questions). It is printed once at the start of each step.

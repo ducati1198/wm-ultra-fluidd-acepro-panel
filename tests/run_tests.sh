@@ -55,6 +55,9 @@ check "Fluidd has the panel"                        grep -rlq "ACE feeder" "$H/f
 check "Fluidd config.json kept"                     grep -q '"x":1' "$H/fluidd/config.json"
 check "Fluidd backup folder exists"                 test -n "$(ls -d "$H"/fluidd_backup_* 2>/dev/null)"
 check "backup manifest exists"                      test -n "$(ls "$H"/acepro-backup/wm-*/manifest.txt 2>/dev/null)"
+for n in 1 2 3 4 5 6 7; do mkdir -p "$H/fluidd_backup_2020010$n" "$H/acepro-backup/wm-2020010${n}_000000"; touch -d "2020-01-0$n" "$H/fluidd_backup_2020010$n" "$H/acepro-backup/wm-2020010${n}_000000"; done
+inst "$H" "$A_ALL"
+check "old saved copies: only the newest 5 stay, the newest is kept" bash -c "[ \$(ls -d '$H'/fluidd_backup_* | wc -l) -le 5 ] && [ \$(ls -d '$H'/acepro-backup/wm-*/ | wc -l) -le 5 ] && [ -d '$H/acepro-backup/wm-20200107_000000' ] && [ ! -d '$H/acepro-backup/wm-20200101_000000' ]"
 check "no WonderMaker file was edited"              grep -q '^\[gcode_macro _CHANGE_TOOL\]' "$C/zru-s.cfg"
 check "Klipper was not restarted"                   bash -c '! echo "$0" | grep -q "Klipper restarted\."' "$OUT"
 inst "$H" "" --check;  check "--check passes"       test "$RC" -eq 0
