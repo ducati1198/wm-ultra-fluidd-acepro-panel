@@ -61,7 +61,7 @@ Run these in `~/wm-ultra-fluidd-acepro-panel`.
 | **Repair** (driver links, include lines) | `./installer.sh --repair` | Your tuned values are kept |
 | **Back up** | automatic | Every install and update first saves the files it touches to `~/acepro-backup/wm-<date>` |
 | **Undo** the last install or update | `./installer.sh --undo` | Puts back the files saved before it, including the old Fluidd |
-| **Uninstall** | `./installer.sh --uninstall` | Removes what was added (saved first, so `--undo` brings it back). WonderMaker's files are never touched. |
+| **Uninstall** | `./installer.sh --uninstall` | Removes what was added and, if you agree, puts the original Fluidd back (saved first, so `--undo` brings it back). WonderMaker's files are never touched. |
 | **Preview** | `./installer.sh --dry-run` | Changes nothing |
 
 More options: [3.2](#32-one-command-installer). Safety: a running or paused print stops the installer, it never flashes a board, and it never starts Klipper by itself.

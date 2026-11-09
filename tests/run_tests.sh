@@ -120,8 +120,17 @@ check "uninstall finished"                          test "$RC" -eq 0
 check "includes removed"                            bash -c '! grep -q "wm_ace" "$0"' "$C8/printer.cfg"
 check "cfgs removed"                                test ! -e "$C8/wm_ace.cfg"
 check "links removed"                               test ! -e "$H8/klipper/klippy/extras/ace"
+check "uninstall put the original Fluidd back"      test -f "$H8/fluidd/assets/old.js"
+check "uninstall: panel gone from Fluidd"           bash -c '! grep -rq "ACE feeder" "$0"' "$H8/fluidd/assets"
+check "uninstall kept Fluidd config.json"           grep -q '"x":1' "$H8/fluidd/config.json"
+check "original Fluidd copy was saved for good"     test -f "$H8/acepro-backup/original-fluidd/assets/old.js"
 inst "$H8" 'y\n' --undo
 check "undo after uninstall brings cfgs back"       test -f "$C8/wm_ace.cfg"
+check "undo after uninstall brings the panel back"  grep -rlq "ACE feeder" "$H8/fluidd/assets"
+for n in 1 2 3 4 5 6 7; do mkdir -p "$H8/fluidd_backup_2020010$n"; touch -d "2020-01-0$n" "$H8/fluidd_backup_2020010$n"; done
+inst "$H8" "$A_ALL"
+check "original Fluidd copy survives pruning"       test -f "$H8/acepro-backup/original-fluidd/assets/old.js"
+check "original Fluidd copy is not overwritten"     bash -c '! grep -rq "ACE feeder" "$0"' "$H8/acepro-backup/original-fluidd/assets"
 
 echo "9. Repair"
 H9="$(new_home t9)"; C9="$(cfg "$H9")"

@@ -379,6 +379,22 @@ link_driver() {
     link_item "$REPO_DIR/extras/temperature_ace.py" "$x/temperature_ace.py" "ACE temperature sensor"
 }
 
+# The original Fluidd is saved once, for good, in $BACKUP_ROOT/original-fluidd. Nothing in this installer deletes it
+# (the pruning only touches fluidd_backup_* and wm-* folders), so --uninstall can always put it back.
+ORIGINAL_FLUIDD() { echo "$BACKUP_ROOT/original-fluidd"; }
+has_panel() { grep -rlq "ACE feeder" "$1/assets" 2>/dev/null; }
+save_original_fluidd() { # fluidd_dir
+    local fd="$1" orig src="" b; orig="$(ORIGINAL_FLUIDD)"
+    [ -d "$orig" ] && return 0
+    if ! has_panel "$fd"; then src="$fd"
+    else # already our panel (installed by an older version): the oldest saved copy that is still the stock Fluidd
+        for b in $(ls -1d "${fd}"_backup_* 2>/dev/null | sort); do has_panel "$b" || { src="$b"; break; }; done
+    fi
+    if [ -z "$src" ]; then print_info "No untouched copy of the original Fluidd was found, so it could not be saved for good."; return 0; fi
+    mkdir -p "$BACKUP_ROOT" && cp -a "$src" "$orig" && echo "saved $(date) from $src" > "$BACKUP_ROOT/original-fluidd.info" \
+        && print_success "Original Fluidd saved for good → $orig (the installer never deletes it)"
+}
+
 install_fluidd_panel() {
     local fluidd_dir="$1" zip="$SCRIPT_DIR/fluidd/fluidd-v1.37.7-zr-ace.zip" backup
     [ -f "$zip" ] || { warn_later "Fluidd build not found: $zip"; return 1; }
@@ -386,6 +402,7 @@ install_fluidd_panel() {
         warn_later "Checksum of the Fluidd build does not match. The panel was not installed."; return 1
     fi
     [ -d "$fluidd_dir" ] || { warn_later "Fluidd folder not found: $fluidd_dir"; return 1; }
+    save_original_fluidd "$fluidd_dir"
     backup="${fluidd_dir}_backup_$(timestamp)"
     cp -a "$fluidd_dir" "$backup" && echo "FLUIDD $fluidd_dir $backup" >> "$BACKUP_DIR/manifest.txt"
     print_success "Backed up Fluidd → $backup"
@@ -653,11 +670,15 @@ do_uninstall() {
     for f in "${CFG_FILES[@]}" "$CONF_NAME"; do [ -e "$CONFIG_DIR/$f" ] && echo "  FILE   $CONFIG_DIR/$f"; done
     for f in ace temperature_ace.py virtual_pins.py; do is_symlink "$x/$f" && echo "  LINK   $x/$f"; done
     grep -qE '^\s*\[include\s+wm_(ace_driver|ace|endless|stats)\.cfg\]' "$CONFIG_DIR/printer.cfg" 2>/dev/null && echo "  EDIT   printer.cfg (our include lines)"
+    local fl="$INSTALL_HOME/fluidd" restore_fl=0
+    if has_panel "$fl" && [ -d "$(ORIGINAL_FLUIDD)" ]; then restore_fl=1; echo "  FLUIDD $fl (the original Fluidd comes back, your config.json is kept)"; fi
     echo
-    print_info "Left alone: every WonderMaker file, the Fluidd panel (use --undo to put the old Fluidd back), Python packages."
+    print_info "Left alone: every WonderMaker file, Python packages."
+    [ "$restore_fl" = 0 ] && print_info "The Fluidd panel stays (no saved original Fluidd to put back)."
     why "everything is saved first. ./installer.sh --undo puts it all back."
     [ "$DRY" = 1 ] && { print_info "Dry run: nothing removed."; return 0; }
     ask_yn "Remove the ACE Pro install?" N || { print_info "Cancelled. Nothing changed."; return 0; }
+    if [ "$restore_fl" = 1 ]; then ask_yn "Also put the original Fluidd back?" Y "the panel in Fluidd is saved first; --undo brings it back." || restore_fl=0; fi
 
     BACKUP_DIR="$BACKUP_ROOT/wm-$(timestamp)-uninstall"
     mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
@@ -669,6 +690,15 @@ do_uninstall() {
     done
     progress_bar 2 3 "Step 3 of 3: driver links"
     for f in ace temperature_ace.py virtual_pins.py; do remove_link "$x/$f" "$f"; done
+    if [ "$restore_fl" = 1 ]; then
+        progress_bar 3 4 "Step 4 of 4: original Fluidd"
+        local fb="${fl}_backup_$(timestamp)-uninstall" cj="$BACKUP_DIR/config.json.keep"
+        cp -a "$fl" "$fb" && echo "FLUIDD $fl $fb" >> "$BACKUP_DIR/manifest.txt"
+        [ -f "$fl/config.json" ] && cp -a "$fl/config.json" "$cj"
+        rm -rf "$fl" && cp -a "$(ORIGINAL_FLUIDD)" "$fl" && { [ -f "$cj" ] && cp -a "$cj" "$fl/config.json"; rm -f "$cj"; } \
+            && print_success "Original Fluidd put back (your config.json kept)" || print_error "Could not put the original Fluidd back. Your panel is saved in $fb"
+        prune_backups "$fl"
+    fi
     progress_bar 3 3 "Done"
     echo
     print_success "ACE Pro is uninstalled. Saved in: $BACKUP_DIR"

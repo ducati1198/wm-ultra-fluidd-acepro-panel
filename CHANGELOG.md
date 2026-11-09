@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.9
+
+- The original Fluidd is now saved once, for good, in `~/acepro-backup/original-fluidd` the first time the panel is installed. The installer never deletes or overwrites it (the cleanup of old copies does not touch it). If the panel was installed by an older version, the oldest untouched saved copy is used.
+- `--uninstall` now also offers to put the original Fluidd back (default yes). Your Fluidd `config.json` is kept, the panel is saved first, and `--undo` brings it back.
+
 ## 1.5.8
 
 - Endless spool: the two status messages in `wm_endless.cfg` no longer contain semicolons. Klipper treats `;` as the start of a comment, which cut the message and gave "Malformed command". The one in `WM_ENDLESS_CONTINUE` would have made a real endless-spool head swap fail.
