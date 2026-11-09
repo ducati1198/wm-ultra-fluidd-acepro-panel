@@ -941,6 +941,7 @@ do_get_latest() { # refresh THIS folder from GitHub (git pull, or a tarball when
         if [ -n "${ACE_TEST_TARBALL:-}" ]; then cp "$ACE_TEST_TARBALL" "$tmp/x.tgz"
         else curl -fsSL --max-time 120 "$TARBALL_URL" -o "$tmp/x.tgz" || { rm -rf "$tmp"; die_with_fix "download failed" "check the internet connection"; }; fi
         mkdir "$tmp/x" && tar -xzf "$tmp/x.tgz" -C "$tmp/x" --strip-components=1 && [ -f "$tmp/x/installer.sh" ] || { rm -rf "$tmp"; die_with_fix "the download is not the installer" "try again later"; }
+        rm -f "$REPO_DIR/installer.sh"   # the running script keeps its own copy; writing over it in place made bash read the new file at the old end ("syntax error near unexpected token")
         cp -a "$tmp/x/." "$REPO_DIR/"; rc=$?; rm -rf "$tmp"; trap - INT TERM   # the downloaded copy never stays in /tmp
         [ "$rc" = 0 ] || die_with_fix "could not copy the new files into $REPO_DIR" "check the folder permissions"
     fi

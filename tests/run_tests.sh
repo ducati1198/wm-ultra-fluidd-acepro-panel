@@ -182,6 +182,11 @@ GL="$ROOT/gl"; mkdir -p "$GL/src"; cp "$REPO/installer.sh" "$GL/src/"; echo 7.7.
 cp -a "$REPO" "$ROOT/copy"; rm -rf "$ROOT/copy/.git"
 OUT="$(ACE_TEST_TARBALL="$GL/t.tgz" ACE_INSTALLER_TEST=1 bash "$ROOT/copy/installer.sh" --get-latest 2>&1)"
 check "--get-latest without git refreshes the folder" test "$(tr -d '[:space:]' < "$ROOT/copy/VERSION")" = 7.7.7
+# a newer installer is longer: copying it over the running script in place made bash read the new file at the old end ("syntax error near unexpected token")
+GB="$ROOT/glb"; mkdir -p "$GB/src"; cp "$REPO/installer.sh" "$GB/src/"; python3 -I -c "import sys; L=open(sys.argv[1]).read().split(chr(10)); L[40:40]=['# padding %d to make the downloaded installer longer than the running one' % i for i in range(40)]; open(sys.argv[1],'w').write(chr(10).join(L))" "$GB/src/installer.sh"; echo 7.7.8 > "$GB/src/VERSION"; tar -czf "$GB/t.tgz" -C "$GB" src
+cp -a "$REPO" "$ROOT/copyb"; rm -rf "$ROOT/copyb/.git"
+OUT="$(ACE_TEST_TARBALL="$GB/t.tgz" ACE_INSTALLER_TEST=1 bash "$ROOT/copyb/installer.sh" --get-latest 2>&1)"
+check "--get-latest with a longer new installer prints no syntax error" bash -c '! echo "$0" | grep -qi "syntax error"' "$OUT"
 
 OUT="$(printf '2\n2\nn\nn\nn\nn\n0\n' | ACE_TEST_TARBALL="$GL/t.tgz" ACE_MENU_TEST=1 ACE_INSTALLER_TEST=1 ACE_INSTALL_HOME="$HM" bash "$ROOT/copy/installer.sh" 2>&1)"
 check "Update now restarts the menu on the new version" bash -c 'echo "$0" | grep -q "installer v7.7.7"' "$OUT"

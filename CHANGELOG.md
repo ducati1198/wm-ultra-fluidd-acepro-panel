@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.10
+
+- "Update now" no longer prints `syntax error near unexpected token` after the download. The new installer was written over the running script in place, so bash read the new file at the old file's end. The old file is now removed first. The update itself was not harmed, but the message was confusing. This fix takes effect from the update after this one.
+
 ## 1.5.9
 
 - The original Fluidd is now saved once, for good, in `~/acepro-backup/original-fluidd` the first time the panel is installed. The installer never deletes or overwrites it (the cleanup of old copies does not touch it). If the panel was installed by an older version, the oldest untouched saved copy is used.
