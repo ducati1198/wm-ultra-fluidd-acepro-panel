@@ -4041,3 +4041,113 @@ index 43ff04b..8692f6f 100644
 -- 
 2.43.0
 
+From d26e224a816fab00e1c0dfc2e4ed83b25cf501e4 Mon Sep 17 00:00:00 2001
+From: t <t@t>
+Date: Tue, 10 Nov 2026 12:53:55 -0500
+Subject: [PATCH] feat(zr): Chamber light button beside AIR FILTER (light on
+ the screen board, found through config/wm_chamber_light.json)
+
+---
+ src/components/widgets/zr/ZrToolheadsCard.vue | 57 ++++++++++++++++++-
+ 1 file changed, 55 insertions(+), 2 deletions(-)
+
+diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
+index 5bebf42..3994a1c 100644
+--- a/src/components/widgets/zr/ZrToolheadsCard.vue
++++ b/src/components/widgets/zr/ZrToolheadsCard.vue
+@@ -264,6 +264,21 @@
+               class="text-body-2 font-weight-bold"
+             >—</span>
+           </div>
++          <div
++            v-if="lightUrl"
++            class="zr-bottom-item"
++          >
++            <span class="text-overline secondary--text">CHAMBER LIGHT</span>
++            <app-btn
++              x-small
++              :color="lightOn ? 'success' : undefined"
++              :aria-pressed="lightOn ? 'true' : 'false'"
++              :disabled="lightOn === null || lightBusy"
++              @click="toggleLight"
++            >
++              {{ lightOn === null ? '—' : (lightOn ? 'ON' : 'OFF') }}
++            </app-btn>
++          </div>
+           <div class="zr-bottom-item">
+             <span class="text-overline secondary--text">DOORS</span>
+             <span
+@@ -466,6 +481,9 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+   toolChangeTimer: number | null = null
+   endlessMeta: Record<string, unknown> | null = null
+   endlessMetaFile = ''
++  lightUrl = ''
++  lightOn: boolean | null = null
++  lightBusy = false
+   readonly dryPresets = [
+     { name: 'PLA', temp: 45, hours: 4 },
+     { name: 'PETG', temp: 55, hours: 6 },
+@@ -484,8 +502,12 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+   mounted () {
+     this.zrLoadSlots()
+     this.loadEndlessMeta()
++    this.loadLight()
+     this.pollTimer = window.setInterval(() => {
+-      if (!document.hidden && !this.toolDialog.open) this.zrLoadSlots()
++      if (!document.hidden && !this.toolDialog.open) {
++        this.zrLoadSlots()
++        this.loadLight()
++      }
+     }, POLL_MS)
+   }
+ 
+@@ -717,6 +739,37 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+     EventBus.bus.$emit('zr-print-dialog', { filename: null })
+   }
+ 
++  /** The chamber light is on the screen board. The board's service writes config/wm_chamber_light.json ({"url": ...}) into Moonraker; no file, no button. */
++  async loadLight () {
++    try {
++      if (!this.lightUrl) {
++        const file = await this.serverFilesGet<string>('config/wm_chamber_light.json', { responseType: 'text', transformResponse: [(d: unknown) => d] })
++        const url = String(JSON.parse(String(file.data ?? '{}')).url ?? '')
++        if (!/^https?:\/\/[\w.-]+(?::\d+)?$/.test(url)) return
++        this.lightUrl = url
++      }
++      const response = await fetch(`${this.lightUrl}/light`, { cache: 'no-store' })
++      const data = await response.json()
++      this.lightOn = typeof data.on === 'boolean' ? data.on : null
++    } catch {
++      this.lightOn = null
++    }
++  }
++
++  async toggleLight () {
++    if (!this.lightUrl || this.lightBusy) return
++    this.lightBusy = true
++    try {
++      const response = await fetch(`${this.lightUrl}/light/toggle`, { method: 'POST' })
++      const data = await response.json()
++      this.lightOn = typeof data.on === 'boolean' ? data.on : null
++    } catch {
++      this.lightOn = null
++    } finally {
++      this.lightBusy = false
++    }
++  }
++
+   toggleAirFilter () {
+     this.zrSend(`SET_FAN_SPEED FAN=air_fan SPEED=${this.airFilterOn ? 0 : 1}`)
+   }
+@@ -809,7 +862,7 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+ 
+ .zr-bottom {
+   display: grid;
+-  grid-template-columns: repeat(3, 1fr);
++  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+   text-align: center;
+   gap: 8px;
+ }
+-- 
+2.43.0
+

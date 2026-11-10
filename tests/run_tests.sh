@@ -315,5 +315,10 @@ check "without a Moonraker address the tests never try to reach one" bash -c '! 
 check "--dry-run does not run it" bash -c 'ACE_MOONRAKER_URL=http://127.0.0.1:1 ACE_INSTALL_HOME="$0" ACE_INSTALLER_TEST=1 bash "$1" --fluidd-categories --dry-run 2>&1 | grep -q "not done" && exit 1; exit 0' "$FCH" "$INST"
 check "--help lists --fluidd-categories" bash -c 'bash "$0" --help | grep -q -- "--fluidd-categories"' "$INST"
 
+echo "Fluidd build: Chamber light button"
+check "Fluidd zip matches its sha256 file" bash -c 'cd "$0/fluidd" && sha256sum -c fluidd-v1.37.7-zr-ace.zip.sha256' "$REPO"
+check "Fluidd zip holds the Chamber light button (reads config/wm_chamber_light.json)" bash -c 'unzip -p "$0/fluidd/fluidd-v1.37.7-zr-ace.zip" "assets/*.js" | grep -q "wm_chamber_light.json"' "$REPO"
+check "Fluidd patch carries the Chamber light commit" grep -q "Chamber light button beside AIR FILTER" "$REPO/fluidd/fluidd-v1.37.7-zr-ace.patch"
+
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]
