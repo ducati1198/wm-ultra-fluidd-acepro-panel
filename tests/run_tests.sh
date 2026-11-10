@@ -63,7 +63,7 @@ check "Klipper was not restarted"                   bash -c '! echo "$0" | grep 
 inst "$H" "" --check;  check "--check passes"       test "$RC" -eq 0
 
 echo "2. Update keeps tuned values"
-sed -i 's/^variable_hub_to_head_mm: *900/variable_hub_to_head_mm: 1234/;s/^variable_auto: *1/variable_auto: 0/' "$C/wm_ace.cfg"
+sed -i 's/^variable_hub_to_head_mm: *710/variable_hub_to_head_mm: 1234/;s/^variable_auto: *1/variable_auto: 0/' "$C/wm_ace.cfg"
 sed -i 's/^feed_speed: 60/feed_speed: 33/' "$C/wm_ace_driver.cfg"
 inst "$H" 'n\ny\n' --update
 check "update finished"                             test "$RC" -eq 0
@@ -281,6 +281,27 @@ EOP
 }
 check "fluidd installer: the bar is printed once and a question after it stays clean" bar_check $INST
 check "get-latest: the download in /tmp is removed on Ctrl-C" grep -qF 'trap '"'"'rm -rf "$tmp"; exit 130'"'"' INT TERM' "$INST"
+echo "ACE load hooks in extruder0..3.cfg"
+HK="$(new_home hooks)"; CHK="$(cfg "$HK")"
+for n in 0 1 2 3; do
+    printf '[filament_switch_sensor filament%s]\npause_on_runout: False\ninsert_gcode:\n    {%% set s = 1 %%}\n    {%% if s %%}\n        SAVE_VARIABLE VARIABLE=if_check_extruder_status value=0\n        filament_insert\n        SAVE_VARIABLE VARIABLE=if_check_extruder_status value=1\n        T%s\n        PARK_CURRENT_TOOL\n    {%% endif %%}\n\n[delayed_gcode delayed_pause%s]\ngcode:\n    PAUSE\n' "$n" "$n" "$n" > "$CHK/extruder$n.cfg"
+done
+cp -a "$CHK" "$ROOT/hooks-orig"
+inst "$HK" "$A_ALL"
+check "install: the three hook lines are added to every extruder cfg" bash -c 'for n in 0 1 2 3; do f="$0/extruder$n.cfg"; grep -q "^    _WM_ACE_HEAD T=$n$" "$f" && grep -q "^        _WM_ACE_GRAB T=$n$" "$f" && grep -q "^        _WM_ACE_HEAD_DONE T=$n$" "$f" || exit 1; done' "$CHK"
+check "install: the hooks sit in the right places (head first, grab before filament_insert, done after PARK_CURRENT_TOOL)" bash -c 'f="$0/extruder2.cfg"; [ "$(sed -n "/^insert_gcode:/{n;p}" "$f")" = "    _WM_ACE_HEAD T=2" ] && grep -A1 "_WM_ACE_GRAB T=2" "$f" | grep -q "^        filament_insert$" && grep -B1 "_WM_ACE_HEAD_DONE T=2" "$f" | grep -q PARK_CURRENT_TOOL' "$CHK"
+cp -a "$CHK" "$ROOT/hooks-after"
+inst "$HK" 'n\ny\n' --update
+check "update: hooks are not added twice" bash -c 'for n in 0 1 2 3; do cmp -s "$0/hooks-after/extruder$n.cfg" "$1/extruder$n.cfg" || exit 1; done' "$ROOT" "$CHK"
+check "the extruder cfgs were backed up before the first change" bash -c 'ls "$0"/wm-rpi-backup/wm-*/files"$1"/extruder0.cfg >/dev/null 2>&1 || ls "$0"/*/wm-*/files"$1"/extruder0.cfg >/dev/null 2>&1 || find "$0" -path "*files*extruder0.cfg" | grep -q .' "$HK" "$CHK"
+check "--check reports the hooks" bash -c 'ACE_INSTALL_HOME="$0" ACE_INSTALLER_TEST=1 bash "$1" --check 2>&1 | grep -q "ACE load hooks are in"' "$HK" "$INST"
+echo "# a file that does not look like WonderMaker's is left alone" >> /dev/null
+HK2="$(new_home hooks2)"; CHK2="$(cfg "$HK2")"; printf '[filament_switch_sensor filament0]\ninsert_gcode:\n    M117 hi\n' > "$CHK2/extruder0.cfg"; cp "$CHK2/extruder0.cfg" "$ROOT/hooks2.before"
+inst "$HK2" "$A_ALL"
+check "a file without the expected anchors is not touched and a warning is shown" bash -c 'cmp -s "$0/hooks2.before" "$1/extruder0.cfg" && echo "$2" | grep -q "NOANCHOR"' "$ROOT" "$CHK2" "$OUT"
+inst "$HK" 'y\n' --uninstall
+check "uninstall: the hook lines are gone and the cfgs are as before" bash -c 'for n in 0 1 2 3; do cmp -s "$0/hooks-orig/extruder$n.cfg" "$1/extruder$n.cfg" || exit 1; done' "$ROOT" "$CHK"
+
 echo "Fluidd macro categories"
 check "categories: rules, never-touch-user-changes and fake Moonraker tests pass" bash -c 'python3 -I "$0/tests/test_fluidd_categories.py" | tail -1 | grep -q "failed: 0"' "$REPO"
 FCH="$(new_home fcat)"

@@ -646,6 +646,7 @@ do_install() {
     apply_stage
     progress_bar 2 $pt "Step 3 of $pt: include lines in printer.cfg"
     ensure_includes
+    ensure_ace_hooks
     progress_bar 3 $pt "Step 4 of $pt: Fluidd panel"
     [ "$WANT_FLUIDD" = 1 ] && install_fluidd_panel "$FLUIDD_DIR"
     progress_bar 4 $pt "Step 5 of $pt: saving your answers"
@@ -662,6 +663,29 @@ do_install() {
 # ============================================================================
 # Uninstall / undo / check / repair
 # ============================================================================
+
+ace_hooks_py() { echo "$SCRIPT_DIR/scripts/ace_hooks.py"; }
+ensure_ace_hooks() {   # three lines in WonderMaker's extruder0..3.cfg (insert_gcode) so the ACE load can hand over to WM's insert routine; idempotent, a file without the expected anchors is left alone
+    [ "$HAVE_ACE" = 1 ] || return 0
+    [ -f "$(ace_hooks_py)" ] || { print_warning "scripts/ace_hooks.py is missing: the ACE load hooks were not added"; return 0; }
+    local out n
+    out="$(python3 -I "$(ace_hooks_py)" check "$CONFIG_DIR" 2>&1)" && { print_success "ACE load hooks are in extruder0..3.cfg"; return 0; }
+    for n in 0 1 2 3; do
+        echo "$out" | grep -q "^extruder$n.cfg MISSING" && backup_path "$CONFIG_DIR/extruder$n.cfg"
+    done
+    out="$(python3 -I "$(ace_hooks_py)" apply "$CONFIG_DIR" 2>&1)"
+    echo "$out" | grep ' ADDED$' | while read -r l; do print_success "ACE load hook added to ${l% ADDED}"; done
+    echo "$out" | grep -E ' (NOANCHOR|NOFILE)$' | while read -r l; do print_warning "${l% *}: ${l##* } - the ACE load hooks were not added there (the file differs from WonderMaker's). ACE loading still feeds the filament, but without the grab and feed-assist steps."; done
+    return 0
+}
+remove_ace_hooks() {   # uninstall: wm_ace.cfg goes away, so the lines that call its macros must go too
+    [ -f "$(ace_hooks_py)" ] || return 0
+    local n any=0
+    for n in 0 1 2 3; do grep -qE '^\s+_WM_ACE_(HEAD|GRAB|HEAD_DONE) T=' "$CONFIG_DIR/extruder$n.cfg" 2>/dev/null && { backup_path "$CONFIG_DIR/extruder$n.cfg"; any=1; }; done
+    [ "$any" = 1 ] || return 0
+    python3 -I "$(ace_hooks_py)" remove "$CONFIG_DIR" >/dev/null 2>&1
+    print_success "Removed the ACE load hooks from extruder0..3.cfg"
+}
 
 remove_include_lines() {
     local pc="$CONFIG_DIR/printer.cfg" l
@@ -704,6 +728,7 @@ do_uninstall() {
     BACKUP_DIR="$BACKUP_ROOT/wm-$(timestamp)-uninstall"
     mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
     progress_bar 0 3 "Step 1 of 3: include lines in printer.cfg"
+    remove_ace_hooks
     remove_include_lines
     progress_bar 1 3 "Step 2 of 3: config files"
     for f in "${CFG_FILES[@]}" "$CONF_NAME"; do
@@ -765,6 +790,9 @@ do_check() {
             [ -f "$CONFIG_DIR/$f" ] && print_success "$f present" || { print_error "$f is missing"; bad=1; }
             include_present "${f//./\\.}" && print_success "printer.cfg includes $f" || { print_error "printer.cfg does not include $f"; bad=1; }
         done
+        if [ -f "$(ace_hooks_py)" ]; then
+            ! python3 -I "$(ace_hooks_py)" check "$CONFIG_DIR" 2>&1 | grep -q MISSING && print_success "ACE load hooks are in extruder0..3.cfg (or those files are not WonderMaker's)" || print_warning "ACE load hooks are missing in extruder0..3.cfg (loading works without grab and feed-assist off). ./installer.sh --repair adds them"
+        fi
     else
         print_info "Installed without an ACE Pro (panel only). ACE checks skipped."
     fi
@@ -821,8 +849,9 @@ do_repair() {
     HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
     progress_bar 0 2 "Step 1 of 2: driver links"
     [ "$HAVE_ACE" = 1 ] && link_driver
-    progress_bar 1 2 "Step 2 of 2: include lines"
+    progress_bar 1 2 "Step 2 of 2: include lines and ACE load hooks"
     ensure_includes
+    ensure_ace_hooks
     progress_bar 2 2 "Done"
     print_success "Repair finished. Run ./installer.sh --check"
 }
@@ -876,6 +905,9 @@ do_doctor() {
             [ -f "$CONFIG_DIR/$f" ] && include_present "${f//./\\.}" || broken=1
         done
         for f in ace temperature_ace.py virtual_pins.py; do [ -e "$x/$f" ] || broken=1; done
+        if [ -f "$(ace_hooks_py)" ] && python3 -I "$(ace_hooks_py)" check "$CONFIG_DIR" 2>&1 | grep -q MISSING; then
+            doc_bad "the ACE load hooks are missing in extruder0..3.cfg" "this is what --repair adds (a copy of each file is saved first)"
+        fi
         if [ "$broken" = 1 ]; then doc_bad "driver links, config files or include lines are missing" "this is what --repair restores"; offer_fix "restore the links and include lines (saved first)" doc_relink
         else doc_ok "driver links, config files and include lines are in place"; fi
         grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/wm_ace_driver.cfg" 2>/dev/null && doc_ok "driver will not replace WonderMaker's T0..T3" || doc_bad "register_tool_commands: False is missing in wm_ace_driver.cfg" "the driver would replace WonderMaker's T0..T3; re-run ./installer.sh --update"

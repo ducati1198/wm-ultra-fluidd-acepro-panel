@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.12
+
+- **ACE load and unload were reworked** (load and unload tried on a printer; the grab push and feed-assist-off at the end are not yet tested): when the filament trips the tool head sensor the ACE stops feeding, waits one second and turns feed assist on; the extruder gear then grabs the filament with a short slow push before WonderMaker's insert routine, and feed assist is switched off again when that routine is finished. Unload now picks up the tool by itself, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back and stops when the slot reports empty. Auto load is held off for a while after an unload. New `config/wm_ace.cfg` macros: `_WM_ACE_HEAD`, `_WM_ACE_GRAB`, `_WM_ACE_HEAD_DONE`, `_WM_ACE_UNLOAD_RUN`; new state `load_final` and variable `hold`. `hub_to_head_mm` default is now 710. Your tuned values are still kept on update.
+- **Three hook lines in WonderMaker's `extruder0..3.cfg`** (first line of `insert_gcode`, before `filament_insert`, after `PARK_CURRENT_TOOL`) connect those macros to WonderMaker's insert routine. The installer adds them (idempotent, a copy of each file is saved first, a file that does not look like WonderMaker's is left alone with a warning), `--repair` re-adds them, `--check` and `--doctor` report them, `--uninstall` removes them again. Script: `scripts/ace_hooks.py`.
+- Tests: hook checks added (126 pass).
+
 ## 1.5.11
 
 - The installer now sorts the printer's macros into Fluidd's macro categories at the end of an install or update (after the Klipper restart question), and with the new `./installer.sh --fluidd-categories`: AcePro (red), Raspberry Pi (blue), WM Ultra Calibration (yellow), Tool Change (green), Filament (orange), ZR Tools (purple), Print (grey), Tests (dark grey) and Timelapse (cyan). `M104`, `M106`, `M107`, `M109`, `M141`, `M190`, `M191`, `M221` and `z_rise` are hidden. New file `scripts/wm_fluidd_categories.py`, which writes to Moonraker's database (Fluidd's `macros` key), so nothing on disk changes.
