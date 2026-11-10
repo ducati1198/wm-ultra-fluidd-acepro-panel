@@ -14,8 +14,11 @@ wm-ultra-fluidd-acepro-panel). NOT YET TESTED IN ORCASLICER (the helper function
 
 The printer is detected through Moonraker each time the panel refreshes or G-code is written:
 
+  * the printer has filament_switch_sensor filament0..3 + tmt1.ini -> kind "wm"  (the four WonderMaker toolheads;
+                                                                       checked first: an Ultra-S with an ACE Pro added
+                                                                       also has the "ace" object, but its tools are
+                                                                       still the four toolheads)
   * the printer has the Klipper object "ace"                       -> kind "ace" (ACE Pro spools T0..T3, T4..T7 ...)
-  * the printer has filament_switch_sensor filament0..3 + tmt1.ini -> kind "wm"  (the four WonderMaker toolheads)
   * anything else                                                   -> nothing is written into the G-code
 
 Two capabilities:
@@ -232,7 +235,7 @@ def heads_from_data(slots, sensors, temps=None):
 
 
 def _http_get(url, api_key="", timeout=DEFAULT_TIMEOUT_S):
-    headers = {"Accept": "application/json"}
+    headers = {"Accept": "application/json", "Cache-Control": "no-cache", "Pragma": "no-cache"}
     if api_key:
         headers["X-Api-Key"] = api_key
     req = urllib.request.Request(url, headers=headers)
@@ -248,10 +251,10 @@ def _query(base, objects, api_key="", timeout=DEFAULT_TIMEOUT_S):
 def detect_kind(objects):
     """Which printer is this? `objects` = the Klipper object names from /printer/objects/list."""
     names = set(objects or [])
+    if any(f"filament_switch_sensor filament{i}" in names for i in range(HEADS)):
+        return "wm"          # before "ace": a WonderMaker with an ACE Pro still prints with its four toolheads
     if "ace" in names:
         return "ace"
-    if any(f"filament_switch_sensor filament{i}" in names for i in range(HEADS)):
-        return "wm"
     return ""
 
 

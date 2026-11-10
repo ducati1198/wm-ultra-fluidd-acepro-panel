@@ -56,6 +56,7 @@ check("describe names toolheads from 1", m.describe({0: 2}, fil, heads, "wm").st
 check("ACE printer: only changed tools, ACE macro", m.map_lines({0: 0, 1: 3}, "f.gcode", "s", "ace")[1].startswith("ACE_SET_TOOL_MAP MAP=1:3 "))
 check("printer kind: ace object -> ace", m.detect_kind(["configfile", "ace"]) == "ace")
 check("printer kind: filament0..3 sensors -> wm", m.detect_kind(["filament_switch_sensor filament0"]) == "wm")
+check("printer kind: WonderMaker with an ACE Pro added is still the four toolheads (wm)", m.detect_kind(["ace", "filament_switch_sensor filament0", "filament_switch_sensor filament3"]) == "wm")
 check("printer kind: anything else -> nothing written", m.detect_kind(["configfile"]) == "")
 
 w = m.warnings_for(m.project_filaments(["#FF0000", "#FF0000"], ["PLA", "PLA"], ["a", "b"]), heads, {0: 1, 1: 1}, "wm")
