@@ -9,7 +9,7 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![Fluidd](https://img.shields.io/badge/Fluidd-1.37.7%20Toolheads%20panel-orange.svg)](fluidd/)
-[![Status](https://img.shields.io/badge/status-not%20yet%20tested%20on%20a%20printer-red.svg)](#6-first-tests-on-the-printer)
+[![Status](https://img.shields.io/badge/status-tested%20on%20a%20WonderMaker%20Ultra--S-brightgreen.svg)](#6-first-tests-on-the-printer)
 
 <img src="docs/img/fluidd-toolheads-ace-card.png" alt="WonderMaker Toolheads card with the ACE Pro in Fluidd" width="60%">
 
@@ -19,7 +19,7 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 > **The ACE Pro is not an MMU here.** The WonderMaker ZR Ultra has four toolheads that do the switching. The ACE Pro in this project is used **only to load and unload the filament and to dry it**.
 
-> **Status:** tested with a simulated printer, and installed on a fresh Pi running WonderMaker's Klipper (the config and the ACE driver load). **Not run on a printer or with an ACE Pro yet.** Use at your own risk, see the [disclaimer](#disclaimer-use-at-your-own-risk).
+> **Status:** tested on a WonderMaker ZR Ultra-S printer with an ACE Pro (Fluidd panel, ACE driver, loading and unloading, printing, calibration macros), and with a simulated printer. It still needs a little tweaking, and other setups may differ. Use at your own risk, see the [disclaimer](#disclaimer-use-at-your-own-risk).
 
 ## Quick start
 
@@ -117,7 +117,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 
 - **Use it at your own risk.** You are responsible for what runs on your printer.
 - **I am not responsible for any damage** to your printer, ACE Pro, electronics, hotend, prints or other property, or for any injury, fire or loss, caused by these files, the installer or the instructions.
-- **This project has not been run on a real printer yet.** It was written against WonderMaker's configuration files and tested with a simulated printer (the installer, the Jinja in the macros, the Fluidd panel). It has also been installed on a fresh Raspberry Pi running WonderMaker's Klipper (no main board, no ACE attached): the installer ran, Klipper loaded the whole config and the ACE driver started. The first run with the printer and an ACE is yours. Section 6 lists what is still open.
+- **It has been tested on one printer: a WonderMaker ZR Ultra-S with an ACE Pro** (installer, Fluidd panel, ACE driver, loading and unloading, printing, calibration macros), and with a simulated printer. Your printer, firmware or ACE may behave differently, so test in small steps. Section 6 lists what is still unverified.
 - **Test in small steps**, with the printer empty, your hand near the emergency stop. Never leave a new setup unattended.
 - Back up your config first. The installer makes backups and supports `--undo`, but you are responsible for keeping your own copies.
 - This project is not made by or affiliated with WonderMaker, Anycubic or any other manufacturer. Product names belong to their owners.

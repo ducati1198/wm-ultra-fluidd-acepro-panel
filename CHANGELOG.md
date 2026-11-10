@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.15
+
+- **README status updated: tested on a real printer.** The project has now been run on a WonderMaker ZR Ultra-S with an ACE Pro (Fluidd panel, ACE driver, loading and unloading, printing, calibration macros) and the Orca plugin works in OrcaSlicer 2.5. The red "not yet tested" badge, the status line and the disclaimer say so. Things still not tested stay marked (ACE 2 Pro, the items in section 6 "Still unverified"). It still needs a little tweaking.
+
 ## 1.5.14
 
 - **Fluidd: CHAMBER LIGHT ON/OFF button beside AIR FILTER in the Toolheads card.** The light is on the TM-T1 screen board, not the Pi. The board's installer (wm-ultra-rpi 1.23.63) runs a small service that toggles it and writes `config/wm_chamber_light.json` (the service address) into Moonraker; the card reads that file and shows the button only when it exists and the board answers. Fluidd v1.37.7 patch series: one new commit appended; zip rebuilt (`pnpm run lint` and `pnpm run build` pass; the series applies cleanly on a fresh v1.37.7). Not tested on the printer yet.

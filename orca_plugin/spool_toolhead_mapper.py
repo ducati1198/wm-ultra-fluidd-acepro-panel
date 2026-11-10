@@ -10,7 +10,7 @@
 """Spool and Toolhead Mapper for OrcaSlicer 2.5.
 
 Combines "ACE Spool Mapper" (acepro-any-klipper, ACE Pro) and "WM Toolhead Mapper" (WonderMaker ZR Ultra-S,
-wm-ultra-fluidd-acepro-panel). NOT YET TESTED IN ORCASLICER (the helper functions are tested outside it).
+wm-ultra-fluidd-acepro-panel). Tested in OrcaSlicer 2.5 on a WonderMaker ZR Ultra-S.
 
 The printer is detected through Moonraker each time the panel refreshes or G-code is written:
 
