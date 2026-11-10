@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.11
+
+- The installer now sorts the printer's macros into Fluidd's macro categories at the end of an install or update (after the Klipper restart question), and with the new `./installer.sh --fluidd-categories`: AcePro (red), Raspberry Pi (blue), WM Ultra Calibration (yellow), Tool Change (green), Filament (orange), ZR Tools (purple), Print (grey), Tests (dark grey) and Timelapse (cyan). `M104`, `M106`, `M107`, `M109`, `M141`, `M190`, `M191`, `M221` and `z_rise` are hidden. New file `scripts/wm_fluidd_categories.py`, which writes to Moonraker's database (Fluidd's `macros` key), so nothing on disk changes.
+- Your own choices are never changed: only macros whose Fluidd entry is still the default are sorted, each macro is dealt with once (the names are recorded in Moonraker's database under `wm_ultra`), categories are created only when a macro needs them and reused by name. If Moonraker or Klipper is not ready the install finishes with a warning that says how to run it later. The previous macro settings are saved in `~/acepro-backup/fluidd-macros-before-<date>.json`. Uninstall leaves the categories.
+- New tests: `tests/test_fluidd_categories.py` (rules, never-touch-user-changes, a fake Moonraker) and installer checks in `tests/run_tests.sh` (119 pass).
+
 ## 1.5.10
 
 - "Update now" no longer prints `syntax error near unexpected token` after the download. The new installer was written over the running script in place, so bash read the new file at the old file's end. The old file is now removed first. The update itself was not harmed, but the message was confusing. This fix takes effect from the update after this one.

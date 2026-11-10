@@ -15,6 +15,7 @@
 # ./installer.sh --support-bundle  make a scrubbed .tgz of logs and config to share when asking for help
 # ./installer.sh --undo [DIR]  put back the files saved before the last install
 # ./installer.sh --uninstall   remove everything the installer added (saved first, --undo brings it back)
+# ./installer.sh --fluidd-categories  sort the printer's macros into Fluidd categories (also done at the end of an install; macros you moved yourself are left alone)
 # ./installer.sh --fix-clock   factory screen board only: automatic time sync (NTP) and apt (Debian archive)
 # ./installer.sh --free-space  list what is safe to erase (sizes, warnings), erase what you pick and confirm
 # ./installer.sh --menu        numbered menu (this is what you get with no options at a terminal)
@@ -58,7 +59,7 @@ UNDO_ARG=""
 KLIPPER_DIR="${ACE_KLIPPER_DIR:-}"
 CONFIG_DIR="${ACE_CONFIG_DIR:-}"
 BACKUP_ROOT="$INSTALL_HOME/acepro-backup"
-MOONRAKER_URL="http://127.0.0.1:7125"
+MOONRAKER_URL="${ACE_MOONRAKER_URL:-http://127.0.0.1:7125}"
 KLIPPER_SERVICE="klipper"
 CONF_NAME="wm-ultra-install.conf"
 
@@ -305,6 +306,7 @@ show_plan() {
     fi
     [ "$WANT_FLUIDD" = 1 ] && echo "Fluidd:  $FLUIDD_DIR gets the WonderMaker Toolheads + ACE panel (the old folder is saved first)"
     [ "$WANT_FLUIDD" = 0 ] && echo "Fluidd:  not changed"
+    echo "Fluidd macros: at the end, sorted into categories (AcePro, Raspberry Pi, WM Ultra ...) and nine helper macros hidden. Macros you moved, recoloured or hid yourself are left alone."
     echo "Klipper: NOT started or restarted by the install. No board is flashed."
 }
 
@@ -441,6 +443,24 @@ save_answers() {
         echo "FLUIDD=\"$WANT_FLUIDD\""
         echo "REPO=\"$REPO_DIR\""
     } > "$f"
+}
+
+fluidd_categories_py() { echo "$SCRIPT_DIR/scripts/wm_fluidd_categories.py"; }
+step_fluidd_categories() {   # SECONDS to wait for Klipper to be ready (the macros are only known once Klipper has loaded them)
+    local wait="${1:-0}" out rc bk
+    [ "$DRY" = 1 ] && return 0
+    klipper_active || [ "${ACE_MOONRAKER_URL:-}" != "" ] || wait=0   # Klipper is not running: do not wait for it
+    [ "$TESTING" = 1 ] && [ -z "${ACE_MOONRAKER_URL:-}" ] && return 0
+    [ -f "$(fluidd_categories_py)" ] || { warn_later "scripts/wm_fluidd_categories.py is missing from this folder: the Fluidd macro categories were not set up. Run ./installer.sh --get-latest."; return 0; }
+    print_header "Fluidd macro categories"
+    why "Fluidd lists every macro in one long row. This puts WonderMaker's, the ACE Pro's and the Pi's macros into coloured categories. A macro you moved, recoloured, renamed or hid yourself is never changed."
+    mkdir -p "$BACKUP_ROOT"; bk="$BACKUP_ROOT/fluidd-macros-before-$(timestamp).json"
+    out="$(python3 -I "$(fluidd_categories_py)" apply --url "$MOONRAKER_URL" --wait "$wait" --backup "$bk" 2>&1)"; rc=$?
+    case "$rc" in
+        0) print_success "$out"; [ -f "$bk" ] && echo "  The macro settings Fluidd had before are saved in $bk" ;;
+        *) print_warning "$out"; warn_later "The Fluidd macro categories were not set up. When Klipper is running, run  ./installer.sh --fluidd-categories" ;;
+    esac
+    return 0
 }
 
 restart_question() {
@@ -635,6 +655,7 @@ do_install() {
 
     [ "$UPDATING" = 1 ] && [ -n "$OLD_VERSION" ] && [ "$OLD_VERSION" != "$VERSION" ] && print_info "Updated from v$OLD_VERSION to v$VERSION."
     restart_question
+    step_fluidd_categories 90
     final_steps
 }
 
@@ -1135,6 +1156,7 @@ parse_args() {
             --free-space) MODE=freespace ;;
             --doctor) MODE=doctor ;;
             --support-bundle) MODE=bundle ;;
+            --fluidd-categories) MODE=fluiddcat ;;
             --fix-clock) MODE=fixclock ;;
             --install) MODE=install ;;
             --check-updates) MODE=whatsnew ;;
@@ -1165,6 +1187,7 @@ main() {
         freespace) do_free_space ;;
         doctor) do_doctor ;;
         bundle) do_support_bundle ;;
+        fluiddcat) step_fluidd_categories 0 ;;
         fixclock) on_factory_board && fix_factory_board || print_info "This is not the factory screen board, so there is nothing to fix." ;;
         whatsnew) do_check_updates ;;
         getlatest) do_get_latest ;;

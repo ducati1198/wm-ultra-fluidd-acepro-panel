@@ -281,5 +281,18 @@ EOP
 }
 check "fluidd installer: the bar is printed once and a question after it stays clean" bar_check $INST
 check "get-latest: the download in /tmp is removed on Ctrl-C" grep -qF 'trap '"'"'rm -rf "$tmp"; exit 130'"'"' INT TERM' "$INST"
+echo "Fluidd macro categories"
+check "categories: rules, never-touch-user-changes and fake Moonraker tests pass" bash -c 'python3 -I "$0/tests/test_fluidd_categories.py" | tail -1 | grep -q "failed: 0"' "$REPO"
+FCH="$(new_home fcat)"
+ACE_MOONRAKER_URL=http://127.0.0.1:1 inst "$FCH" "$A_ALL"
+check "install: with Moonraker unreachable the install still finishes and says how to run it later" bash -c 'echo "$0" | grep -q "Fluidd macro categories" && echo "$0" | grep -q "fluidd-categories" && echo "$0" | grep -q "installed"' "$OUT"
+check "install plan mentions the Fluidd macro categories" bash -c 'echo "$0" | grep -q "Fluidd macros: at the end, sorted into categories"' "$OUT"
+OUT="$(ACE_MOONRAKER_URL=http://127.0.0.1:1 ACE_INSTALL_HOME="$FCH" ACE_INSTALLER_TEST=1 bash "$INST" --fluidd-categories 2>&1)"; RC=$?
+check "--fluidd-categories on its own says it could not reach Moonraker, and the install files are not touched" bash -c 'echo "$0" | grep -q "not done"' "$OUT"
+H2="$(new_home fcat2)"; inst "$H2" "$A_ALL"
+check "without a Moonraker address the tests never try to reach one" bash -c '! echo "$0" | grep -q "Fluidd macro categories"' "$OUT"
+check "--dry-run does not run it" bash -c 'ACE_MOONRAKER_URL=http://127.0.0.1:1 ACE_INSTALL_HOME="$0" ACE_INSTALLER_TEST=1 bash "$1" --fluidd-categories --dry-run 2>&1 | grep -q "not done" && exit 1; exit 0' "$FCH" "$INST"
+check "--help lists --fluidd-categories" bash -c 'bash "$0" --help | grep -q -- "--fluidd-categories"' "$INST"
+
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

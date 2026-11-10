@@ -328,6 +328,7 @@ The installer asks a few plain questions, shows exactly what it will change, and
 | `./installer.sh --undo` | Put back the files saved before the last install. |
 | `./installer.sh --uninstall` | Remove everything the installer added (saved first, so `--undo` brings it back). |
 | `./installer.sh --dry-run` | Go through the questions and show what would change. Changes nothing. |
+| `./installer.sh --fluidd-categories` | Sorts the printer's macros into Fluidd's coloured categories. Also done at the end of an install and update. See section 3.5. |
 | `./installer.sh --doctor` | Finds problems (printer.cfg, disk space, version, driver links, config files, include lines, the Fluidd panel) and offers a fix for each; asks first. |
 | `./installer.sh --support-bundle` | Writes `~/ace-support-<date>.tgz` with a system report (including USB tree, serial ports and kernel USB messages), config files and log ends. Passwords, tokens, Wi-Fi names, private IP and MAC addresses are removed. |
 | `./installer.sh --free-space` | Lists what is safe to erase (sizes and a warning for each), erases only what you pick and confirm. Also offered by the install when space is short (about 300 MB needed). |
@@ -623,6 +624,29 @@ cd ~/wm-ultra-fluidd-acepro-panel && git pull
 | Load stops with a timeout | Check `path_N` / `filament<N>` in the card, tube length, then raise the timeouts or `hub_to_head_mm`. |
 | Fluidd update in Moonraker removed the panel | `./installer.sh --update`, answer yes to the Fluidd question. |
 
+### 3.5 Fluidd macro categories
+
+At the end of an install or update (after the Klipper restart question) the installer sorts the macros Klipper has loaded into Fluidd's macro categories, so the macro list is not one long row. Run it later, for example after you restarted Klipper, with `./installer.sh --fluidd-categories`.
+
+| Category | Colour | What goes in |
+|---|---|---|
+| AcePro | red | `ACE_*`, `WM_ENDLESS_*`, `WM_STATS_*`, `WM_SET_TOOL_MAP` |
+| Raspberry Pi | blue | the other `WM_*` macros (calibration, nozzle and offsets macros of the Pi installer) |
+| WM Ultra Calibration | yellow | WonderMaker's calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
+| WM Ultra Tool Change | green | `T0`..`T3`, `LOCK`, `UNLOCK`, `PARK_CURRENT_TOOL` ... |
+| WM Ultra Filament | orange | `LOAD_FILAMENT`, `UNLOAD_FILAMENT`, `WIPE_NOZZLE` ... |
+| ZR Tools | purple | `ZR_*` |
+| WM Ultra Print | grey | `START_PRINT`, `PRINT_END`, `PAUSE`, `RESUME` ... |
+| WM Ultra Tests | dark grey | `TEST_*` |
+| Timelapse | cyan | `GET_TIMELAPSE_SETUP`, `HYPERLAPSE`, `TIMELAPSE_*`, `TEST_STREAM_DELAY` |
+
+`M104`, `M106`, `M107`, `M109`, `M141`, `M190`, `M191`, `M221` and `z_rise` are hidden: nobody presses them by hand.
+
+- A category is created only when a macro for it exists (no AcePro category on a printer without the ACE parts), and an existing category with the same name is reused.
+- **Your own choices are never changed.** A macro is sorted only while its Fluidd entry is still the default one. A macro you moved, recoloured, renamed or hid is left alone, and every macro is dealt with once: one you unhide or move back later is not touched again. Macros added by a later update are sorted the first time they are seen.
+- It needs Moonraker, and Klipper ready, because Klipper is what knows the macros. If Klipper is not running the installer says so and tells you to run `--fluidd-categories` later. It never fails the install.
+- The settings Fluidd had before are saved in `~/acepro-backup/fluidd-macros-before-<date>.json`. Uninstalling does not remove the categories (they are your Fluidd settings). Hard-refresh the browser to see the change.
+
 ---
 
 ## 11. Repository layout
@@ -636,6 +660,7 @@ wm-ultra-fluidd-acepro-panel/
 │   ├── wm_ace.cfg                  Load / unload / auto-load / feed assist / dryer macros
 │   ├── wm_endless.cfg              Experimental endless spool (with the per-head chain)
 │   └── wm_stats.cfg                Tool-change counters and the WM_SET_TOOL_MAP macro
+├── scripts/wm_fluidd_categories.py Sorts the macros into Fluidd's categories (uses Moonraker's database)
 ├── extras/                         The ACE driver (linked into klippy/extras by the installer)
 │   ├── ace/                        Driver from acepro-any-klipper + the register_tool_commands option
 │   ├── virtual_pins.py
@@ -643,7 +668,7 @@ wm-ultra-fluidd-acepro-panel/
 ├── fluidd/                         Fluidd 1.37.7 build + patch (Toolheads card with the ACE parts)
 ├── orca_plugin/                    OrcaSlicer plugin: pick toolheads in Orca
 ├── docs/                           Hardware notes, ACE USB adapter wiring, screenshots (demo data)
-├── tests/                          run_tests.sh (installer), test_macros.py (macros), test_orca_plugin.py
+├── tests/                          run_tests.sh (installer), test_macros.py (macros), test_orca_plugin.py, test_fluidd_categories.py
 └── LICENSE                         GPL v3
 ```
 
