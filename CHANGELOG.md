@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.16
+
+- README: removed the mentions of a simulated printer (status line, disclaimer, endless-spool note).
+
 ## 1.5.15
 
 - **README status updated: tested on a real printer.** The project has now been run on a WonderMaker ZR Ultra-S with an ACE Pro (Fluidd panel, ACE driver, loading and unloading, printing, calibration macros) and the Orca plugin works in OrcaSlicer 2.5. The red "not yet tested" badge, the status line and the disclaimer say so. Things still not tested stay marked (ACE 2 Pro, the items in section 6 "Still unverified"). It still needs a little tweaking.

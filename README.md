@@ -19,7 +19,7 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 > **The ACE Pro is not an MMU here.** The WonderMaker ZR Ultra has four toolheads that do the switching. The ACE Pro in this project is used **only to load and unload the filament and to dry it**.
 
-> **Status:** tested on a WonderMaker ZR Ultra-S printer with an ACE Pro (Fluidd panel, ACE driver, loading and unloading, printing, calibration macros), and with a simulated printer. It still needs a little tweaking, and other setups may differ. Use at your own risk, see the [disclaimer](#disclaimer-use-at-your-own-risk).
+> **Status:** tested on a WonderMaker ZR Ultra-S printer with an ACE Pro (Fluidd panel, ACE driver, loading and unloading, printing, calibration macros). It still needs a little tweaking, and other setups may differ. Use at your own risk, see the [disclaimer](#disclaimer-use-at-your-own-risk).
 
 ## Quick start
 
@@ -117,7 +117,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 
 - **Use it at your own risk.** You are responsible for what runs on your printer.
 - **I am not responsible for any damage** to your printer, ACE Pro, electronics, hotend, prints or other property, or for any injury, fire or loss, caused by these files, the installer or the instructions.
-- **It has been tested on one printer: a WonderMaker ZR Ultra-S with an ACE Pro** (installer, Fluidd panel, ACE driver, loading and unloading, printing, calibration macros), and with a simulated printer. Your printer, firmware or ACE may behave differently, so test in small steps. Section 6 lists what is still unverified.
+- **It has been tested on one printer: a WonderMaker ZR Ultra-S with an ACE Pro** (installer, Fluidd panel, ACE driver, loading and unloading, printing, calibration macros). Your printer, firmware or ACE may behave differently, so test in small steps. Section 6 lists what is still unverified.
 - **Test in small steps**, with the printer empty, your hand near the emergency stop. Never leave a new setup unattended.
 - Back up your config first. The installer makes backups and supports `--undo`, but you are responsible for keeping your own copies.
 - This project is not made by or affiliated with WonderMaker, Anycubic or any other manufacturer. Product names belong to their owners.
@@ -602,7 +602,7 @@ How it works:
 
 Dry run: `WM_ENDLESS_PLAN FROM=0 TO=2` prints what a swap would do and moves nothing. Turn it on with the Fluidd switch or `WM_ENDLESS_SET ENABLE=1`.
 
-**First use:** a cheap print, you at the printer, a hand on the stop button. The pieces are checked in simulation, but the real movement is untested.
+**First use:** a cheap print, you at the printer, a hand on the stop button. The real movement is untested.
 
 ---
 
