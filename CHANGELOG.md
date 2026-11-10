@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.13
+
+- README: new load/unload behaviour, the hook lines in `extruder0..3.cfg`, a list of what was tested on the printer and what is still unverified. The "draft, not tested" note in `wm_ace.cfg` now says what was tested.
+
 ## 1.5.12
 
 - **ACE load and unload were reworked** (load and unload tried on a printer; the grab push and feed-assist-off at the end are not yet tested): when the filament trips the tool head sensor the ACE stops feeding, waits one second and turns feed assist on; the extruder gear then grabs the filament with a short slow push before WonderMaker's insert routine, and feed assist is switched off again when that routine is finished. Unload now picks up the tool by itself, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back and stops when the slot reports empty. Auto load is held off for a while after an unload. New `config/wm_ace.cfg` macros: `_WM_ACE_HEAD`, `_WM_ACE_GRAB`, `_WM_ACE_HEAD_DONE`, `_WM_ACE_UNLOAD_RUN`; new state `load_final` and variable `hold`. `hub_to_head_mm` default is now 710. Your tuned values are still kept on update.

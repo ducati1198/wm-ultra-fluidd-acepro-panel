@@ -418,6 +418,8 @@ Installed by the installer (step 5 above). Manual steps and building it yourself
 
 ## 4. Configure
 
+**Hook lines in WonderMaker's files.** The installer adds three lines to each of `extruder0.cfg` … `extruder3.cfg` (inside `insert_gcode` of the tool head sensor): `_WM_ACE_HEAD T=n` as its first line, `_WM_ACE_GRAB T=n` just before `filament_insert`, and `_WM_ACE_HEAD_DONE T=n` just after `PARK_CURRENT_TOOL`. They do nothing unless the ACE is loading that tool. They are needed because WonderMaker's insert routine holds the G-code queue for about 70 seconds, so the ACE could not react in time otherwise. The installer saves a copy of each file first and leaves a file alone (with a warning) when its anchors are not found; `--repair` adds them again, `--check` / `--doctor` report them, `--uninstall` removes them (`scripts/ace_hooks.py`).
+
 Everything you may want to tune is at the top of `~/printer_data/config/wm_ace.cfg` (`[gcode_macro _WM_ACE]`). `--update` keeps your values.
 
 | Variable | Default | Meaning |
@@ -529,17 +531,26 @@ Written for the day the printer is running again. Do them in this order, empty b
 4. **Manual feed:** in the toolhead dialog, Feed 50 mm at speed 25, then Retract 50 mm. Check the direction and the Stop button.
 5. **Sensor check:** push filament by hand to the hub and to the toolhead and watch the two dots.
 6. **Measure the tubes** and set `variable_hub_to_head_mm` and `variable_tail_mm`.
-7. `ACE_WM_LOAD T=0`, then `ACE_WM_UNLOAD T=0`, one head at a time.
+7. `ACE_WM_LOAD T=0`, then `ACE_WM_UNLOAD T=0`, one head at a time (tried on all four heads).
 8. Auto-load by inserting a spool, then feed assist during a short print.
 9. Endless spool (section 8) only on a cheap print with you standing next to the printer. Set a chain first (toolhead dialog → "If this spool runs out") and check that the swap offer names the head you chose.
 10. **Counters and bar:** do a manual tool change (`T1`, then `T0`) from the console. The counters in the card should go up by 2 and the progress bar should move and finish.
 11. **OrcaSlicer plugin** (section 5): slice a two-colour file, send it, and check that the first lines of the G-code on the printer hold `WM_SET_TOOL_MAP`, and that the print uses the toolheads you picked.
 
+### Tested on the printer (ACE Pro, ZR Ultra-S)
+
+- The driver starts and talks to the ACE; `ACE_FEED` / `ACE_RETRACT` do not block, so the polling state machine can watch the sensors.
+- The slot status field (`ready` / `empty`) is read correctly, and `ACE_STOP_FEED` / `ACE_STOP_RETRACT` are harmless when the ACE is idle.
+- Load: the ACE feeds fast to the hub, creeps to the tool head sensor, stops, and feed assist turns on. Filament reached the nozzle (T2 confirmed; T0, T1 and T3 loaded).
+- Unload on T0, T1, T2 and T3: the tool is picked up by itself, the extruder pulls the tip, the ACE retracts, and the slot ends up empty. Auto-load is held off for a while afterwards so the slot's empty-then-ready flicker does not start a new load.
+- Tool head LEDs (`wm_tool_leds.cfg` in wm-ultra-rpi): blue with filament, red without.
+
 ### Still unverified (needs the printer)
 
-- The driver starts with `ace_count: 1` and without the `acepro_macros.cfg` of acepro-any-klipper.
-- `ACE_FEED` / `ACE_RETRACT` do not block, so the polling state machine can watch the sensors.
-- The slot status field the panel reads (`ready` / `empty`).
+- The short extruder grab push before WonderMaker's insert routine, and feed assist turning off when that routine is finished.
+- How the formed tip looks (the ACE pulls the filament back, so it has not been inspected).
+- The "filament tangled" warning that appears during some ACE moves, and the hub path sensors, which read "filament" even for empty slots (unload finishes on the ACE slot status instead).
+- ACE USB stability over a long time (kernel `error -71` appeared before the cable was moved).
 - What the head sensor `docked<N>` means on the real hardware.
 - Tube lengths, speeds and the overshoot after a sensor trips.
 - `ACE_STOP_FEED` / `ACE_STOP_RETRACT` are harmless when the ACE is idle.
@@ -554,8 +565,8 @@ Written for the day the printer is running again. Do them in this order, empty b
 
 | Command | What it does |
 |---|---|
-| `ACE_WM_LOAD T=0..3` | Feed slot to hub and toolhead sensor; WonderMaker's insert routine finishes the load. |
-| `ACE_WM_UNLOAD T=0..3` | `UNLOAD_FILAMENT`, then the ACE pulls the filament back. |
+| `ACE_WM_LOAD T=0..3` | Feed slot to hub and toolhead sensor. At the sensor the ACE stops, feed assist turns on, the extruder gear grabs the filament with a short push, WonderMaker's insert routine finishes the load, then feed assist turns off. |
+| `ACE_WM_UNLOAD T=0..3` | Picks up the tool, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back until its slot is empty. |
 | `ACE_WM_RETRACT T=0..3` | Only the ACE part of an unload (after WonderMaker's `UNLOAD_FILAMENT`). |
 | `ACE_WM_STOP` | Stop any feed or retract started by these macros. |
 | `ACE_WM_AUTO ENABLE=1\|0` | Auto-load on spool insert. |
@@ -658,6 +669,7 @@ wm-ultra-fluidd-acepro-panel/
 ├── config/
 │   ├── wm_ace_driver.cfg           Minimal [ace] driver config (no T0..T7, no cutter, no basket)
 │   ├── wm_ace.cfg                  Load / unload / auto-load / feed assist / dryer macros
+│   ├── (scripts/ace_hooks.py        adds / checks / removes the 3 hook lines in extruder0..3.cfg)
 │   ├── wm_endless.cfg              Experimental endless spool (with the per-head chain)
 │   └── wm_stats.cfg                Tool-change counters and the WM_SET_TOOL_MAP macro
 ├── scripts/wm_fluidd_categories.py Sorts the macros into Fluidd's categories (uses Moonraker's database)
