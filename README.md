@@ -21,6 +21,26 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 > **Status:** tested on a WonderMaker ZR Ultra-S printer with an ACE Pro (Fluidd panel, ACE driver, loading and unloading, printing, calibration macros). It still needs a little tweaking, and other setups may differ. Use at your own risk, see the [disclaimer](#disclaimer-use-at-your-own-risk).
 
+## Contents
+
+- [Quick start](#quick-start) · [Everyday cheat sheet](#everyday-cheat-sheet) · [How it works](#how-it-works) · [If something goes wrong](#if-something-goes-wrong)
+
+Details:
+
+0. [Disclaimer: use at your own risk](#disclaimer-use-at-your-own-risk)
+1. [What you get](#1-what-you-get)
+2. [Hardware and wiring](#2-hardware-and-wiring)
+3. [Install](#3-install)
+4. [Configure](#4-configure)
+5. [Fluidd Toolheads + ACE panel](#5-fluidd-toolheads--ace-panel) (including the [OrcaSlicer plugin](#install-the-orcaslicer-plugin-optional-works-without-an-ace-pro))
+6. [First tests on the printer](#6-first-tests-on-the-printer)
+7. [Everyday use and commands](#7-everyday-use-and-commands)
+8. [Endless spool (experimental)](#8-endless-spool-experimental)
+9. [Update, undo and uninstall](#9-update-undo-and-uninstall)
+10. [Troubleshooting](#10-troubleshooting)
+11. [Repository layout](#11-repository-layout)
+12. [Credits and license](#12-credits-and-license)
+
 ## Quick start
 
 The idea: this adds to WonderMaker's own Klipper and Fluidd. It adds config files, an ACE driver and a new Toolheads card; it never replaces WonderMaker's files and never flashes anything.
@@ -86,28 +106,6 @@ More options: [3.2](#32-one-command-installer). Safety: a running or paused prin
 | Not sure what is wrong | `./installer.sh --check` lists problems. |
 
 More in [Troubleshooting](#10-troubleshooting).
-
----
-
-## Contents
-
-- [Quick start](#quick-start) · [Everyday cheat sheet](#everyday-cheat-sheet) · [How it works](#how-it-works) · [If something goes wrong](#if-something-goes-wrong)
-
-Details:
-
-0. [Disclaimer: use at your own risk](#disclaimer-use-at-your-own-risk)
-1. [What you get](#1-what-you-get)
-2. [Hardware and wiring](#2-hardware-and-wiring)
-3. [Install](#3-install)
-4. [Configure](#4-configure)
-5. [Fluidd Toolheads + ACE panel](#5-fluidd-toolheads--ace-panel) (including the [OrcaSlicer plugin](#install-the-orcaslicer-plugin-optional-works-without-an-ace-pro))
-6. [First tests on the printer](#6-first-tests-on-the-printer)
-7. [Everyday use and commands](#7-everyday-use-and-commands)
-8. [Endless spool (experimental)](#8-endless-spool-experimental)
-9. [Update, undo and uninstall](#9-update-undo-and-uninstall)
-10. [Troubleshooting](#10-troubleshooting)
-11. [Repository layout](#11-repository-layout)
-12. [Credits and license](#12-credits-and-license)
 
 ---
 
@@ -410,6 +408,8 @@ With an ACE, run `ACE_GET_STATUS` in the console. You should see the unit connec
 ### 3.4 Fluidd panel
 
 Installed by the installer (step 5 above). Manual steps and building it yourself: [`fluidd/README.md`](fluidd/README.md).
+
+The installer also removes `[update_manager fluidd]` from `moonraker.conf` (a copy is saved first) and restarts Moonraker. Without this, pressing update on Fluidd in the web page would replace the panel with stock Fluidd. `./installer.sh --doctor` checks it. Panel updates come from `./installer.sh --update`.
 
 > **After any install or update, hard-refresh the browser** so Fluidd loads the new files:
 > Windows/Linux `Ctrl+Shift+R` · macOS `Cmd+Shift+R`.

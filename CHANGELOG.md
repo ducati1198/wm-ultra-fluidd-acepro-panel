@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.17
+
+- **The installer removes `[update_manager fluidd]` from `moonraker.conf`.** Moonraker's own Fluidd updater would replace this panel build with stock Fluidd. After the panel is installed the section is removed (a copy of `moonraker.conf` is saved first) and Moonraker is restarted. `./installer.sh --doctor` checks it and offers the same fix. Tests added (131 pass).
+
 ## 1.5.16
 
 - README: removed the mentions of a simulated printer (status line, disclaimer, endless-spool note).
