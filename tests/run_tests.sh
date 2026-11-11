@@ -54,6 +54,11 @@ check "temperature_ace linked"                      test -L "$H/klipper/klippy/e
 check "Fluidd has the panel"                        grep -rlq "ACE feeder" "$H/fluidd/assets"
 check "Fluidd config.json kept"                     grep -q '"x":1' "$H/fluidd/config.json"
 check "Fluidd backup folder exists"                 test -n "$(ls -d "$H"/fluidd_backup_* 2>/dev/null)"
+HU="$(new_home tum)"; CU="$(cfg "$HU")"
+printf '[server]\nport: 7125\n\n[update_manager fluidd]\ntype: web\nchannel: stable\nrepo: fluidd-core/fluidd\npath: ~/fluidd\n\n[update_manager]\nenable_auto_refresh: True\n' > "$CU/moonraker.conf"
+inst "$HU" "$A_ALL"
+check "[update_manager fluidd] is removed from moonraker.conf" bash -c '! grep -q "update_manager fluidd" "$0" && grep -q "^\[update_manager\]" "$0" && grep -q "^\[server\]" "$0"' "$CU/moonraker.conf"
+check "moonraker.conf copy saved before the removal" bash -c 'grep -rl "update_manager fluidd" "$0"/acepro-backup 2>/dev/null | head -1 | grep -q .' "$HU"
 check "backup manifest exists"                      test -n "$(ls "$H"/acepro-backup/wm-*/manifest.txt 2>/dev/null)"
 for n in 1 2 3 4 5 6 7; do mkdir -p "$H/fluidd_backup_2020010$n" "$H/acepro-backup/wm-2020010${n}_000000"; touch -d "2020-01-0$n" "$H/fluidd_backup_2020010$n" "$H/acepro-backup/wm-2020010${n}_000000"; done
 inst "$H" "$A_ALL"

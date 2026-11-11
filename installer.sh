@@ -397,6 +397,27 @@ save_original_fluidd() { # fluidd_dir
         && print_success "Original Fluidd saved for good → $orig (the installer never deletes it)"
 }
 
+fluidd_updater_present() { grep -qE '^\[update_manager[[:space:]]+fluidd\]' "$CONFIG_DIR/moonraker.conf" 2>/dev/null; }
+fluidd_drop_updater() {   # remove [update_manager fluidd] from moonraker.conf (a copy is saved first): Moonraker's updater would replace this panel build with stock Fluidd
+    fluidd_updater_present || return 0
+    local f="$CONFIG_DIR/moonraker.conf"
+    backup_path "$f"
+    python3 -I - "$f" <<'PYDROP'
+import sys, re
+p = sys.argv[1]
+out = []; skip = False
+for l in open(p).read().split("\n"):
+    m = re.match(r"\s*\[(.+?)\]", l)
+    if m: skip = re.sub(r"\s+", " ", m.group(1).strip().lower()) == "update_manager fluidd"
+    if not skip: out.append(l)
+open(p, "w").write("\n".join(out))
+PYDROP
+    print_success "Removed [update_manager fluidd] from moonraker.conf (a copy is saved), so Moonraker cannot replace the panel. Panel updates: ./installer.sh --update."
+    if [ "$TESTING" != 1 ] && command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet moonraker 2>/dev/null; then
+        svc_restart moonraker || warn_later "Restart Moonraker so it forgets the Fluidd updater:  sudo systemctl restart moonraker"
+    fi
+}
+
 install_fluidd_panel() {
     local fluidd_dir="$1" zip="$SCRIPT_DIR/fluidd/fluidd-v1.37.7-zr-ace.zip" backup
     [ -f "$zip" ] || { warn_later "Fluidd build not found: $zip"; return 1; }
@@ -427,9 +448,7 @@ PYZIP
         print_error "The panel was not found after unpacking. Restoring Fluidd."
         rm -rf "$fluidd_dir" && cp -a "$backup" "$fluidd_dir"; return 1
     fi
-    if grep -qE '^\[update_manager[[:space:]]+fluidd\]' "$CONFIG_DIR/moonraker.conf" 2>/dev/null; then
-        warn_later "moonraker.conf has [update_manager fluidd]: updating Fluidd there replaces this build. Run ./installer.sh --update --fluidd after a Fluidd update."
-    fi
+    fluidd_drop_updater
 }
 
 save_answers() {
@@ -914,7 +933,10 @@ do_doctor() {
     fi
     progress_bar 3 5 "Doctor 4 of 5: Fluidd panel"
     [ -d "$INSTALL_HOME/fluidd/assets" ] && { grep -rlq "ACE feeder" "$INSTALL_HOME/fluidd/assets" 2>/dev/null && doc_ok "Fluidd has the Toolheads panel" || print_info "Fluidd is not the panel build (./installer.sh --update, and say yes to the panel)"; }
-    grep -qE '^\[update_manager[[:space:]]+fluidd\]' "$CONFIG_DIR/moonraker.conf" 2>/dev/null && print_info "moonraker.conf has [update_manager fluidd]: updating Fluidd there replaces this panel build."
+    if [ -d "$INSTALL_HOME/fluidd/assets" ] && grep -rlq "ACE feeder" "$INSTALL_HOME/fluidd/assets" 2>/dev/null; then
+        if fluidd_updater_present; then doc_bad "moonraker.conf has [update_manager fluidd]" "Pressing update in Fluidd would replace the panel with stock Fluidd."; offer_fix "remove it (a copy is saved) and restart Moonraker" fluidd_drop_updater
+        else doc_ok "Moonraker will not replace the panel (no [update_manager fluidd])"; fi
+    fi
     progress_bar 4 5 "Doctor 5 of 5: Klipper and Moonraker"
     if [ "$TESTING" = 0 ] && command -v curl >/dev/null 2>&1; then
         local st; st="$(curl -s -m 3 "$MOONRAKER_URL/printer/info" 2>/dev/null | python3 -I -c 'import sys,json; print(json.load(sys.stdin)["result"]["state"])' 2>/dev/null || true)"
