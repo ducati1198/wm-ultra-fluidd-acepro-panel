@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.21
+
+- **Fluidd: the Choose toolheads window reads OrcaSlicer files correctly.** An empty `referenced_tools` list no longer means "no filament is used" (the window said the file had no colour information), and the material list that Moonraker gives as text (`["PLA", "PLA"]`) is read as a list (every row showed a false "Check"). Checked in a browser against a mock printer: List/Map, Saved mappings, Auto-match, Dry spools first, Print as sliced, Cancel and the last choice per file. The map view says "toolhead" instead of "spool". New Fluidd zip, patch and checksum.
+
 ## 1.5.19
 
 - **Fluidd: the Choose toolheads window now opens on every Print even when Fluidd has not loaded the file's colour data yet** (before, it could start the print straight away). The window reads the file's details itself. Its subtitle shows the panel version, so you can tell which build the browser is running. New Fluidd zip, patch and checksum.
