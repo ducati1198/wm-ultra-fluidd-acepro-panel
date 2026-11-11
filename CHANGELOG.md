@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.19
+
+- **Fluidd: the Choose toolheads window now opens on every Print even when Fluidd has not loaded the file's colour data yet** (before, it could start the print straight away). The window reads the file's details itself. Its subtitle shows the panel version, so you can tell which build the browser is running. New Fluidd zip, patch and checksum.
+
 ## 1.5.18
 
 - **Fluidd: the Choose toolheads window opens every time you press Print** (file list, Re-print, status card), like the ACE spool window on the K1 Max. A file without colour data still starts straight away.

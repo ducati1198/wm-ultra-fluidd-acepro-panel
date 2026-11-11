@@ -1,7 +1,7 @@
 From 7692bf8814906d464b155a8a6fa5712a8e588535 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/12] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/13] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1855,7 +1855,7 @@ index a01c43f..2ede1df 100644
 From c8883d83b6a273abb21d3a1bb0dff76b6bb17447 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/12] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/13] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1930,7 +1930,7 @@ index cc15c3d..4693634 100644
 From b7453a5ea84cc5319fafe179915105bd3c2eac3f Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/12] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/13] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2057,7 +2057,7 @@ index 4693634..2b78324 100644
 From d1ac7453c3b89d2947cb98fa5f6d2680c0e85231 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/12] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/13] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2129,7 +2129,7 @@ index 2b78324..e1f06c0 100644
 From fd74dea572fbe2e5822cfc86c986ea79c3e88ec9 Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/12] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/13] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2183,7 +2183,7 @@ index e1f06c0..99c90df 100644
 From 7c0e195c0175fe87e48920160b781dcdb764d5eb Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/12] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/13] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -3084,7 +3084,7 @@ index 99c90df..d18abc1 100644
 From cfcb7cb03b83c12a800d99e48e83f3103ca86a3e Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/12] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/13] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3342,7 +3342,7 @@ index d18abc1..43ff04b 100644
 From 1f1e3863c704ccbd20738fc1bb73e1e4e45e2753 Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/12] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/13] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3680,7 +3680,7 @@ index 7e3fcf6..fe9bf2d 100644
 From 8f2b5275dc4258e3f7c575ece8df7688533bd632 Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/12] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/13] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4054,7 +4054,7 @@ index 43ff04b..8692f6f 100644
 From 0add8f80a956d0041e25da30e43b1c4ffae064aa Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/12] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/13] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/wm_chamber_light.json)
 
 ---
@@ -4165,7 +4165,7 @@ index 5bebf42..3994a1c 100644
 From 2020bb639784ee004f8a7e4ba03256b80e2c8478 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/12] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/13] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4206,7 +4206,7 @@ index fe9bf2d..2486f37 100644
 From a826a8c33d1ca10470e7a689a14566061b9c273a Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:09:32 -0500
-Subject: [PATCH 12/12] feat(zr): Choose toolheads window gets List/Map, saved
+Subject: [PATCH 12/13] feat(zr): Choose toolheads window gets List/Map, saved
  mappings, auto-match, dry first and print as sliced
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4944,6 +4944,87 @@ index 0000000..6022c94
 +export const saveZrFileMapping = (filename: string, map: ZrRowMap) => {
 +  writeStorage(MAP_FILE_PREFIX + filename, JSON.stringify(map))
 +}
+-- 
+2.43.0
+
+
+From 351aa07acca4a034054258c15302d09c6f940061 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 11 Nov 2026 17:22:23 -0500
+Subject: [PATCH 13/13] fix(zr): Choose toolheads window opens on every Print
+ even when file metadata is not loaded yet
+
+Signed-off-by: Claude <noreply@anthropic.com>
+---
+ src/components/widgets/filesystem/FileSystem.vue    | 2 +-
+ src/components/widgets/status/PrinterStatusCard.vue | 2 +-
+ src/components/widgets/zr/ZrPrintDialog.vue         | 2 +-
+ src/components/widgets/zr/zrPrintHook.ts            | 9 +++------
+ 4 files changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/src/components/widgets/filesystem/FileSystem.vue b/src/components/widgets/filesystem/FileSystem.vue
+index 9ad587f..8f68b5c 100644
+--- a/src/components/widgets/filesystem/FileSystem.vue
++++ b/src/components/widgets/filesystem/FileSystem.vue
+@@ -927,7 +927,7 @@ export default class FileSystem extends Mixins(StateMixin, FilesMixin, ServicesM
+ 
+     const filename = file.path ? `${file.path}/${file.filename}` : file.filename
+ 
+-    if (zrInterceptPrint(this.$typedState.printer.printer as Record<string, any>, filename, file as unknown as Record<string, unknown>)) {
++    if (zrInterceptPrint(this.$typedState.printer.printer as Record<string, any>, filename)) {
+       if (this.$route.name !== 'home') this.$router.push({ name: 'home' })
+       return
+     }
+diff --git a/src/components/widgets/status/PrinterStatusCard.vue b/src/components/widgets/status/PrinterStatusCard.vue
+index a330b94..fe2b438 100644
+--- a/src/components/widgets/status/PrinterStatusCard.vue
++++ b/src/components/widgets/status/PrinterStatusCard.vue
+@@ -133,7 +133,7 @@ export default class PrinterStatusCard extends Mixins(StateMixin, AfcMixin) {
+     const { rootPath, filename: filenameOnly } = getFilePaths(filename, 'gcodes')
+     const fileWithMeta = this.$typedGetters['files/getFile'](rootPath, filenameOnly)
+ 
+-    if (zrInterceptPrint(this.$typedState.printer.printer as Record<string, any>, filename, fileWithMeta as unknown as Record<string, unknown>)) return
++    if (zrInterceptPrint(this.$typedState.printer.printer as Record<string, any>, filename)) return
+ 
+     // AFC check — show lane mapping dialog when AFC is installed. If metadata
+     // is not yet loaded we open the dialog anyway (it will fetch on open);
+diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
+index b96c43d..05b53f1 100644
+--- a/src/components/widgets/zr/ZrPrintDialog.vue
++++ b/src/components/widgets/zr/ZrPrintDialog.vue
+@@ -393,7 +393,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+   }
+ 
+   get subTitle () {
+-    return this.filename ?? 'Choose a file to print'
++    return `${this.filename ?? 'Choose a file to print'} · panel 1.5.19`
+   }
+ 
+   get visibleFiles () {
+diff --git a/src/components/widgets/zr/zrPrintHook.ts b/src/components/widgets/zr/zrPrintHook.ts
+index 2486f37..e21d215 100644
+--- a/src/components/widgets/zr/zrPrintHook.ts
++++ b/src/components/widgets/zr/zrPrintHook.ts
+@@ -1,16 +1,13 @@
+ import { EventBus } from '@/eventBus'
+-import { fileColoursFromMetadata } from './zr'
+ 
+ /**
+  * Called before Fluidd starts a print. On a ZR Ultra-S, every file with colour data opens the
+  * Choose toolheads window instead of starting straight away. Returns true when the dialog took over.
+  */
+-export const zrInterceptPrint = (printer: Record<string, any>, filename: string, file: Record<string, unknown> | null | undefined): boolean => {
++// The window reads the file's metadata itself, so it also opens when Fluidd has not loaded it yet.
++export const zrInterceptPrint = (printer: Record<string, any>, filename: string): boolean => {
+   const isUltraS = printer['filament_switch_sensor docked0'] != null && printer['filament_switch_sensor filament0'] != null
+-  if (!isUltraS || !file) return false
+-
+-  const colours = fileColoursFromMetadata(file)
+-  if (colours.length === 0) return false
++  if (!isUltraS) return false
+ 
+   // Always open the Choose toolheads window when Print is pressed (like the ACE spool window on the K1 Max).
+   EventBus.bus.$emit('zr-print-dialog', { filename })
 -- 
 2.43.0
 
