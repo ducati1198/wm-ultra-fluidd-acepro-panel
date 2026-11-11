@@ -1,7 +1,7 @@
-From 30cd47939dfae6a9b3822d8605829034f771e577 Mon Sep 17 00:00:00 2001
+From 7692bf8814906d464b155a8a6fa5712a8e588535 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 1/9] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/11] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1851,10 +1851,11 @@ index a01c43f..2ede1df 100644
 -- 
 2.43.0
 
-From 02900b17703aabdd39ba1f8b487c25c7843fea87 Mon Sep 17 00:00:00 2001
+
+From c8883d83b6a273abb21d3a1bb0dff76b6bb17447 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 2/9] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/11] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1925,10 +1926,11 @@ index cc15c3d..4693634 100644
 -- 
 2.43.0
 
-From 1b018558a491400971a1e4a88bb58ba3aaa14535 Mon Sep 17 00:00:00 2001
+
+From b7453a5ea84cc5319fafe179915105bd3c2eac3f Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 3/9] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/11] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2051,10 +2053,11 @@ index 4693634..2b78324 100644
 -- 
 2.43.0
 
-From c8e28040282253946f5995993a83842ef1afc0bf Mon Sep 17 00:00:00 2001
+
+From d1ac7453c3b89d2947cb98fa5f6d2680c0e85231 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 4/9] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/11] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2122,10 +2125,11 @@ index 2b78324..e1f06c0 100644
 -- 
 2.43.0
 
-From a4974fe78c7c7fca76063d5fdf8094d9821430b4 Mon Sep 17 00:00:00 2001
+
+From fd74dea572fbe2e5822cfc86c986ea79c3e88ec9 Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 5/9] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/11] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2175,10 +2179,12 @@ index e1f06c0..99c90df 100644
 -- 
 2.43.0
 
-From 05cc93ee06d53e17c81ccc3cdf351ac971678bb3 Mon Sep 17 00:00:00 2001
+
+From 7c0e195c0175fe87e48920160b781dcdb764d5eb Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 6/9] feat(zr): ACE feeder and dryer inside the Toolheads card
+Subject: [PATCH 06/11] feat(zr): ACE feeder and dryer inside the Toolheads
+ card
 
 Signed-off-by: t <t@e.x>
 ---
@@ -3074,10 +3080,11 @@ index 99c90df..d18abc1 100644
 -- 
 2.43.0
 
-From 0c49c5f00fbf48f6c95c2fe43aafa3e7067acf7c Mon Sep 17 00:00:00 2001
+
+From cfcb7cb03b83c12a800d99e48e83f3103ca86a3e Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 7/9] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/11] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3331,11 +3338,12 @@ index d18abc1..43ff04b 100644
 -- 
 2.43.0
 
-From 29257944a87b639d522bd91590c1f583d1849af8 Mon Sep 17 00:00:00 2001
+
+From 1f1e3863c704ccbd20738fc1bb73e1e4e45e2753 Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 8/9] feat(zr): Choose toolheads window, only opens when colour
- or material do not match
+Subject: [PATCH 08/11] feat(zr): Choose toolheads window, only opens when
+ colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
 
@@ -3668,10 +3676,11 @@ index 7e3fcf6..fe9bf2d 100644
 -- 
 2.43.0
 
-From 19ba2664f593ca8752cf6e466ef2600bac708426 Mon Sep 17 00:00:00 2001
+
+From 8f2b5275dc4258e3f7c575ece8df7688533bd632 Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 9/9] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/11] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4041,11 +4050,12 @@ index 43ff04b..8692f6f 100644
 -- 
 2.43.0
 
-From d26e224a816fab00e1c0dfc2e4ed83b25cf501e4 Mon Sep 17 00:00:00 2001
+
+From 0add8f80a956d0041e25da30e43b1c4ffae064aa Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH] feat(zr): Chamber light button beside AIR FILTER (light on
- the screen board, found through config/wm_chamber_light.json)
+Subject: [PATCH 10/11] feat(zr): Chamber light button beside AIR FILTER (light
+ on the screen board, found through config/wm_chamber_light.json)
 
 ---
  src/components/widgets/zr/ZrToolheadsCard.vue | 57 ++++++++++++++++++-
@@ -4147,6 +4157,47 @@ index 5bebf42..3994a1c 100644
 +  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
    text-align: center;
    gap: 8px;
+ }
+-- 
+2.43.0
+
+
+From 2020bb639784ee004f8a7e4ba03256b80e2c8478 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 11 Nov 2026 17:00:04 -0500
+Subject: [PATCH 11/11] feat(zr): Choose toolheads window always opens when
+ Print is pressed
+
+Signed-off-by: Claude <noreply@anthropic.com>
+---
+ src/components/widgets/zr/zrPrintHook.ts | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/src/components/widgets/zr/zrPrintHook.ts b/src/components/widgets/zr/zrPrintHook.ts
+index fe9bf2d..2486f37 100644
+--- a/src/components/widgets/zr/zrPrintHook.ts
++++ b/src/components/widgets/zr/zrPrintHook.ts
+@@ -2,9 +2,8 @@ import { EventBus } from '@/eventBus'
+ import { fileColoursFromMetadata } from './zr'
+ 
+ /**
+- * Called before Fluidd starts a print. On a ZR Ultra-S, multi-colour files
+- * (or a single-colour file whose toolhead is empty) open the colour dialog
+- * instead of starting straight away. Returns true when the dialog took over.
++ * Called before Fluidd starts a print. On a ZR Ultra-S, every file with colour data opens the
++ * Choose toolheads window instead of starting straight away. Returns true when the dialog took over.
+  */
+ export const zrInterceptPrint = (printer: Record<string, any>, filename: string, file: Record<string, unknown> | null | undefined): boolean => {
+   const isUltraS = printer['filament_switch_sensor docked0'] != null && printer['filament_switch_sensor filament0'] != null
+@@ -13,7 +12,7 @@ export const zrInterceptPrint = (printer: Record<string, any>, filename: string,
+   const colours = fileColoursFromMetadata(file)
+   if (colours.length === 0) return false
+ 
+-  // The dialog looks at the file first and only opens when a colour or material does not match.
+-  EventBus.bus.$emit('zr-print-dialog', { filename, auto: true })
++  // Always open the Choose toolheads window when Print is pressed (like the ACE spool window on the K1 Max).
++  EventBus.bus.$emit('zr-print-dialog', { filename })
+   return true
  }
 -- 
 2.43.0

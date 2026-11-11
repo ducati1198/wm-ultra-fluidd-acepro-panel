@@ -135,7 +135,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Auto-load** | Put a spool into an ACE slot and it loads to the matching toolhead (switch off with `ACE_WM_AUTO ENABLE=0`). |
 | **Feed assist** | Follows the active toolhead while printing. |
 | **Dryer** | Start and stop from Fluidd, six material presets (PLA, PETG, ABS/ASA, TPU, Nylon/PA, PVA). Max 65 °C. |
-| **Filament mapping at print start** | "Choose toolheads" window: opens only when a colour or material does not match a loaded toolhead, otherwise it just prints. |
+| **Filament mapping at print start** | "Choose toolheads" window: opens every time you press Print, so you always see which toolhead prints which filament before it starts. |
 | **One Fluidd card** | Everything sits in the WonderMaker **Toolheads** card, in the look of the ACE Pro card from [acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper). No separate ACE panel. |
 | **Nothing replaced** | WonderMaker's `T0`…`T3`, `PAUSE`, `RESUME`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` stay as they are. The ACE driver is told not to create its own `T0`…`T7`. |
 | **Endless spool (experimental)** | Off by default. When a head runs out the print pauses, and the card offers a spare head with the same colour and material. WonderMaker has no endless spool from the factory (section 8). |
@@ -452,10 +452,9 @@ Everything ACE-related is **hidden** when Klipper has no ACE object (`ace_instan
 
 ### Choose toolheads (filament mapping)
 
-When you press **Print** (file list) or **Re-print**, the panel looks at the file first:
+When you press **Print** (file list, Re-print or the status card), the **Choose toolheads** window opens before the print starts (a file with no colour data starts straight away):
 
-- **Everything matches:** no window. The file prints at once, and a message tells you which toolhead each filament uses.
-- **A colour or material does not match:** the **Choose toolheads** window opens. Each filament in the file shows its colour, material and weight, four toolhead buttons (colour + material of what is loaded), and a **Matches** / **Check** tag. One warning per filament explains the problem. You can pick another toolhead, **print anyway**, or cancel.
+- **In the window:** Each filament in the file shows its colour, material and weight, four toolhead buttons (colour + material of what is loaded), and a **Matches** / **Check** tag. One warning per filament explains the problem. You can pick another toolhead, **print anyway**, or cancel.
 
 A toolhead counts as a match when its colour is the closest of WonderMaker's palette colours to the file's colour and the material fits (for example PLA on a PLA head). The suggestion keeps a filament on its own toolhead when that already matches; the rest get the closest loaded toolhead, each used once where possible.
 

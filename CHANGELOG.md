@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.18
+
+- **Fluidd: the Choose toolheads window now opens every time you press Print** (file list, Re-print, status card), like the ACE spool window on the K1 Max. Before, it only opened when a colour or material did not match. A file without colour data still starts straight away. New Fluidd zip, patch and checksum.
+
 ## 1.5.17
 
 - **The installer removes `[update_manager fluidd]` from `moonraker.conf`.** Moonraker's own Fluidd updater would replace this panel build with stock Fluidd. After the panel is installed the section is removed (a copy of `moonraker.conf` is saved first) and Moonraker is restarted. `./installer.sh --doctor` checks it and offers the same fix. Tests added (131 pass).
