@@ -2,7 +2,8 @@
 
 ## 1.5.18
 
-- **Fluidd: the Choose toolheads window now opens every time you press Print** (file list, Re-print, status card), like the ACE spool window on the K1 Max. Before, it only opened when a colour or material did not match. A file without colour data still starts straight away. New Fluidd zip, patch and checksum.
+- **Fluidd: the Choose toolheads window opens every time you press Print** (file list, Re-print, status card), like the ACE spool window on the K1 Max. A file without colour data still starts straight away.
+- **Choose toolheads window extras:** List / Map view, Saved mappings (also remembers the last choice per file), Auto-match, Dry spools first (starts the ACE dryer, only when an ACE is present) and Print as sliced. New Fluidd zip, patch and checksum.
 
 ## 1.5.17
 

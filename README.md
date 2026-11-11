@@ -454,6 +454,7 @@ Everything ACE-related is **hidden** when Klipper has no ACE object (`ace_instan
 
 When you press **Print** (file list, Re-print or the status card), the **Choose toolheads** window opens before the print starts (a file with no colour data starts straight away):
 
+- **Toolbar:** List / Map view, Saved mappings, Auto-match. **Buttons:** Cancel, Dry spools first… (ACE only), Print as sliced, Print.
 - **In the window:** Each filament in the file shows its colour, material and weight, four toolhead buttons (colour + material of what is loaded), and a **Matches** / **Check** tag. One warning per filament explains the problem. You can pick another toolhead, **print anyway**, or cancel.
 
 A toolhead counts as a match when its colour is the closest of WonderMaker's palette colours to the file's colour and the material fits (for example PLA on a PLA head). The suggestion keeps a filament on its own toolhead when that already matches; the rest get the closest loaded toolhead, each used once where possible.

@@ -1,7 +1,7 @@
 From 7692bf8814906d464b155a8a6fa5712a8e588535 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/11] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/12] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1855,7 +1855,7 @@ index a01c43f..2ede1df 100644
 From c8883d83b6a273abb21d3a1bb0dff76b6bb17447 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/11] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/12] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1930,7 +1930,7 @@ index cc15c3d..4693634 100644
 From b7453a5ea84cc5319fafe179915105bd3c2eac3f Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/11] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/12] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2057,7 +2057,7 @@ index 4693634..2b78324 100644
 From d1ac7453c3b89d2947cb98fa5f6d2680c0e85231 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/11] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/12] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2129,7 +2129,7 @@ index 2b78324..e1f06c0 100644
 From fd74dea572fbe2e5822cfc86c986ea79c3e88ec9 Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/11] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/12] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2183,7 +2183,7 @@ index e1f06c0..99c90df 100644
 From 7c0e195c0175fe87e48920160b781dcdb764d5eb Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/11] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/12] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -3084,7 +3084,7 @@ index 99c90df..d18abc1 100644
 From cfcb7cb03b83c12a800d99e48e83f3103ca86a3e Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/11] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/12] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3342,7 +3342,7 @@ index d18abc1..43ff04b 100644
 From 1f1e3863c704ccbd20738fc1bb73e1e4e45e2753 Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/11] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/12] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3680,7 +3680,7 @@ index 7e3fcf6..fe9bf2d 100644
 From 8f2b5275dc4258e3f7c575ece8df7688533bd632 Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/11] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/12] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4054,7 +4054,7 @@ index 43ff04b..8692f6f 100644
 From 0add8f80a956d0041e25da30e43b1c4ffae064aa Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/11] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/12] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/wm_chamber_light.json)
 
 ---
@@ -4165,7 +4165,7 @@ index 5bebf42..3994a1c 100644
 From 2020bb639784ee004f8a7e4ba03256b80e2c8478 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/11] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/12] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4199,6 +4199,751 @@ index fe9bf2d..2486f37 100644
 +  EventBus.bus.$emit('zr-print-dialog', { filename })
    return true
  }
+-- 
+2.43.0
+
+
+From a826a8c33d1ca10470e7a689a14566061b9c273a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 11 Nov 2026 17:09:32 -0500
+Subject: [PATCH 12/12] feat(zr): Choose toolheads window gets List/Map, saved
+ mappings, auto-match, dry first and print as sliced
+
+Signed-off-by: Claude <noreply@anthropic.com>
+---
+ src/components/widgets/zr/ZrMappingView.vue | 237 +++++++++++++++
+ src/components/widgets/zr/ZrPrintDialog.vue | 303 +++++++++++++++++++-
+ src/components/widgets/zr/zrUi.ts           |  79 +++++
+ 3 files changed, 609 insertions(+), 10 deletions(-)
+ create mode 100644 src/components/widgets/zr/ZrMappingView.vue
+ create mode 100644 src/components/widgets/zr/zrUi.ts
+
+diff --git a/src/components/widgets/zr/ZrMappingView.vue b/src/components/widgets/zr/ZrMappingView.vue
+new file mode 100644
+index 0000000..27c03a5
+--- /dev/null
++++ b/src/components/widgets/zr/ZrMappingView.vue
+@@ -0,0 +1,237 @@
++<template>
++  <div class="zr-pmap">
++    <svg
++      :viewBox="`0 0 560 ${height}`"
++      class="zr-pmap__svg"
++    >
++      <text
++        x="20"
++        y="16"
++        class="zr-pmap__head"
++      >
++        In the file
++      </text>
++      <text
++        x="540"
++        y="16"
++        text-anchor="end"
++        class="zr-pmap__head"
++      >
++        On the toolheads
++      </text>
++
++      <!-- links first so the nodes sit on top -->
++      <path
++        v-for="row in rows"
++        :key="`map-link:${row.tool}`"
++        :d="curve(row)"
++        fill="none"
++        :stroke="row.color || '#888'"
++        stroke-width="4"
++        stroke-linecap="round"
++        :stroke-dasharray="warned[row.tool] ? '2 7' : undefined"
++        :opacity="selected === row.tool ? 1 : 0.85"
++      />
++
++      <g
++        v-for="(row, index) in rows"
++        :key="`map-src:${row.tool}`"
++        class="zr-pmap__node"
++        :class="{ 'zr-pmap__node--selected': selected === row.tool }"
++        role="button"
++        tabindex="0"
++        @click="selected = selected === row.tool ? null : row.tool"
++        @keydown.enter="selected = selected === row.tool ? null : row.tool"
++      >
++        <rect
++          x="8"
++          :y="rowY(index) - 18"
++          width="212"
++          height="36"
++          rx="8"
++          class="zr-pmap__box"
++        />
++        <circle
++          cx="30"
++          :cy="rowY(index)"
++          r="10"
++          :fill="row.color || '#888'"
++          stroke="rgba(128,128,128,0.8)"
++        />
++        <text
++          x="48"
++          :y="rowY(index) - 2"
++          class="zr-pmap__label"
++        >
++          T{{ row.tool }} · {{ row.type || 'Filament' }}
++        </text>
++        <text
++          x="48"
++          :y="rowY(index) + 12"
++          class="zr-pmap__small"
++        >
++          {{ row.name || row.color }}
++        </text>
++      </g>
++
++      <g
++        v-for="(slot, index) in slots"
++        :key="`map-dst:${slot.tool}`"
++        class="zr-pmap__node"
++        :class="{ 'zr-pmap__node--disabled': slot.disabled, 'zr-pmap__node--pickable': selected != null && !slot.disabled }"
++        role="button"
++        tabindex="0"
++        @click="pick(slot)"
++        @keydown.enter="pick(slot)"
++      >
++        <rect
++          x="300"
++          :y="slotY(index) - 14"
++          width="252"
++          height="28"
++          rx="7"
++          class="zr-pmap__box"
++        />
++        <circle
++          cx="540"
++          :cy="slotY(index)"
++          r="8"
++          :fill="slot.disabled ? 'transparent' : slot.color"
++          :stroke="slot.disabled ? '#888' : 'rgba(128,128,128,0.8)'"
++          :stroke-dasharray="slot.disabled ? '3 2' : undefined"
++        />
++        <text
++          x="310"
++          :y="slotY(index) + 4"
++          class="zr-pmap__label"
++        >
++          {{ slot.text }}
++        </text>
++      </g>
++    </svg>
++    <div class="text-body-2">
++      Click a filament, then click the spool that should print it. Dotted lines need your attention.
++    </div>
++  </div>
++</template>
++
++<script lang="ts">
++import { Component, Prop, Vue } from 'vue-property-decorator'
++
++interface MapRow {
++  tool: number;
++  color: string;
++  type: string;
++  name: string;
++}
++
++interface MapSlot {
++  tool: number;
++  text: string;
++  color: string;
++  disabled: boolean;
++}
++
++@Component
++export default class ZrMappingView extends Vue {
++  @Prop({ type: Array, required: true })
++  readonly rows!: MapRow[]
++
++  @Prop({ type: Array, required: true })
++  readonly slots!: MapSlot[]
++
++  @Prop({ type: Object, required: true })
++  readonly mapping!: Record<number, number>
++
++  @Prop({ type: Object, default: () => ({}) })
++  readonly warned!: Record<number, boolean>
++
++  selected: number | null = null
++
++  get height (): number {
++    return Math.max(this.rows.length * 46, this.slots.length * 34) + 36
++  }
++
++  rowY (index: number): number {
++    const span = Math.max(this.rows.length * 46, 1)
++    const offset = (this.height - 36 - span) / 2
++
++    return 40 + offset + index * 46
++  }
++
++  slotY (index: number): number {
++    return 40 + index * 34
++  }
++
++  curve (row: MapRow): string {
++    const from = this.rows.findIndex(item => item.tool === row.tool)
++    const to = this.slots.findIndex(item => item.tool === this.mapping[row.tool])
++
++    if (from < 0 || to < 0) return ''
++
++    const y1 = this.rowY(from)
++    const y2 = this.slotY(to)
++
++    return `M220 ${y1} C 260 ${y1}, 260 ${y2}, 300 ${y2}`
++  }
++
++  pick (slot: MapSlot) {
++    if (this.selected == null || slot.disabled) return
++
++    this.$emit('change', this.selected, slot.tool)
++    this.selected = null
++  }
++}
++</script>
++
++<style lang="scss" scoped>
++.zr-pmap__svg {
++  width: 100%;
++  display: block;
++}
++
++.zr-pmap__head {
++  font-size: 12px;
++  fill: currentColor;
++  text-transform: uppercase;
++}
++
++.zr-pmap__box {
++  fill: rgba(128, 128, 128, 0.12);
++  stroke: rgba(128, 128, 128, 0.35);
++}
++
++.zr-pmap__node {
++  cursor: pointer;
++  outline: none;
++}
++
++.zr-pmap__node:hover .zr-pmap__box {
++  fill: rgba(128, 128, 128, 0.22);
++}
++
++.zr-pmap__node--selected .zr-pmap__box {
++  stroke: var(--v-primary-base);
++  stroke-width: 2.5;
++}
++
++.zr-pmap__node--pickable .zr-pmap__box {
++  stroke: var(--v-primary-base);
++  stroke-dasharray: 4 3;
++}
++
++.zr-pmap__node--disabled {
++  cursor: default;
++}
++
++.zr-pmap__label {
++  font-size: 12px;
++  font-weight: bold;
++  fill: currentColor;
++}
++
++.zr-pmap__small {
++  font-size: 11px;
++  fill: currentColor;
++}
++</style>
+diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
+index a7d3aec..b96c43d 100644
+--- a/src/components/widgets/zr/ZrPrintDialog.vue
++++ b/src/components/widgets/zr/ZrPrintDialog.vue
+@@ -5,10 +5,7 @@
+     :sub-title="subTitle"
+     :max-width="$vuetify.breakpoint.smAndDown ? undefined : 620"
+     :loading="loading"
+-    save-button-text="Print"
+-    :save-button-disabled="blocked"
+-    :save-button-loading="starting"
+-    @save="confirm"
++    @save="confirm()"
+   >
+     <v-card-text class="pt-3">
+       <template v-if="chooseFile">
+@@ -86,10 +83,137 @@
+         </div>
+ 
+         <template v-else-if="colours.length">
++          <div class="d-flex align-center flex-wrap mt-2 mb-1">
++            <v-btn-toggle
++              v-model="view"
++              mandatory
++              dense
++              class="mr-2"
++            >
++              <v-btn
++                value="list"
++                small
++              >
++                List
++              </v-btn>
++              <v-btn
++                value="map"
++                small
++              >
++                Map
++              </v-btn>
++            </v-btn-toggle>
++
++            <v-menu
++              offset-y
++              :close-on-content-click="false"
++            >
++              <template #activator="{ on, attrs }">
++                <app-btn
++                  small
++                  outlined
++                  color="primary"
++                  class="mr-2"
++                  v-bind="attrs"
++                  v-on="on"
++                >
++                  Saved mappings
++                  <v-icon
++                    x-small
++                    right
++                  >
++                    {{ icons.chevron }}
++                  </v-icon>
++                </app-btn>
++              </template>
++              <v-list
++                dense
++                min-width="260"
++              >
++                <v-list-item
++                  v-for="preset in presets"
++                  :key="`zr-preset:${preset.name}`"
++                  @click="applyPreset(preset)"
++                >
++                  <v-list-item-title>{{ preset.name }}</v-list-item-title>
++                  <v-list-item-action class="my-0">
++                    <v-btn
++                      icon
++                      x-small
++                      title="Delete"
++                      @click.stop="deletePreset(preset)"
++                    >
++                      <v-icon x-small>
++                        $close
++                      </v-icon>
++                    </v-btn>
++                  </v-list-item-action>
++                </v-list-item>
++                <v-list-item v-if="presets.length === 0">
++                  <v-list-item-title class="text-body-2">
++                    Nothing saved yet
++                  </v-list-item-title>
++                </v-list-item>
++                <v-divider />
++                <v-list-item class="py-1">
++                  <v-text-field
++                    v-model="presetName"
++                    label="Save this mapping as"
++                    dense
++                    hide-details
++                    @keydown.enter.prevent="savePreset"
++                  />
++                  <v-btn
++                    icon
++                    small
++                    :disabled="!presetName.trim()"
++                    class="ml-1"
++                    @click="savePreset"
++                  >
++                    <v-icon small>
++                      {{ icons.save }}
++                    </v-icon>
++                  </v-btn>
++                </v-list-item>
++              </v-list>
++            </v-menu>
++
++            <app-btn
++              small
++              text
++              color="primary"
++              title="Pick the best toolhead for every filament again"
++              @click="autoMatch"
++            >
++              Auto-match
++            </app-btn>
++            <v-chip
++              v-if="restored"
++              x-small
++              label
++              color="primary"
++              outlined
++              class="ml-2"
++            >
++              Last choice for this file
++            </v-chip>
++          </div>
++
+           <div class="text-overline secondary--text mt-2">
+             Filament in the file → toolhead
+           </div>
+-          <div class="grey darken-4 pa-2 rounded">
++          <zr-mapping-view
++            v-if="view === 'map'"
++            :rows="mapRows"
++            :slots="mapHeads"
++            :mapping="rowMapping"
++            :warned="warnedRows"
++            @change="setMap"
++          />
++          <div
++            v-else
++            class="grey darken-4 pa-2 rounded"
++          >
+             <div
+               v-for="(c, row) in colours"
+               :key="c.tool"
+@@ -155,6 +279,44 @@
+         </template>
+       </template>
+     </v-card-text>
++
++    <template #actions>
++      <app-btn
++        text
++        color="warning"
++        @click="open = false"
++      >
++        Cancel
++      </app-btn>
++      <app-btn
++        v-if="zrHasAce"
++        text
++        color="primary"
++        :disabled="dryPlan.length === 0 || starting"
++        title="Dry the spools this print uses, then print when the ACE is done"
++        @click="dryFirst"
++      >
++        Dry spools first…
++      </app-btn>
++      <v-spacer />
++      <app-btn
++        text
++        color="primary"
++        :disabled="!canStart || colours.length === 0"
++        title="Ignore the choice and use T0, T1… exactly as sliced"
++        @click="confirm(true)"
++      >
++        Print as sliced
++      </app-btn>
++      <app-btn
++        color="primary"
++        type="submit"
++        :loading="starting"
++        :disabled="blocked"
++      >
++        Print
++      </app-btn>
++    </template>
+   </app-dialog>
+ </template>
+ 
+@@ -163,6 +325,12 @@ import { Component, Mixins } from 'vue-property-decorator'
+ import { SocketActions } from '@/api/socketActions'
+ import { EventBus } from '@/eventBus'
+ import ZrMixin, { zrShared } from './zrMixin'
++import ZrMappingView from './ZrMappingView.vue'
++import {
++  loadZrFileMapping, loadZrMapPresets, saveZrFileMapping, saveZrMapPresets,
++  zrDryPresetFor, zrFormatMinutes, type ZrSavedMapping
++} from './zrUi'
++import { mdiChevronDown, mdiContentSave } from '@mdi/js'
+ import {
+   ZR_HEADS, ZR_PALETTE, colorDistance, fileColoursFromMetadata, fileColoursFromTail, nearestPaletteIndex,
+   type ZrFileColour
+@@ -170,7 +338,9 @@ import {
+ 
+ interface GcodeFile { path: string, modified: number, date: string }
+ 
+-@Component({})
++@Component({
++  components: { ZrMappingView }
++})
+ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+   open = false
+   loading = false
+@@ -184,6 +354,12 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+   map: number[] = []
+   auto = false
+   token = 0
++  view: 'list' | 'map' = 'list'
++  presets: ZrSavedMapping[] = []
++  presetName = ''
++  restored = false
++
++  readonly icons = { chevron: mdiChevronDown, save: mdiContentSave }
+ 
+   created () {
+     EventBus.bus.$on('zr-print-dialog', this.handleOpen)
+@@ -203,6 +379,9 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+     this.map = []
+     this.filename = null
+     this.chooseFile = !payload?.filename
++    this.view = 'list'
++    this.restored = false
++    this.presets = loadZrMapPresets()
+     // Start reading the toolhead colours now; selectFile waits for them.
+     if (!zrShared.loaded) this.zrLoadSlots()
+ 
+@@ -278,6 +457,12 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+     if (token !== this.token) return
+     this.colours = colours
+     this.map = this.suggest(colours)
++    this.restored = false
++    const remembered = loadZrFileMapping(path)
++    if (remembered && this.isValidMapping(colours, remembered)) {
++      this.map = colours.map((_, row) => remembered[row])
++      this.restored = true
++    }
+     this.loading = false
+ 
+     if (this.auto) {
+@@ -357,8 +542,103 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+     return this.materialFits(c.material, head)
+   }
+ 
++  /** The remembered or saved mapping only counts when every row points at a toolhead that has filament. */
++  isValidMapping (colours: ZrFileColour[], map: Record<number, number>): boolean {
++    return colours.every((_, row) => {
++      const head = map[row]
++      return Number.isInteger(head) && head >= 0 && head < ZR_HEADS && this.zrHeads[head]?.loaded !== false
++    })
++  }
++
++  autoMatch () {
++    this.map = this.suggest(this.colours)
++    this.restored = false
++  }
++
++  get rowMapping (): Record<number, number> {
++    return Object.fromEntries(this.map.map((head, row) => [row, head]))
++  }
++
++  get mapRows () {
++    return this.colours.map((c, row) => ({
++      tool: row,
++      color: c.hex,
++      type: c.material ?? '',
++      name: `Filament ${c.tool + 1}${c.grams != null ? ` · ${c.grams.toFixed(1)} g` : ''}`
++    }))
++  }
++
++  get mapHeads () {
++    return this.zrHeads.map(head => ({
++      tool: head.index,
++      text: `T${head.index} · ${head.loaded === false ? 'empty' : head.materialName}`,
++      color: head.colorCss,
++      disabled: head.loaded === false
++    }))
++  }
++
++  get warnedRows (): Record<number, boolean> {
++    return Object.fromEntries(this.colours.map((_, row) => [row, !this.rowOk(row)]))
++  }
++
++  applyPreset (preset: ZrSavedMapping) {
++    const merged = [...this.map]
++    this.colours.forEach((_, row) => {
++      const head = preset.map[row]
++      if (Number.isInteger(head) && head >= 0 && head < ZR_HEADS && this.zrHeads[head]?.loaded !== false) merged[row] = head
++    })
++    this.map = merged
++    this.restored = false
++  }
++
++  savePreset () {
++    const name = this.presetName.trim()
++    if (!name) return
++    this.presets = [...this.presets.filter(p => p.name !== name), { name, map: { ...this.rowMapping } }]
++    saveZrMapPresets(this.presets)
++    this.presetName = ''
++  }
++
++  deletePreset (preset: ZrSavedMapping) {
++    this.presets = this.presets.filter(p => p.name !== preset.name)
++    saveZrMapPresets(this.presets)
++  }
++
++  /** One drying job for the ACE: the gentlest temperature of the spools this print uses. */
++  get dryPlan (): Array<{ tools: number[], label: string, temp: number, minutes: number }> {
++    if (!this.zrHasAce) return []
++    let chosen: { label: string, temp: number, minutes: number } | undefined
++    const tools: number[] = []
++    for (const head of new Set(this.map)) {
++      const h = this.zrHeads[head]
++      if (!h || h.loaded === false) continue
++      const preset = zrDryPresetFor(h.materialName)
++      if (!preset) continue
++      tools.push(head)
++      if (!chosen || preset.temp < chosen.temp) chosen = preset
++    }
++    return chosen && tools.length ? [{ tools, ...chosen }] : []
++  }
++
++  async dryFirst () {
++    const plan = this.dryPlan[0]
++    if (!plan) return
++    const result = await this.$confirm(
++      `Start drying now?\n\nACE: ${plan.temp}°C for ${zrFormatMinutes(plan.minutes)} (${plan.tools.map(t => `T${t}`).join(', ')})\n\nThe print does not start. Press Print again when the dryer is done.`,
++      { title: 'Dry spools first', color: 'card-heading', icon: '$error' }
++    )
++    if (!result) return
++    this.zrSend(`ACE_START_DRYING INSTANCE=0 TEMP=${plan.temp} DURATION=${plan.minutes}`)
++    this.open = false
++  }
++
++  get canStart () {
++    return !!this.filename && !this.loading && !this.zrBusy && this.klippyReady && !this.starting
++  }
++
+   setMap (row: number, head: number) {
+     // Picking a head another filament already uses swaps the two.
++    this.restored = false
+     const other = this.map.findIndex((h, r) => r !== row && h === head)
+     if (other >= 0) this.$set(this.map, other, this.map[row])
+     this.$set(this.map, row, head)
+@@ -424,8 +704,9 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+     return this.warnings.some(w => w.type === 'error')
+   }
+ 
+-  async confirm () {
+-    if (this.blocked || !this.filename) return
++  async confirm (asSliced = false) {
++    if (!this.filename) return
++    if (asSliced ? !this.canStart : this.blocked) return
+     this.starting = true
+     const filename = this.filename
+ 
+@@ -434,9 +715,11 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+       // with no colour info) go back to direct, so a previous print's mapping
+       // is never reused by accident.
+       const mapping = Array.from({ length: ZR_HEADS }, (_, t) => t)
++      const chosen = asSliced ? this.colours.map(c => c.tool) : this.map
+       this.colours.forEach((c, row) => {
+-        if (c.tool < ZR_HEADS) mapping[c.tool] = this.map[row]
++        if (c.tool < ZR_HEADS) mapping[c.tool] = chosen[row]
+       })
++      if (!asSliced) saveZrFileMapping(filename, this.rowMapping)
+       const lines: string[] = []
+       mapping.forEach((head, tool) => {
+         lines.push(`SAVE_VARIABLE VARIABLE=box_modify_t${tool} VALUE=${head}`)
+@@ -449,7 +732,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+       this.addConsoleEntry(lines.join('\n'))
+ 
+       await SocketActions.printerPrintStart(filename)
+-      const summary = this.colours.map((c, row) => `T${c.tool}→Toolhead ${this.map[row] + 1}`).join(', ')
++      const summary = asSliced ? 'as sliced' : this.colours.map((c, row) => `T${c.tool}→Toolhead ${this.map[row] + 1}`).join(', ')
+       EventBus.$emit(`Printing ${filename}${summary ? ` (${summary})` : ''}`, { type: 'success', timeout: 5000 })
+       this.open = false
+       if (this.$route.name !== 'home') this.$router.push({ name: 'home' })
+diff --git a/src/components/widgets/zr/zrUi.ts b/src/components/widgets/zr/zrUi.ts
+new file mode 100644
+index 0000000..6022c94
+--- /dev/null
++++ b/src/components/widgets/zr/zrUi.ts
+@@ -0,0 +1,79 @@
++const MAP_PRESETS_KEY = 'fluidd-zr-map-presets'
++const MAP_FILE_PREFIX = 'fluidd-zr-map-file:'
++
++const readStorage = (key: string): string | null => {
++  try {
++    return window.localStorage.getItem(key)
++  } catch {
++    return null
++  }
++}
++
++const writeStorage = (key: string, value: string) => {
++  try {
++    window.localStorage.setItem(key, value)
++  } catch {
++    // storage can be blocked; the window just forgets the choice
++  }
++}
++
++/** Mapping of file filament (row) to toolhead index. */
++export type ZrRowMap = Record<number, number>
++
++export interface ZrSavedMapping {
++  name: string
++  map: ZrRowMap
++}
++
++export interface ZrDryPreset { label: string, temp: number, minutes: number }
++
++// Same presets as the dryer in the Toolheads card. The ACE heater tops out at 65 °C.
++const DRY_PRESETS: Array<ZrDryPreset & { materials: string[] }> = [
++  { label: 'PLA', temp: 45, minutes: 240, materials: ['PLA'] },
++  { label: 'PETG', temp: 55, minutes: 360, materials: ['PETG', 'PET'] },
++  { label: 'ABS / ASA', temp: 65, minutes: 360, materials: ['ABS', 'ASA', 'HIPS'] },
++  { label: 'TPU', temp: 50, minutes: 360, materials: ['TPU', 'TPE'] },
++  { label: 'Nylon (PA)', temp: 65, minutes: 480, materials: ['PA', 'NYLON'] },
++  { label: 'PVA', temp: 45, minutes: 360, materials: ['PVA'] }
++]
++
++export const zrDryPresetFor = (material: string | undefined): ZrDryPreset | undefined => {
++  const key = (material ?? '').toUpperCase().trim().split(/[\s_-]+/)[0]
++  const found = DRY_PRESETS.find(p => p.materials.includes(key))
++  return found ? { label: found.label, temp: found.temp, minutes: found.minutes } : undefined
++}
++
++export const zrFormatMinutes = (minutes: number): string => {
++  if (minutes < 60) return `${minutes} min`
++  const hours = Math.floor(minutes / 60)
++  const rest = minutes % 60
++  return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`
++}
++
++export const loadZrMapPresets = (): ZrSavedMapping[] => {
++  try {
++    const parsed: unknown = JSON.parse(readStorage(MAP_PRESETS_KEY) ?? '[]')
++    return Array.isArray(parsed)
++      ? parsed.filter((item): item is ZrSavedMapping => item != null && typeof item.name === 'string' && typeof item.map === 'object')
++      : []
++  } catch {
++    return []
++  }
++}
++
++export const saveZrMapPresets = (presets: ZrSavedMapping[]) => {
++  writeStorage(MAP_PRESETS_KEY, JSON.stringify(presets))
++}
++
++export const loadZrFileMapping = (filename: string): ZrRowMap | undefined => {
++  try {
++    const parsed: unknown = JSON.parse(readStorage(MAP_FILE_PREFIX + filename) ?? 'null')
++    return parsed != null && typeof parsed === 'object' ? parsed as ZrRowMap : undefined
++  } catch {
++    return undefined
++  }
++}
++
++export const saveZrFileMapping = (filename: string, map: ZrRowMap) => {
++  writeStorage(MAP_FILE_PREFIX + filename, JSON.stringify(map))
++}
 -- 
 2.43.0
 
