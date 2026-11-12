@@ -40,14 +40,14 @@ def cat_of(value, name):
     return None
 
 
-MACROS = ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP", "WM_BED_LEVELING", "WM_OFFSETS_RAPID", "G29",
+MACROS = ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP", "WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_OFFSETS_RAPID", "G29",
           "RAPID_MODE", "T0", "PARK_CURRENT_TOOL", "LOAD_FILAMENT", "WIPE_NOZZ", "ZR_LOAD", "START_PRINT", "TEST_XY",
           "TEST_STREAM_DELAY", "HYPERLAPSE", "M104", "z_rise", "_HIDDEN_HELPER", "SOMETHING_ELSE"]
 
 print("rules")
 v, h, r = wmfc.plan(MACROS, None, [], now_ms=1000)
 check("AcePro: ACE_*, WM_ENDLESS_*, WM_STATS_*, WM_SET_TOOL_MAP", all(cat_of(v, n) == "AcePro" for n in ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP"]))
-check("Raspberry Pi: the other WM_* macros", cat_of(v, "WM_BED_LEVELING") == "Raspberry Pi" and cat_of(v, "WM_OFFSETS_RAPID") == "Raspberry Pi")
+check("Raspberry Pi: the other WM_* macros", cat_of(v, "WM_BED_LEVELING") == "Raspberry Pi" and cat_of(v, "WM_SCREWS_CAL") == "Raspberry Pi" and cat_of(v, "WM_OFFSETS_RAPID") == "Raspberry Pi")
 check("WonderMaker factory macros land in their categories",
       cat_of(v, "G29") == "WM Ultra Calibration" and cat_of(v, "RAPID_MODE") == "WM Ultra Calibration" and cat_of(v, "T0") == "WM Ultra Tool Change"
       and cat_of(v, "PARK_CURRENT_TOOL") == "WM Ultra Tool Change" and cat_of(v, "LOAD_FILAMENT") == "WM Ultra Filament" and cat_of(v, "WIPE_NOZZ") == "WM Ultra Filament"
@@ -60,7 +60,7 @@ check("macros starting with _ and unknown macros are left out", not any(m["name"
 check("categories are created in Fluidd's order, only the ones needed", [c["name"] for c in v["categories"]] == ["Raspberry Pi", "AcePro", "WM Ultra Calibration", "WM Ultra Tool Change", "WM Ultra Filament", "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"])
 check("new categories are expanded", v["expanded"] == [0, 0, 1, 2, 3, 4, 5, 6, 7, 8])
 check("only the macros that exist are used (a printer without an ACE gets no AcePro category)", "AcePro" not in [c["name"] for c in wmfc.plan(["WM_BED_LEVELING", "G29"], None, [], now_ms=5)[0]["categories"]])
-check("the report counts", r["categorized"] == 17 and r["hidden"] == 2 and r["kept"] == 0 and len(r["created"]) == 9)
+check("the report counts", r["categorized"] == 18 and r["hidden"] == 2 and r["kept"] == 0 and len(r["created"]) == 9)
 
 print("never touch what the user changed")
 mine = {"stored": [entry("G29", categoryId="77", color="#123456"), entry("WM_BED_LEVELING", alias="Level bed"), entry("ZR_LOAD", visible=False),
