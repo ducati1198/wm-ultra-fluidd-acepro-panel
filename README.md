@@ -8,7 +8,7 @@ With an ACE: one unit for T0–T3, slot N → hub inlet N → toolhead N.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
-[![Fluidd](https://img.shields.io/badge/Fluidd-1.37.7%20Toolheads%20panel-orange.svg)](fluidd/)
+[![Fluidd](https://img.shields.io/badge/Fluidd-1.38.0%20Toolheads%20panel-orange.svg)](fluidd/)
 [![Status](https://img.shields.io/badge/status-tested%20on%20a%20WonderMaker%20Ultra--S-brightgreen.svg)](#6-first-tests-on-the-printer)
 
 <img src="docs/img/fluidd-toolheads-ace-card.png" alt="WonderMaker Toolheads card with the ACE Pro in Fluidd" width="60%">
@@ -528,7 +528,7 @@ Print tool T1 is then printed with toolhead 4 (the numbers in the macro start at
 
 The ACE tops out at 65 °C. The presets only fill in the fields; you press **Dry**.
 
-The panel is Fluidd v1.37.7 plus WonderMaker's ZR Toolheads card and the ACE parts. The source changes are in [`fluidd/fluidd-v1.37.7-zr-ace.patch`](fluidd/fluidd-v1.37.7-zr-ace.patch).
+The panel is Fluidd v1.38.0 plus WonderMaker's ZR Toolheads card and the ACE parts. The source changes are in [`fluidd/fluidd-v1.38.0-zr-ace.patch`](fluidd/fluidd-v1.38.0-zr-ace.patch).
 
 ---
 
@@ -688,7 +688,8 @@ wm-ultra-fluidd-acepro-panel/
 │   ├── ace/                        Driver from acepro-any-klipper + the register_tool_commands option
 │   ├── virtual_pins.py
 │   └── temperature_ace.py
-├── fluidd/                         Fluidd 1.37.7 build + patch (Toolheads card with the ACE parts)
+├── fluidd/                         Fluidd 1.38.0 build + patch (Toolheads card with the ACE parts)
+├── old_backup/fluidd/              Older Fluidd builds (1.37.7) kept for going back; not used by the installer
 ├── orca_plugin/                    OrcaSlicer plugin: pick toolheads in Orca
 ├── docs/                           Hardware notes, ACE USB adapter wiring, screenshots (demo data)
 ├── tests/                          run_tests.sh (installer), test_macros.py (macros), test_orca_plugin.py, test_fluidd_categories.py
@@ -706,7 +707,7 @@ Run the tests: `bash tests/run_tests.sh`, `python3 -I tests/test_macros.py` (nee
 Built on:
 
 - The ACE Pro driver and Fluidd work from [ducati1198/acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper), which builds on [Kobra-S1/ACEPRO](https://github.com/Kobra-S1/ACEPRO), [szkrisz/ACEPROSV08](https://github.com/szkrisz/ACEPROSV08), [utkabobr/DuckACE](https://github.com/utkabobr/DuckACE) and [agrloki/ValgACE](https://github.com/agrloki/ValgACE).
-- [Fluidd](https://github.com/fluidd-core/fluidd) v1.37.7.
+- [Fluidd](https://github.com/fluidd-core/fluidd) v1.38.0.
 - WonderMaker's Klipper configuration for the ZR Ultra / Ultra-S (their files are read, never changed).
 
 Config files and Fluidd panel by **ducati1198**.

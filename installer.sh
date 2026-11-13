@@ -459,7 +459,7 @@ PYDROP
 }
 
 install_fluidd_panel() {
-    local fluidd_dir="$1" zip="$SCRIPT_DIR/fluidd/fluidd-v1.37.7-zr-ace.zip" backup
+    local fluidd_dir="$1" zip="$SCRIPT_DIR/fluidd/fluidd-v1.38.0-zr-ace.zip" backup
     [ -f "$zip" ] || { warn_later "Fluidd build not found: $zip"; return 1; }
     if [ -f "$zip.sha256" ] && ! (cd "$SCRIPT_DIR/fluidd" && sha256sum -c "$(basename "$zip.sha256")" >/dev/null 2>&1); then
         warn_later "Checksum of the Fluidd build does not match. The panel was not installed."; return 1

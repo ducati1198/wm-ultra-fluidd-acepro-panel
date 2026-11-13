@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.0
+
+- **Fluidd panel is now built on Fluidd 1.38.0** (was 1.37.7). New in Fluidd: web-based firmware updates, G-code preview coloured by feature, speed or fan, Moonraker extensions API, TMC5262 support, better websocket reconnection, no runaway file ETA during the start macro, the file list keeps your selection when it refreshes, and more (see the Fluidd 1.38.0 release notes). All the Toolheads card, ACE and Choose toolheads parts are carried over; the patch applies to v1.38.0 with one import line merged. New files: `fluidd/fluidd-v1.38.0-zr-ace.zip`, `.patch`, `.zip.sha256`.
+- **The old 1.37.7 build is kept** in `old_backup/fluidd/1.37.7/` (zip, checksum, patch) in case you need to go back. The installer does not use it.
+
 ## 1.6.1
 
 - **Fluidd: "ACE Pro support is turned off" banner with a Turn on button.** When the ACE_Pro switch is off (tool changes and slot moves are ignored), the Toolheads card shows a blue banner with a green TURN ON button that switches it back on. Wording for the 4 toolheads: "Toolhead changes (T0-T3) and ACE slot moves are ignored." New Fluidd zip, patch and checksum.
