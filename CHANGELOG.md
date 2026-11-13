@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.1
+
+- **Fluidd: "ACE Pro support is turned off" banner with a Turn on button.** When the ACE_Pro switch is off (tool changes and slot moves are ignored), the Toolheads card shows a blue banner with a green TURN ON button that switches it back on. Wording for the 4 toolheads: "Toolhead changes (T0-T3) and ACE slot moves are ignored." New Fluidd zip, patch and checksum.
+
 ## 1.6.0
 
 - **The config files are now called rpi_ instead of wm_.** `wm_ace_driver.cfg` -> `rpi_ace_driver.cfg`, `wm_ace.cfg` -> `rpi_ace.cfg`, `wm_endless.cfg` -> `rpi_endless.cfg`, `wm_stats.cfg` -> `rpi_stats.cfg`, and the install record `wm-ultra-install.conf` -> `rpi-ultra-install.conf`. The macros inside keep their names (`ACE_WM_ASSIST`, `WM_SET_TOOL_MAP`, ...), so slicer start G-code and your own macros are not affected.

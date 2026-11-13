@@ -325,6 +325,7 @@ check "Fluidd zip matches its sha256 file" bash -c 'cd "$0/fluidd" && sha256sum 
 check "Fluidd zip holds the Chamber light button (reads config/rpi_chamber_light.json)" bash -c 'unzip -p "$0/fluidd/fluidd-v1.37.7-zr-ace.zip" "assets/*.js" | grep -q "rpi_chamber_light.json"' "$REPO"
 check "Fluidd patch carries the Chamber light commit" grep -q "Chamber light button beside AIR FILTER" "$REPO/fluidd/fluidd-v1.37.7-zr-ace.patch"
 check "Fluidd patch: Choose toolheads window always opens on Print" grep -q "Always open the Choose toolheads window" "$REPO/fluidd/fluidd-v1.37.7-zr-ace.patch"
+check "Fluidd zip holds the ACE Pro off banner (Turn on)" bash -c 'unzip -p "$0/fluidd/fluidd-v1.37.7-zr-ace.zip" "assets/*.js" | grep -q "ACE Pro support is turned off"' "$REPO"
 check "Fluidd zip: print hook no longer passes auto" bash -c '! unzip -p "$0/fluidd/fluidd-v1.37.7-zr-ace.zip" "assets/*.js" | grep -q "zr-print-dialog\",{filename:[a-z],auto:!0}"' "$REPO"
 
 echo "Rename wm_ -> rpi_ (1.6.0)"

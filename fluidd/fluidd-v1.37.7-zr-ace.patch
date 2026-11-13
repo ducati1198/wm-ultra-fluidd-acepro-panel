@@ -5192,3 +5192,69 @@ index 00b948f..7111b68 100644
 -- 
 2.43.0
 
+From 9f9b81d1857f588f732bb0469af67dd37ca7c5cd Mon Sep 17 00:00:00 2001
+From: zr <x@x>
+Date: Fri, 13 Nov 2026 17:20:58 -0500
+Subject: [PATCH] Toolheads card: banner with Turn on when the ACE_Pro switch
+ is off
+
+---
+ src/components/widgets/zr/ZrToolheadsCard.vue | 20 +++++++++++++++++++
+ src/components/widgets/zr/zrMixin.ts          | 10 ++++++++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
+index 9c9c17b4..23eb2abe 100644
+--- a/src/components/widgets/zr/ZrToolheadsCard.vue
++++ b/src/components/widgets/zr/ZrToolheadsCard.vue
+@@ -26,6 +26,26 @@
+     </template>
+ 
+     <div class="pa-2">
++      <v-alert
++        v-if="zrAceOff"
++        type="info"
++        text
++        dense
++        class="mb-2 zr-ace-off"
++      >
++        <div class="d-flex align-center flex-wrap">
++          <span class="mr-3">ACE Pro support is turned off. Toolhead changes (T0–T3) and ACE slot moves are ignored.</span>
++          <v-spacer />
++          <app-btn
++            small
++            color="success"
++            :disabled="!klippyReady"
++            @click="zrAceTurnOn"
++          >
++            Turn on
++          </app-btn>
++        </div>
++      </v-alert>
+       <div
+         class="zr-unit rounded pa-2"
+         :class="$vuetify.theme.dark ? 'grey darken-4' : 'grey lighten-4'"
+diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
+index 8692f6fe..8ac9d96e 100644
+--- a/src/components/widgets/zr/zrMixin.ts
++++ b/src/components/widgets/zr/zrMixin.ts
+@@ -96,6 +96,16 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+     return this.zrPrinter['gcode_macro _WM_ACE'] != null || this.zrPrinter.ace != null
+   }
+ 
++  // The ACE_Pro switch ([output_pin ACE_Pro]): at 0 the driver ignores tool changes and slot moves.
++  get zrAceOff (): boolean {
++    const pin = this.zrPrinter['output_pin ACE_Pro']
++    return this.zrHasAce && pin != null && Number(pin.value) < 0.5
++  }
++
++  zrAceTurnOn (): void {
++    this.sendGcode('SET_PIN PIN=ACE_Pro VALUE=1')
++  }
++
+   get zrAce (): Record<string, any> {
+     const o = this.zrPrinter.ace_instance_0
+     return o != null && typeof o === 'object' ? o : {}
+-- 
+2.43.0
+
