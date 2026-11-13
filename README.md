@@ -470,6 +470,17 @@ A toolhead counts as a match when its colour is the closest of WonderMaker's pal
 - It works the same without an ACE Pro.
 - The Toolheads card's own print button opens a file picker first, then this window.
 
+**The same mapping on the touchscreen.** The KlipperScreen pages of the [installer project](https://github.com/ducati1198/WM_Ultra_Vanilla_Klipper) (ZR Tools, **More > Choose toolheads**) have a **Tool mapping** page. It is for when you set the mapping by hand instead of in this window:
+
+- **Slicer T0 to T3** are the rows, **Head 1 to Head 4** the columns. Tap a head to make that head print that slicer tool. The coloured box at the end of each row shows the colour loaded in the chosen head.
+- Set it just before you start a print. WonderMaker resets it to 1:1 after every print, and **Reset 1:1** does it at once.
+- It uses the same `box_modify_t0`…`t3` variables as the window above, so both always show the same mapping, and the one chosen in Fluidd for a print wins.
+
+<div align="center">
+<img src="docs/img/screen-tool-mapping.png" alt="Tool mapping page on the touchscreen" width="60%"><br>
+<em>Tool mapping on the touchscreen: each slicer tool is sent to a toolhead.</em>
+</div>
+
 ### Tool-change bar, counters and the OrcaSlicer plugin
 
 - **Tool-change bar.** While WonderMaker changes tools the card shows what it is doing (lifting Z, putting the old head back, locking the new one). It reads WonderMaker's own `changing_tool` flag and the dock sensors; no WonderMaker macro is changed or wrapped. The percentages are rough steps, not a measurement.
