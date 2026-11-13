@@ -91,7 +91,7 @@ More options: [3.2](#32-one-command-installer). Safety: a running or paused prin
 ![How it works](docs/img/how-it-works.svg)
 
 1. The **Toolheads card** in Fluidd shows your four toolheads and sends commands through Moonraker.
-2. The commands call **macros in three config files** this installer adds (`wm_ace.cfg`, `wm_endless.cfg`, `wm_stats.cfg`). They sit on top of WonderMaker's own macros and call them; none of WonderMaker's macros is replaced.
+2. The commands call **macros in three config files** this installer adds (`rpi_ace.cfg`, `rpi_endless.cfg`, `rpi_stats.cfg`). They sit on top of WonderMaker's own macros and call them; none of WonderMaker's macros is replaced.
 3. With an **ACE Pro**, the ACE driver feeds slot N to toolhead N, using WonderMaker's own hub and toolhead sensors to know when to stop. Without one, the ACE parts stay hidden.
 4. The **OrcaSlicer plugin** (optional) writes a `WM_SET_TOOL_MAP` line into the G-code so the print starts with the toolheads you picked.
 5. Everything is **undoable**: the installer saves what it touches and `--undo` puts it back.
@@ -188,7 +188,7 @@ The WonderMaker hub is passive (no motor). The ACE pushes and pulls the filament
 | **ACE Pro** (first generation) | Native USB data | A plain USB-A adapter (below). It appears in Linux as `/dev/ttyACM*`. |
 | **ACE 2 Pro** | RS-485, not USB | Not tested here (see below). It needs the RS485-to-USB conversion cable from Anycubic's ACE 2 kit; a home-made USB cable will not work. |
 
-The driver detects which protocol a unit speaks (`protocol: auto` in `wm_ace_driver.cfg`). The rest of this section is about the first-generation ACE Pro.
+The driver detects which protocol a unit speaks (`protocol: auto` in `rpi_ace_driver.cfg`). The rest of this section is about the first-generation ACE Pro.
 
 
 #### ACE 2 Pro: what is known (not tested in this project)
@@ -307,7 +307,7 @@ The installer asks a few plain questions, shows exactly what it will change, and
 1. Checks that this is a WonderMaker ZR Ultra config and that no print is running.
 2. With an ACE: checks that the driver compiles and that `pyserial` is available, and looks for the ACE on USB (a warning, not a stop, if it is not there yet).
 3. With an ACE: links the ACE driver (`extras/ace/`), `virtual_pins` and the ACE temperature sensor into Klipper's `extras` folder.
-4. Copies the config files into your config folder and adds the `[include …]` lines to `printer.cfg` in one block just above the SAVE_CONFIG block, after `[save_variables]` (the ACE driver reads `[save_variables]` while it loads, so the lines must come after it). `wm_stats.cfg` (counters and the tool map) is always added. No WonderMaker file is edited.
+4. Copies the config files into your config folder and adds the `[include …]` lines to `printer.cfg` in one block just above the SAVE_CONFIG block, after `[save_variables]` (the ACE driver reads `[save_variables]` while it loads, so the lines must come after it). `rpi_stats.cfg` (counters and the tool map) is always added. No WonderMaker file is edited.
 5. Installs the Fluidd panel if you chose it (your `config.json` is kept; the old folder is saved).
 6. Saves everything it touched in `~/acepro-backup/wm-<date>`.
 7. Asks once whether to restart Klipper (default no, and only if Klipper is running).
@@ -391,10 +391,10 @@ If the ACE does not show up on this board, check the free USB port first: the ma
 The installer adds these for you (the two ACE lines only with an ACE, the endless line only if you chose it, the stats line always). They sit in one block near the end of the file, above the `#*# SAVE_CONFIG` block and after `[save_variables]`, not next to `[include zru-s.cfg]`. Check they are there:
 
 ```ini
-[include wm_ace_driver.cfg]
-[include wm_ace.cfg]
-[include wm_endless.cfg]
-[include wm_stats.cfg]
+[include rpi_ace_driver.cfg]
+[include rpi_ace.cfg]
+[include rpi_endless.cfg]
+[include rpi_stats.cfg]
 ```
 
 Restart Klipper from Fluidd (FIRMWARE_RESTART) or:
@@ -420,7 +420,7 @@ The installer also removes `[update_manager fluidd]` from `moonraker.conf` (a co
 
 **Hook lines in WonderMaker's files.** The installer adds three lines to each of `extruder0.cfg` … `extruder3.cfg` (inside `insert_gcode` of the tool head sensor): `_WM_ACE_HEAD T=n` as its first line, `_WM_ACE_GRAB T=n` just before `filament_insert`, and `_WM_ACE_HEAD_DONE T=n` just after `PARK_CURRENT_TOOL`. They do nothing unless the ACE is loading that tool. They are needed because WonderMaker's insert routine holds the G-code queue for about 70 seconds, so the ACE could not react in time otherwise. The installer saves a copy of each file first and leaves a file alone (with a warning) when its anchors are not found; `--repair` adds them again, `--check` / `--doctor` report them, `--uninstall` removes them (`scripts/ace_hooks.py`).
 
-Everything you may want to tune is at the top of `~/printer_data/config/wm_ace.cfg` (`[gcode_macro _WM_ACE]`). `--update` keeps your values.
+Everything you may want to tune is at the top of `~/printer_data/config/rpi_ace.cfg` (`[gcode_macro _WM_ACE]`). `--update` keeps your values.
 
 | Variable | Default | Meaning |
 |---|---|---|
@@ -432,9 +432,9 @@ Everything you may want to tune is at the top of `~/printer_data/config/wm_ace.c
 | `variable_fast_timeout_s` / `slow_timeout_s` | 90 / 60 | A load that takes longer stops with an error. |
 | `variable_auto` | 1 | 1 = load automatically when a spool is put into a slot. |
 
-Driver settings (`wm_ace_driver.cfg`): `ace_count: 1`, `register_tool_commands: False` (keeps WonderMaker's own `T0`…`T3`), `feed_speed`, `retract_speed`, `max_dryer_temperature: 65`, `moonraker_lane_sync_enabled: True` (publishes the ACE slots to Moonraker's `lane_data` for OrcaSlicer; set `False` to switch it off).
+Driver settings (`rpi_ace_driver.cfg`): `ace_count: 1`, `register_tool_commands: False` (keeps WonderMaker's own `T0`…`T3`), `feed_speed`, `retract_speed`, `max_dryer_temperature: 65`, `moonraker_lane_sync_enabled: True` (publishes the ACE slots to Moonraker's `lane_data` for OrcaSlicer; set `False` to switch it off).
 
-Endless spool settings (`wm_endless.cfg`): `variable_hop` (Z lift while heads are swapped, 4 mm), `variable_prime_mm` (20), `variable_prime_speed` (300).
+Endless spool settings (`rpi_endless.cfg`): `variable_hop` (Z lift while heads are swapped, 4 mm), `variable_prime_mm` (20), `variable_prime_speed` (300).
 
 ---
 
@@ -473,7 +473,7 @@ A toolhead counts as a match when its colour is the closest of WonderMaker's pal
 ### Tool-change bar, counters and the OrcaSlicer plugin
 
 - **Tool-change bar.** While WonderMaker changes tools the card shows what it is doing (lifting Z, putting the old head back, locking the new one). It reads WonderMaker's own `changing_tool` flag and the dock sensors; no WonderMaker macro is changed or wrapped. The percentages are rough steps, not a measurement.
-- **Counters.** `wm_stats.cfg` watches WonderMaker's `current_extruder` every 2 seconds and counts every change: in total and per toolhead (`wm_stat_changes`, `wm_stat_head0`…`3`). **Reset** (or `WM_STATS_RESET`) sets them to 0. Purged filament is not counted, because that would mean wrapping WonderMaker's purge macros.
+- **Counters.** `rpi_stats.cfg` watches WonderMaker's `current_extruder` every 2 seconds and counts every change: in total and per toolhead (`wm_stat_changes`, `wm_stat_head0`…`3`). **Reset** (or `WM_STATS_RESET`) sets them to 0. Purged filament is not counted, because that would mean wrapping WonderMaker's purge macros.
 - **OrcaSlicer plugin.** Choose the toolhead per filament inside Orca. Install steps are in the next section.
 
 ### Install the OrcaSlicer plugin (optional, works without an ACE Pro)
@@ -484,7 +484,7 @@ The plugin lets you pick, inside Orca, which toolhead prints each filament. When
 <img src="orca_plugin/spool-toolhead-mapper-wm.png" alt="Spools and Toolheads panel in OrcaSlicer with a WonderMaker ZR Ultra-S" width="80%">
 </div>
 
-**On the printer (once):** run `./installer.sh` or `./installer.sh --update` from this repository. That installs `wm_stats.cfg`, which holds the `WM_SET_TOOL_MAP` macro the plugin calls. Then restart Klipper.
+**On the printer (once):** run `./installer.sh` or `./installer.sh --update` from this repository. That installs `rpi_stats.cfg`, which holds the `WM_SET_TOOL_MAP` macro the plugin calls. Then restart Klipper.
 
 **In OrcaSlicer (once):**
 
@@ -627,9 +627,9 @@ cd ~/wm-ultra-fluidd-acepro-panel && git pull
 | `--check`: "linked driver is too old" | Update this repository (`git pull`), then run `--repair`. |
 | `--check`: broken link | The repository was moved. Run `--repair` from its new place. |
 | Klipper: "Unknown config object 'save_variables'" | You installed version 0.2.0, which put the include lines above `[save_variables]`. `git pull` and `./installer.sh --update` (or `--repair`) moves them. |
-| Console: "Unknown command WM_SET_TOOL_MAP" (or `WM_STATS_RESET`) | `wm_stats.cfg` is not installed: `git pull`, `./installer.sh --update`, restart Klipper. |
+| Console: "Unknown command WM_SET_TOOL_MAP" (or `WM_STATS_RESET`) | `rpi_stats.cfg` is not installed: `git pull`, `./installer.sh --update`, restart Klipper. |
 | Klipper: "Unknown config object temperature_ace" or virtual pins | The links in `klippy/extras` are missing: `--repair`. |
-| Klipper: T0..T3 behave differently | `register_tool_commands: False` is missing in `wm_ace_driver.cfg` (`--check` reports it). |
+| Klipper: T0..T3 behave differently | `register_tool_commands: False` is missing in `rpi_ace_driver.cfg` (`--check` reports it). |
 | No ACE parts in the Fluidd card | The ACE is not reported yet: restart Klipper, check the USB cable and the ACE power, hard-refresh the browser. |
 | ACE not on USB | Data wires only (D+, D-, GND), no 5 V. Check the adapter with a multimeter. |
 | Load stops with a timeout | Check `path_N` / `filament<N>` in the card, tube length, then raise the timeouts or `hub_to_head_mm`. |
@@ -667,11 +667,11 @@ wm-ultra-fluidd-acepro-panel/
 ├── installer.sh                    Installer (install, --update, --check, --repair, --undo, --uninstall, --dry-run)
 ├── VERSION, CHANGELOG.md           Version and what changed
 ├── config/
-│   ├── wm_ace_driver.cfg           Minimal [ace] driver config (no T0..T7, no cutter, no basket)
-│   ├── wm_ace.cfg                  Load / unload / auto-load / feed assist / dryer macros
+│   ├── rpi_ace_driver.cfg           Minimal [ace] driver config (no T0..T7, no cutter, no basket)
+│   ├── rpi_ace.cfg                  Load / unload / auto-load / feed assist / dryer macros
 │   ├── (scripts/ace_hooks.py        adds / checks / removes the 3 hook lines in extruder0..3.cfg)
-│   ├── wm_endless.cfg              Experimental endless spool (with the per-head chain)
-│   └── wm_stats.cfg                Tool-change counters and the WM_SET_TOOL_MAP macro
+│   ├── rpi_endless.cfg              Experimental endless spool (with the per-head chain)
+│   └── rpi_stats.cfg                Tool-change counters and the WM_SET_TOOL_MAP macro
 ├── scripts/wm_fluidd_categories.py Sorts the macros into Fluidd's categories (uses Moonraker's database)
 ├── extras/                         The ACE driver (linked into klippy/extras by the installer)
 │   ├── ace/                        Driver from acepro-any-klipper + the register_tool_commands option

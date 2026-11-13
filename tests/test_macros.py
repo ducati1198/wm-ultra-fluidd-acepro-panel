@@ -1,4 +1,4 @@
-"""Renders the Jinja of the new macros (wm_stats.cfg, wm_endless.cfg) against a fake printer.
+"""Renders the Jinja of the new macros (rpi_stats.cfg, rpi_endless.cfg) against a fake printer.
 Run:  python3 -I tests/test_macros.py      (needs jinja2)"""
 import os, re, sys
 import jinja2
@@ -55,8 +55,8 @@ def raises(fn):
         return True
 
 
-stats = load("wm_stats.cfg")
-endl = load("wm_endless.cfg")
+stats = load("rpi_stats.cfg")
+endl = load("rpi_endless.cfg")
 
 print("Tool map")
 o = run(stats, "WM_SET_TOOL_MAP", {"MAP": "0:2,1:3"})

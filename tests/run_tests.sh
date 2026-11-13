@@ -42,12 +42,12 @@ echo "1. Fresh install"
 H="$(new_home t1)"; C="$(cfg "$H")"
 inst "$H" "$A_ALL"
 check "installer finished"                          test "$RC" -eq 0
-for f in wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm-ultra-install.conf; do check "$f written" test -f "$C/$f"; done
-check "includes sit after [save_variables], above SAVE_CONFIG" test "$(grep -n 'include wm_\|save_variables\|SAVE_CONFIG' "$C/printer.cfg" | cut -d: -f2- | tr '\n' ' ')" = "[save_variables] [include wm_ace_driver.cfg] [include wm_ace.cfg] [include wm_endless.cfg] [include wm_stats.cfg] #*# <---------------------- SAVE_CONFIG ----------------------> "
+for f in rpi_ace_driver.cfg rpi_ace.cfg rpi_endless.cfg rpi-ultra-install.conf; do check "$f written" test -f "$C/$f"; done
+check "includes sit after [save_variables], above SAVE_CONFIG" test "$(grep -n 'include rpi_\|save_variables\|SAVE_CONFIG' "$C/printer.cfg" | cut -d: -f2- | tr '\n' ' ')" = "[save_variables] [include rpi_ace_driver.cfg] [include rpi_ace.cfg] [include rpi_endless.cfg] [include rpi_stats.cfg] #*# <---------------------- SAVE_CONFIG ----------------------> "
 check "other.cfg include still follows zru-s"        test "$(sed -n 2,3p "$C/printer.cfg" | tr '\n' ' ')" = "[include zru-s.cfg] [include other.cfg] "
 check "SAVE_CONFIG block untouched"                 test "$(tail -1 "$C/printer.cfg")" = "#*# control = pid"
-check "register_tool_commands False kept"           grep -q '^register_tool_commands: False' "$C/wm_ace_driver.cfg"
-check "auto-load = 1"                               grep -q '^variable_auto: *1' "$C/wm_ace.cfg"
+check "register_tool_commands False kept"           grep -q '^register_tool_commands: False' "$C/rpi_ace_driver.cfg"
+check "auto-load = 1"                               grep -q '^variable_auto: *1' "$C/rpi_ace.cfg"
 check "driver linked to the repo"                   test "$(readlink "$H/klipper/klippy/extras/ace")" = "$REPO/extras/ace"
 check "virtual_pins linked"                         test -L "$H/klipper/klippy/extras/virtual_pins.py"
 check "temperature_ace linked"                      test -L "$H/klipper/klippy/extras/temperature_ace.py"
@@ -68,21 +68,21 @@ check "Klipper was not restarted"                   bash -c '! echo "$0" | grep 
 inst "$H" "" --check;  check "--check passes"       test "$RC" -eq 0
 
 echo "2. Update keeps tuned values"
-sed -i 's/^variable_hub_to_head_mm: *710/variable_hub_to_head_mm: 1234/;s/^variable_auto: *1/variable_auto: 0/' "$C/wm_ace.cfg"
-sed -i 's/^feed_speed: 60/feed_speed: 33/' "$C/wm_ace_driver.cfg"
+sed -i 's/^variable_hub_to_head_mm: *710/variable_hub_to_head_mm: 1234/;s/^variable_auto: *1/variable_auto: 0/' "$C/rpi_ace.cfg"
+sed -i 's/^feed_speed: 60/feed_speed: 33/' "$C/rpi_ace_driver.cfg"
 inst "$H" 'n\ny\n' --update
 check "update finished"                             test "$RC" -eq 0
-check "hub_to_head_mm 1234 kept"                    grep -q '^variable_hub_to_head_mm: *1234' "$C/wm_ace.cfg"
-check "auto 0 kept"                                 grep -q '^variable_auto: *0' "$C/wm_ace.cfg"
-check "feed_speed 33 kept"                          grep -q '^feed_speed: *33' "$C/wm_ace_driver.cfg"
-check "includes not duplicated"                     test "$(grep -c 'include wm_ace.cfg' "$C/printer.cfg")" -eq 1
+check "hub_to_head_mm 1234 kept"                    grep -q '^variable_hub_to_head_mm: *1234' "$C/rpi_ace.cfg"
+check "auto 0 kept"                                 grep -q '^variable_auto: *0' "$C/rpi_ace.cfg"
+check "feed_speed 33 kept"                          grep -q '^feed_speed: *33' "$C/rpi_ace_driver.cfg"
+check "includes not duplicated"                     test "$(grep -c 'include rpi_ace.cfg' "$C/printer.cfg")" -eq 1
 
 echo "3. Dry run changes nothing"
 H3="$(new_home t3)"; C3="$(cfg "$H3")"; cp -a "$C3/printer.cfg" "$ROOT/p3.cfg"
 inst "$H3" "$A_ALL" --dry-run
 check "dry run finished"                            test "$RC" -eq 0
 check "printer.cfg identical"                       cmp -s "$ROOT/p3.cfg" "$C3/printer.cfg"
-check "no ACE cfg written"                          test ! -e "$C3/wm_ace.cfg"
+check "no ACE cfg written"                          test ! -e "$C3/rpi_ace.cfg"
 check "no link made"                                test ! -e "$H3/klipper/klippy/extras/ace"
 
 echo "4. Not a WonderMaker config"
@@ -90,19 +90,19 @@ H4="$(new_home t4 nowm)"
 inst "$H4" "$A_ALL"
 check "refuses with exit 1"                         test "$RC" -eq 1
 check "says why"                                    bash -c 'echo "$0" | grep -q "does not look like a WonderMaker"' "$OUT"
-check "nothing written"                             test ! -e "$(cfg "$H4")/wm_ace.cfg"
+check "nothing written"                             test ! -e "$(cfg "$H4")/rpi_ace.cfg"
 
 echo "5. Print in progress"
 H5="$(new_home t5)"
 OUT="$(printf '%b' "$A_ALL" | ACE_PRINT_STATE=printing ACE_INSTALL_HOME="$H5" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1)"; RC=$?
 check "refuses while printing"                      test "$RC" -eq 1
-check "nothing written"                             test ! -e "$(cfg "$H5")/wm_ace.cfg"
+check "nothing written"                             test ! -e "$(cfg "$H5")/rpi_ace.cfg"
 
 echo "6. Without endless spool and without Fluidd"
 H6="$(new_home t6)"; C6="$(cfg "$H6")"
 inst "$H6" 'y\ny\nn\nn\ny\n'
 check "installer finished"                          test "$RC" -eq 0
-check "wm_endless.cfg not written"                  test ! -e "$C6/wm_endless.cfg"
+check "rpi_endless.cfg not written"                  test ! -e "$C6/rpi_endless.cfg"
 check "no endless include"                          bash -c '! grep -q wm_endless "$0"' "$C6/printer.cfg"
 check "Fluidd untouched"                            bash -c '! grep -rq "ACE feeder" "$0"' "$H6/fluidd/assets"
 inst "$H6" "" --check;  check "--check passes"      test "$RC" -eq 0
@@ -113,7 +113,7 @@ inst "$H7" "$A_ALL"
 inst "$H7" 'y\n' --undo
 check "undo finished"                               test "$RC" -eq 0
 check "printer.cfg back to the original"            cmp -s "$ROOT/p7.cfg" "$C7/printer.cfg"
-check "ACE cfgs gone"                               test ! -e "$C7/wm_ace.cfg"
+check "ACE cfgs gone"                               test ! -e "$C7/rpi_ace.cfg"
 check "link gone"                                   test ! -e "$H7/klipper/klippy/extras/ace"
 check "Fluidd back to the old build"                test -f "$H7/fluidd/assets/old.js"
 
@@ -123,14 +123,14 @@ inst "$H8" "$A_ALL"
 inst "$H8" 'y\n' --uninstall
 check "uninstall finished"                          test "$RC" -eq 0
 check "includes removed"                            bash -c '! grep -q "wm_ace" "$0"' "$C8/printer.cfg"
-check "cfgs removed"                                test ! -e "$C8/wm_ace.cfg"
+check "cfgs removed"                                test ! -e "$C8/rpi_ace.cfg"
 check "links removed"                               test ! -e "$H8/klipper/klippy/extras/ace"
 check "uninstall put the original Fluidd back"      test -f "$H8/fluidd/assets/old.js"
 check "uninstall: panel gone from Fluidd"           bash -c '! grep -rq "ACE feeder" "$0"' "$H8/fluidd/assets"
 check "uninstall kept Fluidd config.json"           grep -q '"x":1' "$H8/fluidd/config.json"
 check "original Fluidd copy was saved for good"     test -f "$H8/acepro-backup/original-fluidd/assets/old.js"
 inst "$H8" 'y\n' --undo
-check "undo after uninstall brings cfgs back"       test -f "$C8/wm_ace.cfg"
+check "undo after uninstall brings cfgs back"       test -f "$C8/rpi_ace.cfg"
 check "undo after uninstall brings the panel back"  grep -rlq "ACE feeder" "$H8/fluidd/assets"
 for n in 1 2 3 4 5 6 7; do mkdir -p "$H8/fluidd_backup_2020010$n"; touch -d "2020-01-0$n" "$H8/fluidd_backup_2020010$n"; done
 inst "$H8" "$A_ALL"
@@ -140,7 +140,7 @@ check "original Fluidd copy is not overwritten"     bash -c '! grep -rq "ACE fee
 echo "9. Repair"
 H9="$(new_home t9)"; C9="$(cfg "$H9")"
 inst "$H9" "$A_ALL"
-rm -f "$H9/klipper/klippy/extras/ace"; sed -i '/wm_ace.cfg/d' "$C9/printer.cfg"
+rm -f "$H9/klipper/klippy/extras/ace"; sed -i '/rpi_ace.cfg/d' "$C9/printer.cfg"
 inst "$H9" "" --check;  check "--check finds the damage"  test "$RC" -ne 0
 inst "$H9" "" --repair; check "--repair finished"          test "$RC" -eq 0
 inst "$H9" "" --check;  check "--check passes again"       test "$RC" -eq 0
@@ -149,15 +149,15 @@ echo "10. No ACE Pro (panel + endless spool only)"
 H10="$(new_home t10)"; C10="$(cfg "$H10")"; cp -a "$C10/printer.cfg" "$ROOT/p10.cfg"
 inst "$H10" 'n\ny\ny\ny\n'
 check "installer finished"                          test "$RC" -eq 0
-check "wm_endless.cfg written"                      test -f "$C10/wm_endless.cfg"
-check "no ACE cfgs"                                 test ! -e "$C10/wm_ace.cfg" -a ! -e "$C10/wm_ace_driver.cfg"
-check "wm_stats.cfg written (counters, tool map)"    test -f "$C10/wm_stats.cfg"
-check "only endless and stats includes added"       bash -c 'grep -q "include wm_endless.cfg" "$0" && grep -q "include wm_stats.cfg" "$0" && ! grep -q "wm_ace" "$0"' "$C10/printer.cfg"
+check "rpi_endless.cfg written"                      test -f "$C10/rpi_endless.cfg"
+check "no ACE cfgs"                                 test ! -e "$C10/rpi_ace.cfg" -a ! -e "$C10/rpi_ace_driver.cfg"
+check "rpi_stats.cfg written (counters, tool map)"    test -f "$C10/rpi_stats.cfg"
+check "only endless and stats includes added"       bash -c 'grep -q "include rpi_endless.cfg" "$0" && grep -q "include rpi_stats.cfg" "$0" && ! grep -q "wm_ace" "$0"' "$C10/printer.cfg"
 check "driver not linked"                           test ! -e "$H10/klipper/klippy/extras/ace"
 check "Fluidd has the panel"                        grep -rlq "ACE feeder" "$H10/fluidd/assets"
-check "conf says ACE=0"                             grep -q '^ACE="0"' "$C10/wm-ultra-install.conf"
+check "conf says ACE=0"                             grep -q '^ACE="0"' "$C10/rpi-ultra-install.conf"
 inst "$H10" "" --check;  check "--check passes"     test "$RC" -eq 0
-inst "$H10" 'n\n' --update; check "update keeps panel-only mode" bash -c '! test -e "$0/wm_ace.cfg"' "$C10"
+inst "$H10" 'n\n' --update; check "update keeps panel-only mode" bash -c '! test -e "$0/rpi_ace.cfg"' "$C10"
 inst "$H10" 'y\n' --uninstall; check "uninstall finished"  test "$RC" -eq 0
 check "printer.cfg back to the original"            cmp -s "$ROOT/p10.cfg" "$C10/printer.cfg"
 H11="$(new_home t11)"
@@ -180,7 +180,7 @@ check "backup menu says no backups"                 bash -c 'echo "$0" | grep -q
 menu '9\n0\n'
 check "bad number is refused"                       bash -c 'echo "$0" | grep -q "Choose a number"' "$OUT"
 menu '5\ny\ny\ny\ny\ny\n0\n'
-check "menu dry run changes nothing"                test ! -e "$(cfg "$HM")/wm_ace.cfg"
+check "menu dry run changes nothing"                test ! -e "$(cfg "$HM")/rpi_ace.cfg"
 OUT="$(printf '' | bash "$INST" 2>&1 </dev/null)"
 check "no terminal and no options does not hang on a menu" bash -c '! echo "$0" | grep -q "6) Uninstall"' "$OUT"
 GL="$ROOT/gl"; mkdir -p "$GL/src"; cp "$REPO/installer.sh" "$GL/src/"; echo 7.7.7 > "$GL/src/VERSION"; tar -czf "$GL/t.tgz" -C "$GL" src
@@ -245,12 +245,12 @@ check "install shows a progress bar that reaches 100 percent" bash -c 'echo "$0"
 check "install bar names its steps"                 bash -c 'echo "$0" | grep -q "Step 3 of 5"' "$OUT"
 inst "$DH" "" --doctor
 check "doctor on a healthy install finds nothing"   bash -c 'echo "$0" | grep -q "No problems found"' "$OUT"
-rm -f "$(cfg "$DH")/wm_ace.cfg"
+rm -f "$(cfg "$DH")/rpi_ace.cfg"
 inst "$DH" "n\n" --doctor
 check "doctor reports the missing file" bash -c 'echo "$0" | grep -q "are missing"' "$OUT"
-check "doctor changes nothing when you say no"      test ! -e "$(cfg "$DH")/wm_ace.cfg"
+check "doctor changes nothing when you say no"      test ! -e "$(cfg "$DH")/rpi_ace.cfg"
 inst "$DH" "y\n" --doctor
-check "doctor restores the file when you say yes"   test -e "$(cfg "$DH")/wm_ace.cfg"
+check "doctor restores the file when you say yes"   test -e "$(cfg "$DH")/rpi_ace.cfg"
 echo "password: hunter2 on 192.168.1.50" >> "$(cfg "$DH")/moonraker.conf"
 inst "$DH" "" --support-bundle
 check "support bundle is written"                   bash -c 'ls "$0"/ace-support-*.tgz' "$DH"
@@ -322,10 +322,44 @@ check "--help lists --fluidd-categories" bash -c 'bash "$0" --help | grep -q -- 
 
 echo "Fluidd build: Chamber light button"
 check "Fluidd zip matches its sha256 file" bash -c 'cd "$0/fluidd" && sha256sum -c fluidd-v1.37.7-zr-ace.zip.sha256' "$REPO"
-check "Fluidd zip holds the Chamber light button (reads config/wm_chamber_light.json)" bash -c 'unzip -p "$0/fluidd/fluidd-v1.37.7-zr-ace.zip" "assets/*.js" | grep -q "wm_chamber_light.json"' "$REPO"
+check "Fluidd zip holds the Chamber light button (reads config/rpi_chamber_light.json)" bash -c 'unzip -p "$0/fluidd/fluidd-v1.37.7-zr-ace.zip" "assets/*.js" | grep -q "rpi_chamber_light.json"' "$REPO"
 check "Fluidd patch carries the Chamber light commit" grep -q "Chamber light button beside AIR FILTER" "$REPO/fluidd/fluidd-v1.37.7-zr-ace.patch"
 check "Fluidd patch: Choose toolheads window always opens on Print" grep -q "Always open the Choose toolheads window" "$REPO/fluidd/fluidd-v1.37.7-zr-ace.patch"
 check "Fluidd zip: print hook no longer passes auto" bash -c '! unzip -p "$0/fluidd/fluidd-v1.37.7-zr-ace.zip" "assets/*.js" | grep -q "zr-print-dialog\",{filename:[a-z],auto:!0}"' "$REPO"
 
+echo "Rename wm_ -> rpi_ (1.6.0)"
+HR="$(new_home ren)"; CR="$(cfg "$HR")"
+inst "$HR" "$A_ALL"
+# make it look like an install from before 1.6.0: old file names, old include lines, old install record
+for n in ace_driver ace endless stats; do mv "$CR/rpi_$n.cfg" "$CR/wm_$n.cfg"; done
+mv "$CR/rpi-ultra-install.conf" "$CR/wm-ultra-install.conf"
+sed -i -E 's/\[include rpi_(ace_driver|ace|endless|stats)\.cfg\]/[include wm_\1.cfg]/' "$CR/printer.cfg"
+sed -i 's/^variable_hop:.*/variable_hop: 7/' "$CR/wm_endless.cfg"
+cp "$CR/printer.cfg" "$ROOT/ren_printer_before.cfg"
+inst "$HR" 'n\ny\n' --check
+check "--check on an old-named install says to run --update" bash -c 'echo "$0" | grep -q "old wm_ names"' "$OUT"
+check "--check changes nothing (old files still there)" test -f "$CR/wm_ace.cfg"
+inst "$HR" 'n\ny\n' --update --dry-run
+check "--dry-run renames nothing" test -f "$CR/wm_ace.cfg" -a ! -e "$CR/rpi_ace.cfg"
+inst "$HR" 'n\ny\n' --update
+check "--update finished" test "$RC" -eq 0
+for f in rpi_ace_driver.cfg rpi_ace.cfg rpi_endless.cfg rpi_stats.cfg rpi-ultra-install.conf; do check "$f exists after the update" test -f "$CR/$f"; done
+for f in wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm_stats.cfg wm-ultra-install.conf; do check "$f is gone" test ! -e "$CR/$f"; done
+check "printer.cfg includes only the rpi_ names" bash -c '! grep -qE "include wm_" "$0/printer.cfg" && test "$(grep -c "include rpi_" "$0/printer.cfg")" = 4' "$CR"
+check "no include line twice" test "$(grep -c 'include rpi_ace.cfg' "$CR/printer.cfg")" = 1
+check "SAVE_CONFIG block untouched" test "$(tail -1 "$CR/printer.cfg")" = "#*# control = pid"
+check "your tuned value survives the rename (hop 7)" grep -q '^variable_hop: *7' "$CR/rpi_endless.cfg"
+check "a rename backup folder exists" test -n "$(ls -d "$HR"/acepro-backup/wm-*-rename 2>/dev/null)"
+inst "$HR" 'n\ny\n' --check
+check "--check is clean after the update" test "$RC" -eq 0
+inst "$HR" 'n\ny\n' --update
+check "a second update does not rename or fail" bash -c 'test "$0" -eq 0 && ! echo "$1" | grep -q "Renamed"' "$RC" "$OUT"
+# both names present: the new file wins, the old one is saved
+mv "$CR/rpi_stats.cfg" "$ROOT/stats.keep"; echo "# old copy" > "$CR/wm_stats.cfg"; cp "$ROOT/stats.keep" "$CR/rpi_stats.cfg"
+inst "$HR" 'n\ny\n' --update
+check "old and new both present: the old one is removed, the new one kept" bash -c 'test ! -e "$0/wm_stats.cfg" && test -f "$0/rpi_stats.cfg" && ! grep -q "# old copy" "$0/rpi_stats.cfg"' "$CR"
+# --undo of the rename gives the old names back
+inst "$HR" 'y\n' --undo
+echo
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

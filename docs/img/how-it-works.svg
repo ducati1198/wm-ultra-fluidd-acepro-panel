@@ -17,9 +17,9 @@
 <rect x="320" y="60" width="270" height="290" rx="10" fill="#14352a" stroke="#22c55e" stroke-width="2"/>
 <text x="455" y="88" text-anchor="middle" fill="#f1f5f9" font-size="15" font-weight="700">Klipper + Moonraker</text>
 <text x="455" y="106" text-anchor="middle" fill="#86efac" font-size="12">files added by ./installer.sh</text>
-<rect x="340" y="122" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="148" text-anchor="middle" fill="#e2e8f0" font-size="13">wm_ace.cfg: load, unload, dryer</text>
-<rect x="340" y="172" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="198" text-anchor="middle" fill="#e2e8f0" font-size="13">wm_endless.cfg: endless spool</text>
-<rect x="340" y="222" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="248" text-anchor="middle" fill="#e2e8f0" font-size="13">wm_stats.cfg: counters, tool map</text>
+<rect x="340" y="122" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="148" text-anchor="middle" fill="#e2e8f0" font-size="13">rpi_ace.cfg: load, unload, dryer</text>
+<rect x="340" y="172" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="198" text-anchor="middle" fill="#e2e8f0" font-size="13">rpi_endless.cfg: endless spool</text>
+<rect x="340" y="222" width="230" height="42" rx="6" fill="#0f172a"/><text x="455" y="248" text-anchor="middle" fill="#e2e8f0" font-size="13">rpi_stats.cfg: counters, tool map</text>
 <rect x="340" y="282" width="230" height="52" rx="6" fill="#1e293b" stroke="#64748b"/><text x="455" y="304" text-anchor="middle" fill="#f1f5f9" font-size="13" font-weight="700">WonderMaker's own macros</text><text x="455" y="322" text-anchor="middle" fill="#94a3b8" font-size="11">T0-T3, _CHANGE_TOOL ... never changed</text>
 <line x1="240" y1="125" x2="320" y2="125" stroke="#94a3b8" stroke-width="2" marker-end="url(#a)" marker-start="url(#a)"/>
 <line x1="240" y1="275" x2="320" y2="275" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#a)"/>

@@ -4055,7 +4055,7 @@ From 58c7d6ca16f5d53209fb5177b320517fb5d2931b Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
 Subject: [PATCH 10/15] feat(zr): Chamber light button beside AIR FILTER (light
- on the screen board, found through config/wm_chamber_light.json)
+ on the screen board, found through config/rpi_chamber_light.json)
 
 ---
  src/components/widgets/zr/ZrToolheadsCard.vue | 57 ++++++++++++++++++-
@@ -4115,11 +4115,11 @@ index 5bebf42..3994a1c 100644
      EventBus.bus.$emit('zr-print-dialog', { filename: null })
    }
  
-+  /** The chamber light is on the screen board. The board's service writes config/wm_chamber_light.json ({"url": ...}) into Moonraker; no file, no button. */
++  /** The chamber light is on the screen board. The board's service writes config/rpi_chamber_light.json ({"url": ...}) into Moonraker; no file, no button. */
 +  async loadLight () {
 +    try {
 +      if (!this.lightUrl) {
-+        const file = await this.serverFilesGet<string>('config/wm_chamber_light.json', { responseType: 'text', transformResponse: [(d: unknown) => d] })
++        const file = await this.serverFilesGet<string>('config/rpi_chamber_light.json', { responseType: 'text', transformResponse: [(d: unknown) => d] })
 +        const url = String(JSON.parse(String(file.data ?? '{}')).url ?? '')
 +        if (!/^https?:\/\/[\w.-]+(?::\d+)?$/.test(url)) return
 +        this.lightUrl = url
@@ -5171,7 +5171,7 @@ index c2fa0d2..2710880 100644
  
    get subTitle () {
 -    return `${this.filename ?? 'Choose a file to print'} · panel 1.5.21`
-+    return `${this.filename ?? 'Choose a file to print'} · panel 1.5.22`
++    return `${this.filename ?? 'Choose a file to print'} · panel 1.6.0`
    }
  
    get visibleFiles () {

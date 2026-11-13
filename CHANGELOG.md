@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.0
+
+- **The config files are now called rpi_ instead of wm_.** `wm_ace_driver.cfg` -> `rpi_ace_driver.cfg`, `wm_ace.cfg` -> `rpi_ace.cfg`, `wm_endless.cfg` -> `rpi_endless.cfg`, `wm_stats.cfg` -> `rpi_stats.cfg`, and the install record `wm-ultra-install.conf` -> `rpi-ultra-install.conf`. The macros inside keep their names (`ACE_WM_ASSIST`, `WM_SET_TOOL_MAP`, ...), so slicer start G-code and your own macros are not affected.
+- **Existing installs are renamed by `./installer.sh --update`** (also by `--repair`, `--uninstall`). It saves a backup first (`~/acepro-backup/wm-<time>-rename`, undo with `./installer.sh --undo`), renames the files, changes the `[include ...]` lines in `printer.cfg` and keeps your tuned values. `--check` and `--doctor` tell you when the old names are still there; `--dry-run` changes nothing. Restart Klipper afterwards.
+- **Fluidd panel:** the Chamber light button now reads `config/rpi_chamber_light.json` (was `wm_chamber_light.json`). New Fluidd zip and checksum. Update the screen board (WM_Ultra_Vanilla_Klipper 2.6.0) as well, or the button stays hidden until the board uploads the new file name.
+
 ## 1.5.22
 
 - **Feed assist on/off for every tool, also during a pause.** New macro `ACE_WM_ASSIST T=0-3 STATE=on|off|toggle`. The Feed assist button in the Fluidd tool window (the Toolheads card, edit a tool) now uses it. A choice made by hand stays until the next print starts or ends, also while the print is paused. Switching one tool on switches the previously active tool off (the ACE has one feed assist at a time). It refuses while the ACE is loading or unloading. Same button on the KlipperScreen tool pages (WM_Ultra_Vanilla_Klipper 2.4.0). New Fluidd zip, patch and checksum.

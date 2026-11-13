@@ -61,7 +61,7 @@ CONFIG_DIR="${ACE_CONFIG_DIR:-}"
 BACKUP_ROOT="$INSTALL_HOME/acepro-backup"
 MOONRAKER_URL="${ACE_MOONRAKER_URL:-http://127.0.0.1:7125}"
 KLIPPER_SERVICE="klipper"
-CONF_NAME="wm-ultra-install.conf"
+CONF_NAME="rpi-ultra-install.conf"
 
 # Answers
 HAVE_ACE=1                                  # 0 = no ACE Pro: panel (and optional endless spool) only
@@ -75,8 +75,8 @@ STAGE=""
 BACKUP_DIR=""
 declare -a WARNINGS=()
 
-CFG_FILES=(wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm_stats.cfg)
-INCLUDE_LINES=("[include wm_ace_driver.cfg]" "[include wm_ace.cfg]" "[include wm_endless.cfg]" "[include wm_stats.cfg]")
+CFG_FILES=(rpi_ace_driver.cfg rpi_ace.cfg rpi_endless.cfg rpi_stats.cfg)
+INCLUDE_LINES=("[include rpi_ace_driver.cfg]" "[include rpi_ace.cfg]" "[include rpi_endless.cfg]" "[include rpi_stats.cfg]")
 # Values the installer keeps when you update (file:key). "var" keys are `variable_<key>:` lines, "opt" keys are `<key>:` lines.
 KEEP_VARS_ACE=(max_total_mm hub_to_head_mm tail_mm fast_speed slow_speed retract_speed tick_s fast_timeout_s slow_timeout_s auto)
 KEEP_VARS_ENDLESS=(hop prime_mm prime_speed)
@@ -167,6 +167,46 @@ backup_path() {
     else
         echo "NEW $p" >> "$BACKUP_DIR/manifest.txt"
     fi
+}
+
+# ============================================================================
+# Names: the config files used to be called wm_*.cfg (and wm-ultra-install.conf). Since 1.6.0 they are rpi_*.cfg
+# (rpi-ultra-install.conf). An install with the old names is renamed once, with a backup (undo: ./installer.sh --undo),
+# and the [include ...] lines in printer.cfg are changed to the new names. The macros inside keep their names.
+# ============================================================================
+RENAME_MAP=(wm_ace_driver.cfg:rpi_ace_driver.cfg wm_ace.cfg:rpi_ace.cfg wm_endless.cfg:rpi_endless.cfg wm_stats.cfg:rpi_stats.cfg wm-ultra-install.conf:rpi-ultra-install.conf)
+old_names_present() {
+    local p
+    for p in "${RENAME_MAP[@]}"; do [ -e "$CONFIG_DIR/${p%%:*}" ] && return 0; done
+    return 1
+}
+migrate_old_names() {
+    old_names_present || return 0
+    if [ "$DRY" = 1 ]; then print_info "Dry run: the config files with the old wm_ names would be renamed to rpi_ (with a backup)."; return 0; fi
+    local keep="$BACKUP_DIR" p old new f n=0
+    BACKUP_DIR="$BACKUP_ROOT/wm-$(timestamp)-rename"
+    mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
+    echo "$VERSION" > "$BACKUP_DIR/installer-version.txt"
+    for p in "${RENAME_MAP[@]}"; do
+        old="${p%%:*}"; new="${p##*:}"
+        [ -e "$CONFIG_DIR/$old" ] || continue
+        backup_path "$CONFIG_DIR/$old"
+        if [ -e "$CONFIG_DIR/$new" ]; then
+            rm -f "$CONFIG_DIR/$old"; print_warning "$old and $new both exist: kept $new, the old one is saved in $BACKUP_DIR"
+        else
+            backup_path "$CONFIG_DIR/$new"
+            mv "$CONFIG_DIR/$old" "$CONFIG_DIR/$new" && print_success "Renamed $old to $new"
+        fi
+        n=$((n + 1))
+    done
+    for f in "$CONFIG_DIR"/*.cfg; do
+        [ -f "$f" ] && grep -qE '^[[:space:]]*\[include[[:space:]]+wm_(ace_driver|ace|endless|stats)\.cfg\]' "$f" || continue
+        backup_path "$f"
+        sed -i -E 's/^([[:space:]]*\[include[[:space:]]+)wm_(ace_driver|ace|endless|stats)\.cfg([[:space:]]*\])/\1rpi_\2.cfg\3/' "$f"
+        print_success "$(basename "$f"): include lines now use the rpi_ names"
+    done
+    print_info "$n file(s) renamed. Backup: $BACKUP_DIR   (undo: ./installer.sh --undo). Klipper reads the new names at its next restart."
+    BACKUP_DIR="$keep"
 }
 
 # ============================================================================
@@ -270,14 +310,14 @@ stage_files() {
     STAGE="$(mktemp -d)"
     for f in "${CFG_FILES[@]}"; do cp "$SCRIPT_DIR/config/$f" "$STAGE/$f"; done
     if [ "$UPDATING" = 1 ]; then
-        for k in "${KEEP_VARS_ACE[@]}";     do keep_value "$STAGE/wm_ace.cfg" "$CONFIG_DIR/wm_ace.cfg" "variable_" "$k"; done
-        for k in "${KEEP_VARS_ENDLESS[@]}"; do keep_value "$STAGE/wm_endless.cfg" "$CONFIG_DIR/wm_endless.cfg" "variable_" "$k"; done
-        for k in "${KEEP_OPTS_DRIVER[@]}";  do keep_value "$STAGE/wm_ace_driver.cfg" "$CONFIG_DIR/wm_ace_driver.cfg" "" "$k"; done
+        for k in "${KEEP_VARS_ACE[@]}";     do keep_value "$STAGE/rpi_ace.cfg" "$CONFIG_DIR/rpi_ace.cfg" "variable_" "$k"; done
+        for k in "${KEEP_VARS_ENDLESS[@]}"; do keep_value "$STAGE/rpi_endless.cfg" "$CONFIG_DIR/rpi_endless.cfg" "variable_" "$k"; done
+        for k in "${KEEP_OPTS_DRIVER[@]}";  do keep_value "$STAGE/rpi_ace_driver.cfg" "$CONFIG_DIR/rpi_ace_driver.cfg" "" "$k"; done
     else
-        sed -i -E "s/^(variable_auto:[[:space:]]*)[0-9]+/\1${WANT_AUTO}/" "$STAGE/wm_ace.cfg"
+        sed -i -E "s/^(variable_auto:[[:space:]]*)[0-9]+/\1${WANT_AUTO}/" "$STAGE/rpi_ace.cfg"
     fi
-    if [ "$WANT_ENDLESS" = 0 ]; then rm -f "$STAGE/wm_endless.cfg"; fi
-    if [ "$HAVE_ACE" = 0 ]; then rm -f "$STAGE/wm_ace.cfg" "$STAGE/wm_ace_driver.cfg"; fi
+    if [ "$WANT_ENDLESS" = 0 ]; then rm -f "$STAGE/rpi_endless.cfg"; fi
+    if [ "$HAVE_ACE" = 0 ]; then rm -f "$STAGE/rpi_ace.cfg" "$STAGE/rpi_ace_driver.cfg"; fi
 }
 
 # 0 = this config file is part of the install (staged now, or already in the config folder)
@@ -591,10 +631,11 @@ do_install() {
     print_header "1 of 4 · Looking at your printer"
     [ "$DRY" = 1 ] || guard_not_printing
     find_dirs
+    migrate_old_names
     check_is_wondermaker
     fix_factory_board
     check_disk_space
-    { [ -f "$CONFIG_DIR/wm_ace.cfg" ] || [ -f "$(CONF_FILE)" ]; } && existing=1
+    { [ -f "$CONFIG_DIR/rpi_ace.cfg" ] || [ -f "$(CONF_FILE)" ] || old_names_present; } && existing=1
 
     if [ "$MODE" = "update" ] && [ "$existing" = 0 ]; then
         die_with_fix "there is no ACE install to update in $CONFIG_DIR" "run   ./installer.sh   to install first."
@@ -606,7 +647,7 @@ do_install() {
             HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
             WANT_AUTO="$(kv_get "$(CONF_FILE)" AUTO || echo 1)"; WANT_AUTO="${WANT_AUTO:-1}"
             WANT_ENDLESS="$(kv_get "$(CONF_FILE)" ENDLESS || echo 1)"; WANT_ENDLESS="${WANT_ENDLESS:-1}"
-            [ -f "$CONFIG_DIR/wm_endless.cfg" ] || WANT_ENDLESS=0
+            [ -f "$CONFIG_DIR/rpi_endless.cfg" ] || WANT_ENDLESS=0
         fi
     fi
 
@@ -697,7 +738,7 @@ ensure_ace_hooks() {   # three lines in WonderMaker's extruder0..3.cfg (insert_g
     echo "$out" | grep -E ' (NOANCHOR|NOFILE)$' | while read -r l; do print_warning "${l% *}: ${l##* } - the ACE load hooks were not added there (the file differs from WonderMaker's). ACE loading still feeds the filament, but without the grab and feed-assist steps."; done
     return 0
 }
-remove_ace_hooks() {   # uninstall: wm_ace.cfg goes away, so the lines that call its macros must go too
+remove_ace_hooks() {   # uninstall: rpi_ace.cfg goes away, so the lines that call its macros must go too
     [ -f "$(ace_hooks_py)" ] || return 0
     local n any=0
     for n in 0 1 2 3; do grep -qE '^\s+_WM_ACE_(HEAD|GRAB|HEAD_DONE) T=' "$CONFIG_DIR/extruder$n.cfg" 2>/dev/null && { backup_path "$CONFIG_DIR/extruder$n.cfg"; any=1; }; done
@@ -710,7 +751,7 @@ remove_include_lines() {
     local pc="$CONFIG_DIR/printer.cfg" l
     [ -f "$pc" ] || return 0
     backup_path "$pc"
-    for l in wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm_stats.cfg; do
+    for l in rpi_ace_driver.cfg rpi_ace.cfg rpi_endless.cfg rpi_stats.cfg; do
         sed -i -E "/^[[:space:]]*\[include[[:space:]]+${l//./\\.}\]/d" "$pc"
     done
     print_success "Removed the ACE include lines from printer.cfg"
@@ -728,12 +769,13 @@ do_uninstall() {
     local f x
     guard_not_printing
     find_dirs
+    migrate_old_names
     x="$KLIPPER_DIR/klippy/extras"
     print_header "Uninstall ACE Pro (WonderMaker Ultra)"
     echo "This removes what the installer added:"
     for f in "${CFG_FILES[@]}" "$CONF_NAME"; do [ -e "$CONFIG_DIR/$f" ] && echo "  FILE   $CONFIG_DIR/$f"; done
     for f in ace temperature_ace.py virtual_pins.py; do is_symlink "$x/$f" && echo "  LINK   $x/$f"; done
-    grep -qE '^\s*\[include\s+wm_(ace_driver|ace|endless|stats)\.cfg\]' "$CONFIG_DIR/printer.cfg" 2>/dev/null && echo "  EDIT   printer.cfg (our include lines)"
+    grep -qE '^\s*\[include\s+rpi_(ace_driver|ace|endless|stats)\.cfg\]' "$CONFIG_DIR/printer.cfg" 2>/dev/null && echo "  EDIT   printer.cfg (our include lines)"
     local fl="$INSTALL_HOME/fluidd" restore_fl=0
     if has_panel "$fl" && [ -d "$(ORIGINAL_FLUIDD)" ]; then restore_fl=1; echo "  FLUIDD $fl (the original Fluidd comes back, your config.json is kept)"; fi
     echo
@@ -798,6 +840,7 @@ do_undo() {
 do_check() {
     local bad=0 f x state py have
     find_dirs
+    old_names_present && { print_error "the config files still have the old wm_ names (wm_ace.cfg ...)"; echo "        run ./installer.sh --update: it renames them to rpi_ (backup first) and fixes the include lines"; bad=1; }
     echo -e "${BLUE}WonderMaker Ultra panel / ACE Pro check${NC}   installer v$VERSION"
     progress_bar 0 4 "Check 1 of 4: installed version and config files"
     have="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; have="${have:-1}"
@@ -805,7 +848,7 @@ do_check() {
     [ -n "$inst" ] && [ "$inst" != "$VERSION" ] && print_warning "Installed with v$inst, this download is v$VERSION. Run ./installer.sh --update."
     check_is_wondermaker
     if [ "$have" = 1 ]; then
-        for f in wm_ace_driver.cfg wm_ace.cfg; do
+        for f in rpi_ace_driver.cfg rpi_ace.cfg; do
             [ -f "$CONFIG_DIR/$f" ] && print_success "$f present" || { print_error "$f is missing"; bad=1; }
             include_present "${f//./\\.}" && print_success "printer.cfg includes $f" || { print_error "printer.cfg does not include $f"; bad=1; }
         done
@@ -815,24 +858,24 @@ do_check() {
     else
         print_info "Installed without an ACE Pro (panel only). ACE checks skipped."
     fi
-    if [ -f "$CONFIG_DIR/wm_endless.cfg" ]; then
-        print_success "wm_endless.cfg present (experimental)"
-        include_present "wm_endless\\.cfg" && print_success "printer.cfg includes wm_endless.cfg" || { print_error "printer.cfg does not include wm_endless.cfg"; bad=1; }
+    if [ -f "$CONFIG_DIR/rpi_endless.cfg" ]; then
+        print_success "rpi_endless.cfg present (experimental)"
+        include_present "rpi_endless\\.cfg" && print_success "printer.cfg includes rpi_endless.cfg" || { print_error "printer.cfg does not include rpi_endless.cfg"; bad=1; }
     else
-        print_info "wm_endless.cfg not installed (endless spool offer stays hidden)"
+        print_info "rpi_endless.cfg not installed (endless spool offer stays hidden)"
     fi
-    if [ -f "$CONFIG_DIR/wm_stats.cfg" ]; then
-        print_success "wm_stats.cfg present (counters, tool map)"
-        include_present "wm_stats\\.cfg" && print_success "printer.cfg includes wm_stats.cfg" || { print_error "printer.cfg does not include wm_stats.cfg"; bad=1; }
+    if [ -f "$CONFIG_DIR/rpi_stats.cfg" ]; then
+        print_success "rpi_stats.cfg present (counters, tool map)"
+        include_present "rpi_stats\\.cfg" && print_success "printer.cfg includes rpi_stats.cfg" || { print_error "printer.cfg does not include rpi_stats.cfg"; bad=1; }
     else
-        print_info "wm_stats.cfg not installed yet (run ./installer.sh --update)"
+        print_info "rpi_stats.cfg not installed yet (run ./installer.sh --update)"
     fi
     x="$KLIPPER_DIR/klippy/extras"
     progress_bar 1 4 "Check 2 of 4: ACE driver"
     if [ "$have" = 1 ]; then
-        grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/wm_ace_driver.cfg" 2>/dev/null \
+        grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/rpi_ace_driver.cfg" 2>/dev/null \
             && print_success "driver will not create T0..T7 (WonderMaker owns them)" \
-            || { print_error "register_tool_commands: False is missing in wm_ace_driver.cfg: the driver would replace WonderMaker's T0..T3"; bad=1; }
+            || { print_error "register_tool_commands: False is missing in rpi_ace_driver.cfg: the driver would replace WonderMaker's T0..T3"; bad=1; }
         for f in ace temperature_ace.py virtual_pins.py; do
             if [ -e "$x/$f" ]; then print_success "$f in Klipper's extras folder"
             elif is_symlink "$x/$f"; then print_error "$x/$f is a broken link (was the repository moved?)"; bad=1
@@ -861,10 +904,11 @@ do_check() {
 do_repair() {
     guard_not_printing
     find_dirs
+    migrate_old_names
     check_is_wondermaker
     BACKUP_DIR="$BACKUP_ROOT/wm-$(timestamp)-repair"
     mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
-    [ -f "$CONFIG_DIR/wm_endless.cfg" ] || WANT_ENDLESS=0
+    [ -f "$CONFIG_DIR/rpi_endless.cfg" ] || WANT_ENDLESS=0
     HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
     progress_bar 0 2 "Step 1 of 2: driver links"
     [ "$HAVE_ACE" = 1 ] && link_driver
@@ -892,10 +936,10 @@ offer_fix() {  # description, command...
 doc_relink() {   # restore driver links and include lines (same as --repair, saved first)
     BACKUP_DIR="$BACKUP_ROOT/wm-$(timestamp)-doctor"
     mkdir -p "$BACKUP_DIR" && : > "$BACKUP_DIR/manifest.txt"
-    [ -f "$CONFIG_DIR/wm_endless.cfg" ] || WANT_ENDLESS=0
+    [ -f "$CONFIG_DIR/rpi_endless.cfg" ] || WANT_ENDLESS=0
     local f
     if [ "$HAVE_ACE" = 1 ]; then   # put back a missing file only; a file that is there (maybe tuned) is never overwritten
-        for f in wm_ace_driver.cfg wm_ace.cfg; do
+        for f in rpi_ace_driver.cfg rpi_ace.cfg; do
             [ -f "$CONFIG_DIR/$f" ] || { cp "$SCRIPT_DIR/config/$f" "$CONFIG_DIR/$f" && echo "NEW $CONFIG_DIR/$f" >> "$BACKUP_DIR/manifest.txt" && print_success "Restored $f"; }
         done
     fi
@@ -907,6 +951,7 @@ do_doctor() {
     print_header "Doctor (asks before changing anything)"
     progress_bar 0 5 "Doctor 1 of 5: config folder and disk space"
     find_dirs
+    old_names_present && doc_bad "the config files still have the old wm_ names (wm_ace.cfg ...)" "Run ./installer.sh --update: it renames them to rpi_ (backup first) and fixes the include lines."
     HAVE_ACE="$(kv_get "$(CONF_FILE)" ACE || echo 1)"; HAVE_ACE="${HAVE_ACE:-1}"
     local x f broken=0 free inst
     [ -f "$CONFIG_DIR/printer.cfg" ] && doc_ok "printer.cfg found" || doc_bad "printer.cfg not found in $CONFIG_DIR" "run the installer on the machine that runs Klipper, or pass --config-dir"
@@ -920,7 +965,7 @@ do_doctor() {
     x="$KLIPPER_DIR/klippy/extras"
     progress_bar 2 5 "Doctor 3 of 5: driver links and config files"
     if [ "$HAVE_ACE" = 1 ] && [ -n "$inst" ]; then
-        for f in wm_ace_driver.cfg wm_ace.cfg; do
+        for f in rpi_ace_driver.cfg rpi_ace.cfg; do
             [ -f "$CONFIG_DIR/$f" ] && include_present "${f//./\\.}" || broken=1
         done
         for f in ace temperature_ace.py virtual_pins.py; do [ -e "$x/$f" ] || broken=1; done
@@ -929,7 +974,7 @@ do_doctor() {
         fi
         if [ "$broken" = 1 ]; then doc_bad "driver links, config files or include lines are missing" "this is what --repair restores"; offer_fix "restore the links and include lines (saved first)" doc_relink
         else doc_ok "driver links, config files and include lines are in place"; fi
-        grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/wm_ace_driver.cfg" 2>/dev/null && doc_ok "driver will not replace WonderMaker's T0..T3" || doc_bad "register_tool_commands: False is missing in wm_ace_driver.cfg" "the driver would replace WonderMaker's T0..T3; re-run ./installer.sh --update"
+        grep -qE '^register_tool_commands:[[:space:]]*False' "$CONFIG_DIR/rpi_ace_driver.cfg" 2>/dev/null && doc_ok "driver will not replace WonderMaker's T0..T3" || doc_bad "register_tool_commands: False is missing in rpi_ace_driver.cfg" "the driver would replace WonderMaker's T0..T3; re-run ./installer.sh --update"
     fi
     progress_bar 3 5 "Doctor 4 of 5: Fluidd panel"
     [ -d "$INSTALL_HOME/fluidd/assets" ] && { grep -rlq "ACE feeder" "$INSTALL_HOME/fluidd/assets" 2>/dev/null && doc_ok "Fluidd has the Toolheads panel" || print_info "Fluidd is not the panel build (./installer.sh --update, and say yes to the panel)"; }
@@ -1120,7 +1165,7 @@ menu_update() {
             1) menu_sub --check-updates ;;
             2) menu_sub --get-latest
                local cd_="${CONFIG_DIR:-$INSTALL_HOME/printer_data/config}"
-               if [ ! -f "$cd_/$CONF_NAME" ] && [ ! -f "$cd_/wm_ace.cfg" ]; then   # nothing installed yet: the installer files are current, there is nothing to update
+               if [ ! -f "$cd_/$CONF_NAME" ] && [ ! -f "$cd_/rpi_ace.cfg" ]; then   # nothing installed yet: the installer files are current, there is nothing to update
                    echo; print_info "Nothing is installed on this machine yet, so there is nothing to update. The installer files above are the newest. Go back and choose 1 (Install)."
                    [ -t 0 ] && read -r -p "  Press Enter to go back to the menu " _ || true
                else menu_sub --update; fi

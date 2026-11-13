@@ -16,7 +16,7 @@ file reaches the printer.
 ## Needs
 
 - OrcaSlicer 2.5 or newer (plugin system).
-- `wm_stats.cfg` on the printer (installed by `./installer.sh`; it holds the `WM_SET_TOOL_MAP` macro).
+- `rpi_stats.cfg` on the printer (installed by `./installer.sh`; it holds the `WM_SET_TOOL_MAP` macro).
 - The printer preset's host set to your printer (Printer settings → Connection), e.g. `192.168.0.50:7125`.
 
 ## Install (once)
