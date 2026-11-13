@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.22
+
+- **Feed assist on/off for every tool, also during a pause.** New macro `ACE_WM_ASSIST T=0-3 STATE=on|off|toggle`. The Feed assist button in the Fluidd tool window (the Toolheads card, edit a tool) now uses it. A choice made by hand stays until the next print starts or ends, also while the print is paused. Switching one tool on switches the previously active tool off (the ACE has one feed assist at a time). It refuses while the ACE is loading or unloading. Same button on the KlipperScreen tool pages (WM_Ultra_Vanilla_Klipper 2.4.0). New Fluidd zip, patch and checksum.
+
 ## 1.5.21
 
 - **Fluidd: the Choose toolheads window reads OrcaSlicer files correctly.** An empty `referenced_tools` list no longer means "no filament is used" (the window said the file had no colour information), and the material list that Moonraker gives as text (`["PLA", "PLA"]`) is read as a list (every row showed a false "Check"). Checked in a browser against a mock printer: List/Map, Saved mappings, Auto-match, Dry spools first, Print as sliced, Cancel and the last choice per file. The map view says "toolhead" instead of "spool". New Fluidd zip, patch and checksum.

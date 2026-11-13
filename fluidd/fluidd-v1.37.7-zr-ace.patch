@@ -1,7 +1,7 @@
-From 7692bf8814906d464b155a8a6fa5712a8e588535 Mon Sep 17 00:00:00 2001
+From 790b9b35ebe0b0e0acc96a5eca4dde0349dbf4d5 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/14] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/15] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1852,10 +1852,10 @@ index a01c43f..2ede1df 100644
 2.43.0
 
 
-From c8883d83b6a273abb21d3a1bb0dff76b6bb17447 Mon Sep 17 00:00:00 2001
+From 18272b7ce3e24ddec543f4f8541d2698da8b55d7 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/14] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/15] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1927,10 +1927,10 @@ index cc15c3d..4693634 100644
 2.43.0
 
 
-From b7453a5ea84cc5319fafe179915105bd3c2eac3f Mon Sep 17 00:00:00 2001
+From d8cc138c6872944589e1406ab2834faca424f925 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/14] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/15] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2054,10 +2054,10 @@ index 4693634..2b78324 100644
 2.43.0
 
 
-From d1ac7453c3b89d2947cb98fa5f6d2680c0e85231 Mon Sep 17 00:00:00 2001
+From 06f1e868d0adcb3a9ecb9a937940c5bcbc6b41ea Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/14] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/15] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2126,10 +2126,10 @@ index 2b78324..e1f06c0 100644
 2.43.0
 
 
-From fd74dea572fbe2e5822cfc86c986ea79c3e88ec9 Mon Sep 17 00:00:00 2001
+From 68c2948e97f2c50168007e2078f151e7b57a5ff7 Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/14] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/15] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2180,10 +2180,10 @@ index e1f06c0..99c90df 100644
 2.43.0
 
 
-From 7c0e195c0175fe87e48920160b781dcdb764d5eb Mon Sep 17 00:00:00 2001
+From 8770a15565ae9fca7399cf7631b08560147b8bff Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/14] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/15] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -3081,10 +3081,10 @@ index 99c90df..d18abc1 100644
 2.43.0
 
 
-From cfcb7cb03b83c12a800d99e48e83f3103ca86a3e Mon Sep 17 00:00:00 2001
+From 43def4d8b87ccb6b1303111c19c0b1cfef40c3d9 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/14] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/15] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3339,10 +3339,10 @@ index d18abc1..43ff04b 100644
 2.43.0
 
 
-From 1f1e3863c704ccbd20738fc1bb73e1e4e45e2753 Mon Sep 17 00:00:00 2001
+From 6b7a37998e9c7377d954512597915f9bd216c0de Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/14] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/15] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3677,10 +3677,10 @@ index 7e3fcf6..fe9bf2d 100644
 2.43.0
 
 
-From 8f2b5275dc4258e3f7c575ece8df7688533bd632 Mon Sep 17 00:00:00 2001
+From 84894a17af9e9822af78dbcb2e2cd0efed8501ac Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/14] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/15] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4051,10 +4051,10 @@ index 43ff04b..8692f6f 100644
 2.43.0
 
 
-From 0add8f80a956d0041e25da30e43b1c4ffae064aa Mon Sep 17 00:00:00 2001
+From 58c7d6ca16f5d53209fb5177b320517fb5d2931b Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/14] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/15] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/wm_chamber_light.json)
 
 ---
@@ -4162,10 +4162,10 @@ index 5bebf42..3994a1c 100644
 2.43.0
 
 
-From 2020bb639784ee004f8a7e4ba03256b80e2c8478 Mon Sep 17 00:00:00 2001
+From 61b69e651838fae50e2709ceacf9259f1b77f946 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/14] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/15] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4203,10 +4203,10 @@ index fe9bf2d..2486f37 100644
 2.43.0
 
 
-From a826a8c33d1ca10470e7a689a14566061b9c273a Mon Sep 17 00:00:00 2001
+From 92ea898dd07f019e60bbc28d6f860cc6b72e8578 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:09:32 -0500
-Subject: [PATCH 12/14] feat(zr): Choose toolheads window gets List/Map, saved
+Subject: [PATCH 12/15] feat(zr): Choose toolheads window gets List/Map, saved
  mappings, auto-match, dry first and print as sliced
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4948,10 +4948,10 @@ index 0000000..6022c94
 2.43.0
 
 
-From 351aa07acca4a034054258c15302d09c6f940061 Mon Sep 17 00:00:00 2001
+From 97f8e0e0475f7e8c1e32a3b26b0d44302b5f3aa9 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:22:23 -0500
-Subject: [PATCH 13/14] fix(zr): Choose toolheads window opens on every Print
+Subject: [PATCH 13/15] fix(zr): Choose toolheads window opens on every Print
  even when file metadata is not loaded yet
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5029,10 +5029,10 @@ index 2486f37..e21d215 100644
 2.43.0
 
 
-From 5f2d8f949002b30c8be855a00da8ce053bfa238f Mon Sep 17 00:00:00 2001
+From 88744bf979e4822f7c572a27f8016cf5d64e756f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:42:06 -0500
-Subject: [PATCH 14/14] fix(zr): read OrcaSlicer metadata (empty
+Subject: [PATCH 14/15] fix(zr): read OrcaSlicer metadata (empty
  referenced_tools, JSON-text material list) in the Choose toolheads window
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5146,6 +5146,49 @@ index 24c2865..ebe2fce 100644
      } else if (grams.length > tool && !Number.isNaN(grams[tool])) {
        used = grams[tool] > 0
      } else if (mm.length > tool && !Number.isNaN(mm[tool])) {
+-- 
+2.43.0
+
+
+From c2aaffe73117933316d15db9bfe7452cd6ca3215 Mon Sep 17 00:00:00 2001
+From: ducati1198 <noreply@github.com>
+Date: Thu, 12 Nov 2026 21:16:24 -0500
+Subject: [PATCH 15/15] feat(zr): Feed assist button in the tool window uses
+ ACE_WM_ASSIST (works during a pause)
+
+Signed-off-by: ducati1198 <noreply@github.com>
+---
+ src/components/widgets/zr/ZrPrintDialog.vue | 2 +-
+ src/components/widgets/zr/ZrToolDialog.vue  | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
+index c2fa0d2..2710880 100644
+--- a/src/components/widgets/zr/ZrPrintDialog.vue
++++ b/src/components/widgets/zr/ZrPrintDialog.vue
+@@ -393,7 +393,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
+   }
+ 
+   get subTitle () {
+-    return `${this.filename ?? 'Choose a file to print'} · panel 1.5.21`
++    return `${this.filename ?? 'Choose a file to print'} · panel 1.5.22`
+   }
+ 
+   get visibleFiles () {
+diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
+index 00b948f..7111b68 100644
+--- a/src/components/widgets/zr/ZrToolDialog.vue
++++ b/src/components/widgets/zr/ZrToolDialog.vue
+@@ -132,7 +132,8 @@
+             outlined
+             :color="feedAssistOn ? 'orange' : undefined"
+             :disabled="aceBlocked"
+-            @click="run(`ACE_${feedAssistOn ? 'DISABLE' : 'ENABLE'}_FEED_ASSIST T=${index}`, feedAssistOn ? 'Feed assist off' : 'Feed assist on')"
++            title="Stays as you set it until the next print starts or ends, also while the print is paused"
++            @click="run(`ACE_WM_ASSIST T=${index} STATE=${feedAssistOn ? 'off' : 'on'}`, feedAssistOn ? 'Feed assist off' : 'Feed assist on')"
+           >
+             {{ feedAssistOn ? 'Feed assist off' : 'Feed assist on' }}
+           </app-btn>
 -- 
 2.43.0
 
