@@ -9,12 +9,13 @@ For tool n, inside [filament_switch_sensor filament<n>] -> insert_gcode:
   first line of the block      _WM_ACE_HEAD T=n
   just before filament_insert  _WM_ACE_GRAB T=n
   just after PARK_CURRENT_TOOL _WM_ACE_HEAD_DONE T=n
+Also guards runout_gcode so it only pauses while printing (an unload while idle must not pause).
 A file whose anchors are not found is left alone.
 """
 import os, re, sys
 
 
-def process(text, n):
+def _hooks(text, n):
     """returns (new_text, status) status: OK (nothing to do) | ADDED | NOANCHOR"""
     lines = text.split("\n")
     sec = next((i for i, l in enumerate(lines) if re.match(r"^\[filament_switch_sensor\s+filament%d\]\s*$" % n, l)), None)
@@ -41,6 +42,32 @@ def process(text, n):
     if not has(head):
         out.insert(first, "    " + head); changed = True
     return "\n".join(out), ("ADDED" if changed else "OK")
+
+
+def guard(text, n):
+    """runout_gcode of filament<n>: only pause when a print runs (upstream Klipper fires runout when a filament is pulled out while idle,
+    e.g. by an unload, and the pause then fails). returns (new_text, changed)"""
+    lines = text.split("\n")
+    sec = next((i for i, l in enumerate(lines) if re.match(r"^\[filament_switch_sensor\s+filament%d\]\s*$" % n, l)), None)
+    if sec is None: return text, False
+    end = next((i for i in range(sec + 1, len(lines)) if lines[i].startswith("[")), len(lines))
+    ro = next((i for i in range(sec, end) if re.match(r"^runout_gcode\s*:", lines[i])), None)
+    if ro is None: return text, False
+    b = ro + 1
+    while b < end and (lines[b].startswith((" ", "\t")) or not lines[b].strip()): b += 1
+    while b > ro + 1 and not lines[b - 1].strip(): b -= 1
+    body = lines[ro + 1:b]
+    if not any(l.strip() for l in body) or any("print_stats" in l for l in body): return text, False
+    new = ['    {% if printer.print_stats.state == "printing" %}'] + ["    " + l for l in body] + ["    {% endif %}"]
+    return "\n".join(lines[:ro + 1] + new + lines[b:]), True
+
+
+def process(text, n):
+    """returns (new_text, status) status: OK (nothing to do) | ADDED | NOANCHOR"""
+    g, changed = guard(text, n)
+    new, st = _hooks(g, n)
+    if st == "NOANCHOR": return text, st
+    return new, ("ADDED" if changed else st)
 
 
 def strip(text, n):

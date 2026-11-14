@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.1
+
+Automatic load and unload work again on upstream Klipper (needs WM_Ultra_Vanilla_Klipper 2.7.1 for the LED part).
+
+- **`ACE_WM_LOAD`** picks up the tool first (`T<n>`), so WonderMaker switches on that tool's filament sensor and its own load runs when the filament arrives. It homes all axes first when they are not homed (and clears the tool Z offset without moving).
+- **`ACE_WM_UNLOAD`** homes all axes first when they are not homed, the same way, so the tool change and the park no longer fail with "Must home axis first".
+- **`_WM_ACE_GRAB`** heats the tool to 220 C before the first push when it is cold. Upstream Klipper refuses cold extrusion (WonderMaker's Klipper did not), which stopped the load with "Extrude below minimum temp".
+- **Runout guard in `extruder0..3.cfg`** (added by `scripts/ace_hooks.py` with the other hooks): the runout macro only pauses while a print runs. An unload while idle no longer shows a failed pause.
+
 ## 1.7.0
 
 - **Fluidd panel is now built on Fluidd 1.38.0** (was 1.37.7). New in Fluidd: web-based firmware updates, G-code preview coloured by feature, speed or fan, Moonraker extensions API, TMC5262 support, better websocket reconnection, no runaway file ETA during the start macro, the file list keeps your selection when it refreshes, and more (see the Fluidd 1.38.0 release notes). All the Toolheads card, ACE and Choose toolheads parts are carried over; the patch applies to v1.38.0 with one import line merged. New files: `fluidd/fluidd-v1.38.0-zr-ace.zip`, `.patch`, `.zip.sha256`.
