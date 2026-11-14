@@ -64,5 +64,29 @@ check("warning when two filaments use one toolhead", "also used by filament 2" i
 check("warning when the chosen toolhead shows empty", any("shows empty" in x for x in m.warnings_for(fil, heads, {0: 2, 1: 1}, "wm").get(0, [])))
 check("no warning for a good match", m.warnings_for(fil, heads, {0: 0, 1: 1}, "wm") == {})
 
+# --- plugin 0.7: printer address per preset, ZR Tools values, forced printer kind ---
+import tempfile
+check("kind: forcing ace on a printer that has both", m.detect_kind(["ace", "filament_switch_sensor filament0"], "ace") == "ace")
+check("kind: forcing wm without sensors is ignored", m.detect_kind(["ace"], "wm") == "ace")
+check("address: quote marks removed", m.moonraker_base('"10.11.88.77"') == "http://10.11.88.77")
+check("address: port and path kept, slash removed", m.moonraker_base("http://k1:7125/") == "http://k1:7125")
+check("address: plugin setting wins, then the one typed in the panel, then Orca's print host",
+      m.pick_host("a", "b", "c") == "a" and m.pick_host("", "b", "c") == "b" and m.pick_host("", "", "c") == "c")
+tmp = os.path.join(tempfile.mkdtemp(), "s.json")
+m.STATE["saved"] = None
+m.save_host('"ZR Ultra-S"', "10.11.88.77", tmp); m.save_host("K1", "10.11.88.30", tmp)
+m.STATE["saved"] = None
+check("address saved per printer preset and read back", m.saved_host("ZR Ultra-S", tmp) == "10.11.88.77" and m.saved_host("K1", tmp) == "10.11.88.30")
+m.save_host("K1", "", tmp)
+check("empty address forgets it", m.saved_host("K1", tmp) == "")
+zr_slots = m.parse_tmt1_slots("[slot]\ncolor0=0\nmaterial0=2\ncolor1=4\nmaterial1=19\ncolor2=7\nmaterial2=0\ncolor3=14\nmaterial3=0\n")
+zr = m.heads_from_data(zr_slots, {0: True, 1: True, 2: False, 3: None}, None, {"zr_t0_mat": 11, "zr_t0_temp": 250})
+check("ZR Tools material (zr_tN_mat) wins over tmt1.ini", zr[0]["material"] == "PA / Nylon" and zr[0]["temp"] == 250)
+check("tmt1.ini material beyond the first 16 is known", zr[1]["material"] == "PA")
+check("tmt1.ini colour is kept", zr[0]["colour"] == "#FFFFFF" and zr[3]["colour"] == "#FF1C2E")
+only_vars = m.heads_from_data(m.parse_tmt1_slots(""), {}, None, {"zr_t2_color": 16711680, "zr_t2_mat": 6})
+check("colour and material from saved variables when tmt1.ini has none", only_vars[2]["colour"] == "#FF0000" and only_vars[2]["material"] == "PETG")
+check("Empty on the ZR Tools screen means not ready", not m.heads_from_data(zr_slots, {}, None, {"zr_t3_mat": 0})[3]["ready"])
+
 print(f"\npassed: {PASS}  failed: {FAIL}")
 sys.exit(1 if FAIL else 0)

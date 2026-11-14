@@ -48,6 +48,12 @@ Print tool T1 is then printed with toolhead 4. Toolhead numbers in the macro sta
 
 ## Good to know
 
+- **File name:** keep the file named exactly `spool_toolhead_mapper.py`. Orca builds the plugin's name from the file name, so a dot or a space in it (for example `spool_toolhead_mapper 2.py` or `..._0.7.1.py`) makes the plugin fail to activate with no message.
+- **Printer address:** if Orca does not give the plugin a print host, the panel has an address box at the top. Type the printer's address once for each printer preset (for example `10.11.88.77` or `10.11.88.30`) and press **Save address**. The plugin remembers it per preset in `~/.spool_toolhead_mapper.json`.
+- **Both ACE Pro and toolhead sensors on one printer** (a ZR Ultra-S with an ACE Pro): the panel shows the four toolheads and writes `WM_SET_TOOL_MAP`. To force the other side, set `printer_kind` to `ace` (or `wm`) in the plugin's config.
+- The panel shows the toolhead colours and materials the same way the ZR Tools screen does (`zr_tN_mat` and `zr_tN_color` from the printer's saved variables, else `tmt1.ini`), follows filament changes in Orca, and reads the printer again every 30 seconds.
+- A grey status line under the buttons shows when a button press was sent and answered. What the plugin read and showed is written to `~/.spool_toolhead_mapper.log`.
+
 - The whole map is written every time, so a map from an earlier print is never reused.
 - If the panel has no data and the printer cannot be reached, the file prints as sliced (`0:0,1:1,2:2,3:3`).
 - If you start the same file from Fluidd and choose toolheads in its "Choose toolheads" window, the Fluidd choice

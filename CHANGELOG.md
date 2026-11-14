@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.8
+
+- **OrcaSlicer plugin 0.7.1 (`orca_plugin/spool_toolhead_mapper.py`).** The WonderMaker toolheads win again when a printer has both an ACE Pro and the four toolhead sensors (the ZR Ultra-S with an ACE Pro had been shown as an ACE printer). New: an address box per printer preset (Orca did not always give the plugin the print host), quote marks removed from the host, the panel notices a printer switch and filament changes, reads the printer again every 30 seconds, and shows toolhead colours and materials like the ZR Tools screen (`zr_tN_mat`, `zr_tN_color`, and the 11 materials added in 1.7.6). A `printer_kind` setting (auto, wm, ace), a status line under the buttons and a log file (`~/.spool_toolhead_mapper.log`) for troubleshooting. 12 new tests. The file must keep the name `spool_toolhead_mapper.py` (a dot or space in the name stops Orca from activating it).
+
 ## 1.7.7
 
 - **The "Z offset" button is removed from the tool window** (Hardware actions). The Z offset calibration (`CALIBRATE_TOOL_Z_OFFSET`) is started from the touchscreen. New Fluidd zip, patch and checksum.
