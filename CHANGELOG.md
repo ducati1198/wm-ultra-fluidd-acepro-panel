@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.7
+
+- **The "Z offset" button is removed from the tool window** (Hardware actions). The Z offset calibration (`CALIBRATE_TOOL_Z_OFFSET`) is started from the touchscreen. New Fluidd zip, patch and checksum.
+
 ## 1.7.6
 
 - **More filament materials in the tool window** (Material type): PLA+, PLA-CF, PETG-CF, PA, PA-CF, PC, ABS-CF, PA-GF, PC-ABS, PP and BVOH. They are added at the END of the list, so the first 16 keep their place and the colours and materials already saved in `tmt1.ini` do not change. The factory touchscreen may not know the new ones and then shows that slot as not set. New Fluidd zip, patch and checksum.
