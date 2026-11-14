@@ -1,8 +1,8 @@
 # Changelog
 
-## 1.7.3
+## 1.7.4
 
-- **The `SET_GCODE_OFFSET` wrapper moved out of `rpi_ace.cfg`** into WM_Ultra_Vanilla_Klipper 2.7.3 (`rpi_pi.cfg`), because it fixes tool changes while Z is not homed for every printer, not only ones with an ACE. Without it the built-in command runs as before. `_WM_ACE_HOME` still calls `SET_GCODE_OFFSET`. Use together with WM_Ultra_Vanilla_Klipper 2.7.3.
+- **The `SET_GCODE_OFFSET` wrapper is in both `rpi_ace.cfg` and WM_Ultra_Vanilla_Klipper 2.7.3 (`rpi_pi.cfg`).** The ACE panel works on its own, and with both installed Klipper merges the two identical sections into one macro.
 
 ## 1.7.2
 
