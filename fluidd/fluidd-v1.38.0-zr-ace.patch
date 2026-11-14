@@ -1,7 +1,7 @@
 From 6d439780cc9af098d7ce636c32a36e0d936af37f Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/17] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/18] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1855,7 +1855,7 @@ index a01c43f..2ede1df 100644
 From 4fe1b3b8ba27ff6aa4c3308d022ee80a79d3813f Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/17] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/18] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1930,7 +1930,7 @@ index cc15c3d..4693634 100644
 From d91f76c19ed6f8f2f205343f1dc3735617d463c8 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/17] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/18] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2057,7 +2057,7 @@ index 4693634..2b78324 100644
 From d74560a460ef142b831d25c19ed131eb74a9cc2b Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/17] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/18] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2129,7 +2129,7 @@ index 2b78324..e1f06c0 100644
 From 561bb251fdd2d3396919938c8cf8459811c2044b Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/17] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/18] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2183,7 +2183,7 @@ index e1f06c0..99c90df 100644
 From 55ab14523a9675517b902190b70ae6860b879579 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/17] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/18] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -3084,7 +3084,7 @@ index 99c90df..d18abc1 100644
 From 360def375006dcac33667a0e201ddd2dbfbeb304 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/17] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/18] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3342,7 +3342,7 @@ index d18abc1..43ff04b 100644
 From 211e835c4563c703dd446b246cb3740d7f455fda Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/17] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/18] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3680,7 +3680,7 @@ index 7e3fcf6..fe9bf2d 100644
 From a4286617cc154eb6495829ac416c10e8405f2881 Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/17] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/18] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4054,7 +4054,7 @@ index 43ff04b..8692f6f 100644
 From 28404588848c0ffb5bafb048e5bbf65a86846d31 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/17] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/18] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/rpi_chamber_light.json)
 
 ---
@@ -4165,7 +4165,7 @@ index 5bebf42..9c9c17b 100644
 From 257290631e9c0ef1986cc45305cc5bd743103e9f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/17] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/18] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4206,7 +4206,7 @@ index fe9bf2d..2486f37 100644
 From 28b12651e7a415714a263d5fb1b1f69b631ac939 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:09:32 -0500
-Subject: [PATCH 12/17] feat(zr): Choose toolheads window gets List/Map, saved
+Subject: [PATCH 12/18] feat(zr): Choose toolheads window gets List/Map, saved
  mappings, auto-match, dry first and print as sliced
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4951,7 +4951,7 @@ index 0000000..6022c94
 From c979d390fbeb5eae607e1b6a6f6bbcb3d9958b9d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:22:23 -0500
-Subject: [PATCH 13/17] fix(zr): Choose toolheads window opens on every Print
+Subject: [PATCH 13/18] fix(zr): Choose toolheads window opens on every Print
  even when file metadata is not loaded yet
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5032,7 +5032,7 @@ index 2486f37..e21d215 100644
 From 6c372148265dc331c6c664c4fa94e309b1bd8044 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:42:06 -0500
-Subject: [PATCH 14/17] fix(zr): read OrcaSlicer metadata (empty
+Subject: [PATCH 14/18] fix(zr): read OrcaSlicer metadata (empty
  referenced_tools, JSON-text material list) in the Choose toolheads window
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5153,7 +5153,7 @@ index 24c2865..ebe2fce 100644
 From 8c489b4b62ed3953a41e4fc778337ca53fb659f6 Mon Sep 17 00:00:00 2001
 From: ducati1198 <noreply@github.com>
 Date: Thu, 12 Nov 2026 21:16:24 -0500
-Subject: [PATCH 15/17] feat(zr): Feed assist button in the tool window uses
+Subject: [PATCH 15/18] feat(zr): Feed assist button in the tool window uses
  ACE_WM_ASSIST (works during a pause)
 
 Signed-off-by: ducati1198 <noreply@github.com>
@@ -5196,7 +5196,7 @@ index 00b948f..7111b68 100644
 From a5f61c022fd9944b6bd5adac3e99759d9ee64283 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Fri, 13 Nov 2026 17:20:58 -0500
-Subject: [PATCH 16/17] Toolheads card: banner with Turn on when the ACE_Pro
+Subject: [PATCH 16/18] Toolheads card: banner with Turn on when the ACE_Pro
  switch is off
 
 ---
@@ -5263,7 +5263,7 @@ index 8692f6f..8ac9d96 100644
 From f63cff64f57896001c73a22a0f7824f92f5b0678 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Fri, 13 Nov 2026 23:03:02 -0500
-Subject: [PATCH 17/17] feat(zr): Auto load switch, Park and Select need only X
+Subject: [PATCH 17/18] feat(zr): Auto load switch, Park and Select need only X
  and Y, no Load/Unload with an ACE
 
 Park runs SET_GCODE_OFFSET X=0 Y=0 Z=0 and PARK_CURRENT_TOOL; Select needs only X and Y;
@@ -5490,6 +5490,76 @@ index 8ac9d96..f080b4d 100644
    get zrAce (): Record<string, any> {
      const o = this.zrPrinter.ace_instance_0
      return o != null && typeof o === 'object' ? o : {}
+-- 
+2.43.0
+
+
+From 00ea276cd6a46a359afb2693d787791c759def71 Mon Sep 17 00:00:00 2001
+From: t <t@t>
+Date: Sat, 14 Nov 2026 01:38:56 -0500
+Subject: [PATCH 18/18] feat(zr): more filament materials (PLA+, PLA-CF,
+ PETG-CF, PA, PA-CF, PC, ABS-CF, PA-GF, PC-ABS, PP, BVOH)
+
+Added at the end of the material list so no existing index moves.
+
+Signed-off-by: t <t@t>
+---
+ src/components/widgets/zr/zr.spec.ts | 11 +++++++++++
+ src/components/widgets/zr/zr.ts      | 15 ++++++++++++++-
+ 2 files changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/src/components/widgets/zr/zr.spec.ts b/src/components/widgets/zr/zr.spec.ts
+index ce687d8..22f4ba1 100644
+--- a/src/components/widgets/zr/zr.spec.ts
++++ b/src/components/widgets/zr/zr.spec.ts
+@@ -44,3 +44,14 @@ describe('fileColoursFromMetadata with OrcaSlicer metadata', () => {
+     expect(r.map(c => c.material)).toEqual(['PLA', 'PETG', 'PLA', 'ABS'])
+   })
+ })
++
++describe('ZR_MATERIALS list', () => {
++  it('keeps the factory touchscreen order for the first 16 and adds the others at the end', async () => {
++    const { ZR_MATERIALS } = await import('./zr')
++    expect(ZR_MATERIALS.slice(0, 4).map(m => m.name)).toEqual(['PLA', 'PLA Silk', 'ABS', 'PETG'])
++    expect(ZR_MATERIALS[15].name).toBe('ASA')
++    expect(ZR_MATERIALS.slice(16).map(m => m.name)).toEqual(['PLA+', 'PLA-CF', 'PETG-CF', 'PA', 'PA-CF', 'PC', 'ABS-CF', 'PA-GF', 'PC-ABS', 'PP', 'BVOH'])
++    expect(new Set(ZR_MATERIALS.map(m => m.name)).size).toBe(ZR_MATERIALS.length)
++    expect(ZR_MATERIALS.every(m => m.zr >= 1 && m.zr <= 15 && m.temp >= 150 && m.temp <= 300)).toBe(true)
++  })
++})
+diff --git a/src/components/widgets/zr/zr.ts b/src/components/widgets/zr/zr.ts
+index ebe2fce..3b38608 100644
+--- a/src/components/widgets/zr/zr.ts
++++ b/src/components/widgets/zr/zr.ts
+@@ -34,6 +34,8 @@ export interface ZrMaterial { name: string, temp: number, zr: number }
+ 
+ // Touchscreen material list (tmt1.ini materialN index).
+ // `zr` is the matching index in the ZR Tools KlipperScreen panel list.
++// The first 16 are the factory touchscreen's list; the others were added at the END so no index moves (the factory touchscreen may
++// not know them and then shows the slot as not set).
+ export const ZR_MATERIALS: ZrMaterial[] = [
+   { name: 'PLA', temp: 210, zr: 1 },
+   { name: 'PLA Silk', temp: 215, zr: 3 },
+@@ -50,7 +52,18 @@ export const ZR_MATERIALS: ZrMaterial[] = [
+   { name: 'TPU', temp: 225, zr: 10 },
+   { name: 'PET', temp: 240, zr: 15 },
+   { name: 'Wood', temp: 200, zr: 15 },
+-  { name: 'ASA', temp: 255, zr: 9 }
++  { name: 'ASA', temp: 255, zr: 9 },
++  { name: 'PLA+', temp: 215, zr: 2 },
++  { name: 'PLA-CF', temp: 220, zr: 5 },
++  { name: 'PETG-CF', temp: 250, zr: 7 },
++  { name: 'PA', temp: 270, zr: 11 },
++  { name: 'PA-CF', temp: 280, zr: 11 },
++  { name: 'PC', temp: 270, zr: 12 },
++  { name: 'ABS-CF', temp: 260, zr: 8 },
++  { name: 'PA-GF', temp: 280, zr: 11 },
++  { name: 'PC-ABS', temp: 260, zr: 12 },
++  { name: 'PP', temp: 230, zr: 15 },
++  { name: 'BVOH', temp: 210, zr: 15 }
+ ]
+ 
+ export interface ZrSlot { color: number | null, material: number | null }
 -- 
 2.43.0
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.6
+
+- **More filament materials in the tool window** (Material type): PLA+, PLA-CF, PETG-CF, PA, PA-CF, PC, ABS-CF, PA-GF, PC-ABS, PP and BVOH. They are added at the END of the list, so the first 16 keep their place and the colours and materials already saved in `tmt1.ini` do not change. The factory touchscreen may not know the new ones and then shows that slot as not set. New Fluidd zip, patch and checksum.
+
 ## 1.7.5
 
 - **`z_rise` before every X/Y move of the ACE macros** (the bed is lowered first so the nozzle cannot scratch it): at the start of `ACE_WM_LOAD` and `ACE_WM_UNLOAD`, and in `_WM_ACE_HOME` before the homing and the hot-nozzle wipe, and in `_WM_ACE_HOME_Z` before the move to the middle of the bed. `z_rise` is WonderMaker's own macro; WM_Ultra_Vanilla_Klipper 2.7.4 fixes it for upstream Klipper (it never did anything there) and adds it to the tool lock and unlock and the wipe macros.
