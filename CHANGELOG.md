@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.3
+
+- **The `SET_GCODE_OFFSET` wrapper moved out of `rpi_ace.cfg`** into WM_Ultra_Vanilla_Klipper 2.7.3 (`rpi_pi.cfg`), because it fixes tool changes while Z is not homed for every printer, not only ones with an ACE. Without it the built-in command runs as before. `_WM_ACE_HOME` still calls `SET_GCODE_OFFSET`. Use together with WM_Ultra_Vanilla_Klipper 2.7.3.
+
 ## 1.7.2
 
 Quick homing with the tool on the carriage, an ACE auto load switch, and Fluidd hardware-action fixes (needs WM_Ultra_Vanilla_Klipper 2.7.2 for the LED part).
