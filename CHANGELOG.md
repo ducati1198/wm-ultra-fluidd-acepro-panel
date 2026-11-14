@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.9
+
+- **OrcaSlicer plugin 0.7.2 (`orca_plugin/spool_toolhead_mapper.py`).** The `FILE=` part of `WM_SET_TOOL_MAP` / `ACE_SET_TOOL_MAP` now holds only the file name, not the full folder path Orca gives. Fluidd and the macro compare file names, so with a full path your "Choose toolheads" choice in Fluidd was always overwritten by Orca's map; now it is kept. The slicing step also writes lines to `~/.spool_toolhead_mapper.log` (started, skipped, what it wrote). 3 new tests.
+
 ## 1.7.8
 
 - **OrcaSlicer plugin 0.7.1 (`orca_plugin/spool_toolhead_mapper.py`).** The WonderMaker toolheads win again when a printer has both an ACE Pro and the four toolhead sensors (the ZR Ultra-S with an ACE Pro had been shown as an ACE printer). New: an address box per printer preset (Orca did not always give the plugin the print host), quote marks removed from the host, the panel notices a printer switch and filament changes, reads the printer again every 30 seconds, and shows toolhead colours and materials like the ZR Tools screen (`zr_tN_mat`, `zr_tN_color`, and the 11 materials added in 1.7.6). A `printer_kind` setting (auto, wm, ace), a status line under the buttons and a log file (`~/.spool_toolhead_mapper.log`) for troubleshooting. 12 new tests. The file must keep the name `spool_toolhead_mapper.py` (a dot or space in the name stops Orca from activating it).
