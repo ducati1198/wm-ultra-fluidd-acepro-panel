@@ -47,7 +47,7 @@ check "includes sit after [save_variables], above SAVE_CONFIG" test "$(grep -n '
 check "other.cfg include still follows zru-s"        test "$(sed -n 2,3p "$C/printer.cfg" | tr '\n' ' ')" = "[include zru-s.cfg] [include other.cfg] "
 check "SAVE_CONFIG block untouched"                 test "$(tail -1 "$C/printer.cfg")" = "#*# control = pid"
 check "register_tool_commands False kept"           grep -q '^register_tool_commands: False' "$C/rpi_ace_driver.cfg"
-check "auto-load = 1"                               grep -q '^variable_auto: *1' "$C/rpi_ace.cfg"
+check "ACE_Auto_Load switch in the driver config"   grep -q '^\[output_pin ACE_Auto_Load\]' "$C/rpi_ace_driver.cfg"
 check "driver linked to the repo"                   test "$(readlink "$H/klipper/klippy/extras/ace")" = "$REPO/extras/ace"
 check "virtual_pins linked"                         test -L "$H/klipper/klippy/extras/virtual_pins.py"
 check "temperature_ace linked"                      test -L "$H/klipper/klippy/extras/temperature_ace.py"
@@ -68,12 +68,12 @@ check "Klipper was not restarted"                   bash -c '! echo "$0" | grep 
 inst "$H" "" --check;  check "--check passes"       test "$RC" -eq 0
 
 echo "2. Update keeps tuned values"
-sed -i 's/^variable_hub_to_head_mm: *710/variable_hub_to_head_mm: 1234/;s/^variable_auto: *1/variable_auto: 0/' "$C/rpi_ace.cfg"
+sed -i 's/^variable_hub_to_head_mm: *710/variable_hub_to_head_mm: 1234/;s/^variable_fast_timeout_s: *90/variable_fast_timeout_s: 45/' "$C/rpi_ace.cfg"
 sed -i 's/^feed_speed: 60/feed_speed: 33/' "$C/rpi_ace_driver.cfg"
 inst "$H" 'n\ny\n' --update
 check "update finished"                             test "$RC" -eq 0
 check "hub_to_head_mm 1234 kept"                    grep -q '^variable_hub_to_head_mm: *1234' "$C/rpi_ace.cfg"
-check "auto 0 kept"                                 grep -q '^variable_auto: *0' "$C/rpi_ace.cfg"
+check "fast_timeout_s 45 kept"                      grep -q '^variable_fast_timeout_s: *45' "$C/rpi_ace.cfg"
 check "feed_speed 33 kept"                          grep -q '^feed_speed: *33' "$C/rpi_ace_driver.cfg"
 check "includes not duplicated"                     test "$(grep -c 'include rpi_ace.cfg' "$C/printer.cfg")" -eq 1
 

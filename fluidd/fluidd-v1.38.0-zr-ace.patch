@@ -1,7 +1,7 @@
-From b3868f2c8cab3b3a628c03ebc483ec2685dfd30e Mon Sep 17 00:00:00 2001
+From 6d439780cc9af098d7ce636c32a36e0d936af37f Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/16] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/17] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -24,7 +24,7 @@ Subject: [PATCH 01/16] ZR Ultra-S Toolheads card
  create mode 100644 src/components/widgets/zr/zrPrintHook.ts
 
 diff --git a/src/App.vue b/src/App.vue
-index 202a0889..a1a288aa 100644
+index 202a088..a1a288a 100644
 --- a/src/App.vue
 +++ b/src/App.vue
 @@ -91,6 +91,7 @@
@@ -54,7 +54,7 @@ index 202a0889..a1a288aa 100644
  })
  export default class App extends Mixins(StateMixin, FilesMixin, BrowserMixin) {
 diff --git a/src/components/widgets/filesystem/FileSystem.vue b/src/components/widgets/filesystem/FileSystem.vue
-index 54128c2e..68fbaf51 100644
+index 54128c2..68fbaf5 100644
 --- a/src/components/widgets/filesystem/FileSystem.vue
 +++ b/src/components/widgets/filesystem/FileSystem.vue
 @@ -136,6 +136,7 @@
@@ -78,7 +78,7 @@ index 54128c2e..68fbaf51 100644
      // is not yet loaded we open the dialog anyway (it will fetch on open);
      // if metadata is loaded, this panel should show for both single-color
 diff --git a/src/components/widgets/status/PrinterStatusCard.vue b/src/components/widgets/status/PrinterStatusCard.vue
-index 4f360195..a330b943 100644
+index 4f36019..a330b94 100644
 --- a/src/components/widgets/status/PrinterStatusCard.vue
 +++ b/src/components/widgets/status/PrinterStatusCard.vue
 @@ -69,6 +69,7 @@
@@ -100,7 +100,7 @@ index 4f360195..a330b943 100644
      // if metadata is loaded, this panel should show for both single-color
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
 new file mode 100644
-index 00000000..da109265
+index 0000000..da10926
 --- /dev/null
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -0,0 +1,513 @@
@@ -619,7 +619,7 @@ index 00000000..da109265
 +</style>
 diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
 new file mode 100644
-index 00000000..97b34e6b
+index 0000000..97b34e6
 --- /dev/null
 +++ b/src/components/widgets/zr/ZrToolDialog.vue
 @@ -0,0 +1,279 @@
@@ -904,7 +904,7 @@ index 00000000..97b34e6b
 +</style>
 diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
 new file mode 100644
-index 00000000..8345082f
+index 0000000..8345082
 --- /dev/null
 +++ b/src/components/widgets/zr/ZrToolheadsCard.vue
 @@ -0,0 +1,428 @@
@@ -1338,7 +1338,7 @@ index 00000000..8345082f
 +</style>
 diff --git a/src/components/widgets/zr/zr.ts b/src/components/widgets/zr/zr.ts
 new file mode 100644
-index 00000000..36d5135b
+index 0000000..36d5135
 --- /dev/null
 +++ b/src/components/widgets/zr/zr.ts
 @@ -0,0 +1,232 @@
@@ -1576,7 +1576,7 @@ index 00000000..36d5135b
 +}
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
 new file mode 100644
-index 00000000..cc15c3db
+index 0000000..cc15c3d
 --- /dev/null
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -0,0 +1,180 @@
@@ -1762,7 +1762,7 @@ index 00000000..cc15c3db
 +}
 diff --git a/src/components/widgets/zr/zrPrintHook.ts b/src/components/widgets/zr/zrPrintHook.ts
 new file mode 100644
-index 00000000..7e3fcf6d
+index 0000000..7e3fcf6
 --- /dev/null
 +++ b/src/components/widgets/zr/zrPrintHook.ts
 @@ -0,0 +1,28 @@
@@ -1795,7 +1795,7 @@ index 00000000..7e3fcf6d
 +  return show
 +}
 diff --git a/src/store/layout/state.ts b/src/store/layout/state.ts
-index 36e57ac9..0dba6723 100644
+index 36e57ac..0dba672 100644
 --- a/src/store/layout/state.ts
 +++ b/src/store/layout/state.ts
 @@ -55,6 +55,7 @@ export const createState = (): LayoutState => {
@@ -1807,7 +1807,7 @@ index 36e57ac9..0dba6723 100644
            { id: 'mmu-card', enabled: true, collapsed: false },
            { id: 'camera-card', enabled: true, collapsed: false },
 diff --git a/src/views/Dashboard.vue b/src/views/Dashboard.vue
-index a01c43fc..2ede1df5 100644
+index a01c43f..2ede1df 100644
 --- a/src/views/Dashboard.vue
 +++ b/src/views/Dashboard.vue
 @@ -56,6 +56,7 @@ import RunoutSensorsCard from '@/components/widgets/runout-sensors/RunoutSensors
@@ -1852,10 +1852,10 @@ index a01c43fc..2ede1df5 100644
 2.43.0
 
 
-From de5f4030bee53def9b181ae8e026f0272cfd0430 Mon Sep 17 00:00:00 2001
+From 4fe1b3b8ba27ff6aa4c3308d022ee80a79d3813f Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/16] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/17] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1864,7 +1864,7 @@ Subject: [PATCH 02/16] ZR: compile/lint fixes; always write full tool mapping
  2 files changed, 16 insertions(+), 15 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index da109265..2409bd64 100644
+index da10926..2409bd6 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -211,7 +211,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
@@ -1911,7 +1911,7 @@ index da109265..2409bd64 100644
        await SocketActions.printerPrintStart(filename)
        const summary = this.colours.map((c, row) => `T${c.tool}→Toolhead ${this.map[row] + 1}`).join(', ')
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
-index cc15c3db..46936345 100644
+index cc15c3d..4693634 100644
 --- a/src/components/widgets/zr/zrMixin.ts
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -138,7 +138,7 @@ export default class ZrMixin extends Mixins(StateMixin) {
@@ -1927,10 +1927,10 @@ index cc15c3db..46936345 100644
 2.43.0
 
 
-From 1a51a3b85d7b691e6bc24af8b9e804671a248caf Mon Sep 17 00:00:00 2001
+From d91f76c19ed6f8f2f205343f1dc3735617d463c8 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/16] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/17] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -1939,7 +1939,7 @@ Signed-off-by: ZR build <zr@local>
  2 files changed, 11 insertions(+), 17 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index 2409bd64..a6a4d737 100644
+index 2409bd6..a6a4d73 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -145,7 +145,6 @@
@@ -2004,7 +2004,7 @@ index 2409bd64..a6a4d737 100644
  
    get fileStats () {
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
-index 46936345..2b783247 100644
+index 4693634..2b78324 100644
 --- a/src/components/widgets/zr/zrMixin.ts
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -1,7 +1,7 @@
@@ -2054,10 +2054,10 @@ index 46936345..2b783247 100644
 2.43.0
 
 
-From f696301fa2712a4a88e531c08020e856f5f56b10 Mon Sep 17 00:00:00 2001
+From d74560a460ef142b831d25c19ed131eb74a9cc2b Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/16] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/17] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2071,7 +2071,7 @@ Signed-off-by: ZR build <zr@local>
  2 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index a6a4d737..7360e737 100644
+index a6a4d73..7360e73 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -185,6 +185,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
@@ -2093,7 +2093,7 @@ index a6a4d737..7360e737 100644
      this.colours = colours
      this.map = this.suggest(colours)
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
-index 2b783247..e1f06c05 100644
+index 2b78324..e1f06c0 100644
 --- a/src/components/widgets/zr/zrMixin.ts
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -21,6 +21,9 @@ export const zrShared = Vue.observable({
@@ -2126,10 +2126,10 @@ index 2b783247..e1f06c05 100644
 2.43.0
 
 
-From 2ed365ade1e527f409f952db36ba2377cd0eca86 Mon Sep 17 00:00:00 2001
+From 561bb251fdd2d3396919938c8cf8459811c2044b Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/16] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/17] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2138,7 +2138,7 @@ Subject: [PATCH 05/16] fix(zr): only mention the touchscreen when
  2 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
-index 8345082f..4300a3e1 100644
+index 8345082..4300a3e 100644
 --- a/src/components/widgets/zr/ZrToolheadsCard.vue
 +++ b/src/components/widgets/zr/ZrToolheadsCard.vue
 @@ -200,7 +200,7 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
@@ -2151,7 +2151,7 @@ index 8345082f..4300a3e1 100644
  
    get carriageText () {
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
-index e1f06c05..99c90dfe 100644
+index e1f06c0..99c90df 100644
 --- a/src/components/widgets/zr/zrMixin.ts
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -82,6 +82,12 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
@@ -2180,10 +2180,10 @@ index e1f06c05..99c90dfe 100644
 2.43.0
 
 
-From 6be8c29f3eb7963eea3f227391d882f48022de8e Mon Sep 17 00:00:00 2001
+From 55ab14523a9675517b902190b70ae6860b879579 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/16] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/17] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -2194,7 +2194,7 @@ Signed-off-by: t <t@e.x>
  3 files changed, 576 insertions(+), 195 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
-index 97b34e6b..34b5bba4 100644
+index 97b34e6..34b5bba 100644
 --- a/src/components/widgets/zr/ZrToolDialog.vue
 +++ b/src/components/widgets/zr/ZrToolDialog.vue
 @@ -60,6 +60,117 @@
@@ -2356,7 +2356,7 @@ index 97b34e6b..34b5bba4 100644
      return this.zrHeads[this.index]
    }
 diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
-index 4300a3e1..98906744 100644
+index 4300a3e..9890674 100644
 --- a/src/components/widgets/zr/ZrToolheadsCard.vue
 +++ b/src/components/widgets/zr/ZrToolheadsCard.vue
 @@ -25,111 +25,266 @@
@@ -2995,7 +2995,7 @@ index 4300a3e1..98906744 100644
  }
  </style>
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
-index 99c90dfe..d18abc1b 100644
+index 99c90df..d18abc1 100644
 --- a/src/components/widgets/zr/zrMixin.ts
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -59,6 +59,78 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
@@ -3081,10 +3081,10 @@ index 99c90dfe..d18abc1b 100644
 2.43.0
 
 
-From 22587eb69f8af8bafb87127f87ce75db36b301c7 Mon Sep 17 00:00:00 2001
+From 360def375006dcac33667a0e201ddd2dbfbeb304 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/16] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/17] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3094,7 +3094,7 @@ Signed-off-by: t <t@e.x>
  2 files changed, 173 insertions(+), 1 deletion(-)
 
 diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
-index 98906744..33519dda 100644
+index 9890674..33519dd 100644
 --- a/src/components/widgets/zr/ZrToolheadsCard.vue
 +++ b/src/components/widgets/zr/ZrToolheadsCard.vue
 @@ -83,6 +83,28 @@
@@ -3316,7 +3316,7 @@ index 98906744..33519dda 100644
      return Object.keys(this.zrAce).length === 0 ? 'ACE: no data' : (this.zrAce.connection_state ?? 'ACE')
    }
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
-index d18abc1b..43ff04be 100644
+index d18abc1..43ff04b 100644
 --- a/src/components/widgets/zr/zrMixin.ts
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -59,6 +59,15 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
@@ -3339,10 +3339,10 @@ index d18abc1b..43ff04be 100644
 2.43.0
 
 
-From b3d1ae1cd6a075dbf37f5e71a63ceacb4ffd51ad Mon Sep 17 00:00:00 2001
+From 211e835c4563c703dd446b246cb3740d7f455fda Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/16] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/17] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3355,7 +3355,7 @@ Signed-off-by: t <zr@local>
  3 files changed, 152 insertions(+), 59 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index 7360e737..147cbff3 100644
+index 7360e73..147cbff 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -1,7 +1,7 @@
@@ -3628,7 +3628,7 @@ index 7360e737..147cbff3 100644
    opacity: 0.55;
  }
 diff --git a/src/components/widgets/zr/zr.ts b/src/components/widgets/zr/zr.ts
-index 36d5135b..3bb113ce 100644
+index 36d5135..3bb113c 100644
 --- a/src/components/widgets/zr/zr.ts
 +++ b/src/components/widgets/zr/zr.ts
 @@ -169,6 +169,17 @@ export const colorDistance = (a: string, b: string): number => {
@@ -3650,7 +3650,7 @@ index 36d5135b..3bb113ce 100644
    const m = /#?([0-9a-f]{6})/i.exec(value.trim())
    return m ? `#${m[1].toUpperCase()}` : null
 diff --git a/src/components/widgets/zr/zrPrintHook.ts b/src/components/widgets/zr/zrPrintHook.ts
-index 7e3fcf6d..fe9bf2d8 100644
+index 7e3fcf6..fe9bf2d 100644
 --- a/src/components/widgets/zr/zrPrintHook.ts
 +++ b/src/components/widgets/zr/zrPrintHook.ts
 @@ -13,16 +13,7 @@ export const zrInterceptPrint = (printer: Record<string, any>, filename: string,
@@ -3677,10 +3677,10 @@ index 7e3fcf6d..fe9bf2d8 100644
 2.43.0
 
 
-From 6ea29fb3078c3a67f77f8a7881c499e3177d5c84 Mon Sep 17 00:00:00 2001
+From a4286617cc154eb6495829ac416c10e8405f2881 Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/16] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/17] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -3695,7 +3695,7 @@ Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
  create mode 100644 src/components/widgets/zr/zr.spec.ts
 
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index 147cbff3..a7d3aecc 100644
+index 147cbff..a7d3aec 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -442,6 +442,9 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
@@ -3709,7 +3709,7 @@ index 147cbff3..a7d3aecc 100644
        this.addConsoleEntry(lines.join('\n'))
  
 diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
-index 34b5bba4..00b948f7 100644
+index 34b5bba..00b948f 100644
 --- a/src/components/widgets/zr/ZrToolDialog.vue
 +++ b/src/components/widgets/zr/ZrToolDialog.vue
 @@ -58,6 +58,38 @@
@@ -3776,7 +3776,7 @@ index 34b5bba4..00b948f7 100644
  
    get palette () {
 diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
-index 33519dda..5bebf42f 100644
+index 33519dd..5bebf42 100644
 --- a/src/components/widgets/zr/ZrToolheadsCard.vue
 +++ b/src/components/widgets/zr/ZrToolheadsCard.vue
 @@ -61,6 +61,23 @@
@@ -3936,7 +3936,7 @@ index 33519dda..5bebf42f 100644
    setEndless (value: boolean | null) {
 diff --git a/src/components/widgets/zr/zr.spec.ts b/src/components/widgets/zr/zr.spec.ts
 new file mode 100644
-index 00000000..84a9a870
+index 0000000..84a9a87
 --- /dev/null
 +++ b/src/components/widgets/zr/zr.spec.ts
 @@ -0,0 +1,30 @@
@@ -3971,7 +3971,7 @@ index 00000000..84a9a870
 +  })
 +})
 diff --git a/src/components/widgets/zr/zr.ts b/src/components/widgets/zr/zr.ts
-index 3bb113ce..24c28654 100644
+index 3bb113c..24c2865 100644
 --- a/src/components/widgets/zr/zr.ts
 +++ b/src/components/widgets/zr/zr.ts
 @@ -241,3 +241,29 @@ export const fileColoursFromTail = (tail: string): ZrFileColour[] => {
@@ -4005,7 +4005,7 @@ index 3bb113ce..24c28654 100644
 +  return { pct: 10, text: `Changing to ${to}: lifting Z and moving to the dock` }
 +}
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
-index 43ff04be..8692f6fe 100644
+index 43ff04b..8692f6f 100644
 --- a/src/components/widgets/zr/zrMixin.ts
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -5,7 +5,7 @@ import FilesMixin from '@/mixins/files'
@@ -4051,10 +4051,10 @@ index 43ff04be..8692f6fe 100644
 2.43.0
 
 
-From c8ab713326f0c914486006faff5f942694ee39f8 Mon Sep 17 00:00:00 2001
+From 28404588848c0ffb5bafb048e5bbf65a86846d31 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/16] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/17] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/rpi_chamber_light.json)
 
 ---
@@ -4062,7 +4062,7 @@ Subject: [PATCH 10/16] feat(zr): Chamber light button beside AIR FILTER (light
  1 file changed, 55 insertions(+), 2 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
-index 5bebf42f..9c9c17b4 100644
+index 5bebf42..9c9c17b 100644
 --- a/src/components/widgets/zr/ZrToolheadsCard.vue
 +++ b/src/components/widgets/zr/ZrToolheadsCard.vue
 @@ -264,6 +264,21 @@
@@ -4162,10 +4162,10 @@ index 5bebf42f..9c9c17b4 100644
 2.43.0
 
 
-From 52d7b10f2ff6be88c1ef361fce12946c62220480 Mon Sep 17 00:00:00 2001
+From 257290631e9c0ef1986cc45305cc5bd743103e9f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/16] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/17] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4174,7 +4174,7 @@ Signed-off-by: Claude <noreply@anthropic.com>
  1 file changed, 4 insertions(+), 5 deletions(-)
 
 diff --git a/src/components/widgets/zr/zrPrintHook.ts b/src/components/widgets/zr/zrPrintHook.ts
-index fe9bf2d8..2486f373 100644
+index fe9bf2d..2486f37 100644
 --- a/src/components/widgets/zr/zrPrintHook.ts
 +++ b/src/components/widgets/zr/zrPrintHook.ts
 @@ -2,9 +2,8 @@ import { EventBus } from '@/eventBus'
@@ -4203,10 +4203,10 @@ index fe9bf2d8..2486f373 100644
 2.43.0
 
 
-From 55522f7d7f351e8607899617d3ca7432261646da Mon Sep 17 00:00:00 2001
+From 28b12651e7a415714a263d5fb1b1f69b631ac939 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:09:32 -0500
-Subject: [PATCH 12/16] feat(zr): Choose toolheads window gets List/Map, saved
+Subject: [PATCH 12/17] feat(zr): Choose toolheads window gets List/Map, saved
  mappings, auto-match, dry first and print as sliced
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4220,7 +4220,7 @@ Signed-off-by: Claude <noreply@anthropic.com>
 
 diff --git a/src/components/widgets/zr/ZrMappingView.vue b/src/components/widgets/zr/ZrMappingView.vue
 new file mode 100644
-index 00000000..27c03a5e
+index 0000000..27c03a5
 --- /dev/null
 +++ b/src/components/widgets/zr/ZrMappingView.vue
 @@ -0,0 +1,237 @@
@@ -4462,7 +4462,7 @@ index 00000000..27c03a5e
 +}
 +</style>
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index a7d3aecc..b96c43db 100644
+index a7d3aec..b96c43d 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -5,10 +5,7 @@
@@ -4861,7 +4861,7 @@ index a7d3aecc..b96c43db 100644
        if (this.$route.name !== 'home') this.$router.push({ name: 'home' })
 diff --git a/src/components/widgets/zr/zrUi.ts b/src/components/widgets/zr/zrUi.ts
 new file mode 100644
-index 00000000..6022c94a
+index 0000000..6022c94
 --- /dev/null
 +++ b/src/components/widgets/zr/zrUi.ts
 @@ -0,0 +1,79 @@
@@ -4948,10 +4948,10 @@ index 00000000..6022c94a
 2.43.0
 
 
-From 1b3d44212e0454152011dc7363e6145b40478c44 Mon Sep 17 00:00:00 2001
+From c979d390fbeb5eae607e1b6a6f6bbcb3d9958b9d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:22:23 -0500
-Subject: [PATCH 13/16] fix(zr): Choose toolheads window opens on every Print
+Subject: [PATCH 13/17] fix(zr): Choose toolheads window opens on every Print
  even when file metadata is not loaded yet
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4963,7 +4963,7 @@ Signed-off-by: Claude <noreply@anthropic.com>
  4 files changed, 6 insertions(+), 9 deletions(-)
 
 diff --git a/src/components/widgets/filesystem/FileSystem.vue b/src/components/widgets/filesystem/FileSystem.vue
-index 68fbaf51..45b1cbf5 100644
+index 68fbaf5..45b1cbf 100644
 --- a/src/components/widgets/filesystem/FileSystem.vue
 +++ b/src/components/widgets/filesystem/FileSystem.vue
 @@ -944,7 +944,7 @@ export default class FileSystem extends Mixins(StateMixin, FilesMixin, ServicesM
@@ -4976,7 +4976,7 @@ index 68fbaf51..45b1cbf5 100644
        return
      }
 diff --git a/src/components/widgets/status/PrinterStatusCard.vue b/src/components/widgets/status/PrinterStatusCard.vue
-index a330b943..fe2b4387 100644
+index a330b94..fe2b438 100644
 --- a/src/components/widgets/status/PrinterStatusCard.vue
 +++ b/src/components/widgets/status/PrinterStatusCard.vue
 @@ -133,7 +133,7 @@ export default class PrinterStatusCard extends Mixins(StateMixin, AfcMixin) {
@@ -4989,7 +4989,7 @@ index a330b943..fe2b4387 100644
      // AFC check — show lane mapping dialog when AFC is installed. If metadata
      // is not yet loaded we open the dialog anyway (it will fetch on open);
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index b96c43db..05b53f13 100644
+index b96c43d..05b53f1 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -393,7 +393,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
@@ -5002,7 +5002,7 @@ index b96c43db..05b53f13 100644
  
    get visibleFiles () {
 diff --git a/src/components/widgets/zr/zrPrintHook.ts b/src/components/widgets/zr/zrPrintHook.ts
-index 2486f373..e21d2151 100644
+index 2486f37..e21d215 100644
 --- a/src/components/widgets/zr/zrPrintHook.ts
 +++ b/src/components/widgets/zr/zrPrintHook.ts
 @@ -1,16 +1,13 @@
@@ -5029,10 +5029,10 @@ index 2486f373..e21d2151 100644
 2.43.0
 
 
-From d582ad2a3bbe4b30f3faaaec40c5fc60027bd72c Mon Sep 17 00:00:00 2001
+From 6c372148265dc331c6c664c4fa94e309b1bd8044 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:42:06 -0500
-Subject: [PATCH 14/16] fix(zr): read OrcaSlicer metadata (empty
+Subject: [PATCH 14/17] fix(zr): read OrcaSlicer metadata (empty
  referenced_tools, JSON-text material list) in the Choose toolheads window
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5044,7 +5044,7 @@ Signed-off-by: Claude <noreply@anthropic.com>
  4 files changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrMappingView.vue b/src/components/widgets/zr/ZrMappingView.vue
-index 27c03a5e..6556918c 100644
+index 27c03a5..6556918 100644
 --- a/src/components/widgets/zr/ZrMappingView.vue
 +++ b/src/components/widgets/zr/ZrMappingView.vue
 @@ -110,7 +110,7 @@
@@ -5057,7 +5057,7 @@ index 27c03a5e..6556918c 100644
    </div>
  </template>
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index 05b53f13..c2fa0d26 100644
+index 05b53f1..c2fa0d2 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -393,7 +393,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
@@ -5070,7 +5070,7 @@ index 05b53f13..c2fa0d26 100644
  
    get visibleFiles () {
 diff --git a/src/components/widgets/zr/zr.spec.ts b/src/components/widgets/zr/zr.spec.ts
-index 84a9a870..ce687d86 100644
+index 84a9a87..ce687d8 100644
 --- a/src/components/widgets/zr/zr.spec.ts
 +++ b/src/components/widgets/zr/zr.spec.ts
 @@ -1,5 +1,5 @@
@@ -5101,7 +5101,7 @@ index 84a9a870..ce687d86 100644
 +  })
 +})
 diff --git a/src/components/widgets/zr/zr.ts b/src/components/widgets/zr/zr.ts
-index 24c28654..ebe2fcec 100644
+index 24c2865..ebe2fce 100644
 --- a/src/components/widgets/zr/zr.ts
 +++ b/src/components/widgets/zr/zr.ts
 @@ -193,7 +193,20 @@ export interface ZrFileColour { tool: number, hex: string, material?: string, gr
@@ -5150,10 +5150,10 @@ index 24c28654..ebe2fcec 100644
 2.43.0
 
 
-From d70a9bae674caefb4c1ee6fc957f227f9a2cd31c Mon Sep 17 00:00:00 2001
+From 8c489b4b62ed3953a41e4fc778337ca53fb659f6 Mon Sep 17 00:00:00 2001
 From: ducati1198 <noreply@github.com>
 Date: Thu, 12 Nov 2026 21:16:24 -0500
-Subject: [PATCH 15/16] feat(zr): Feed assist button in the tool window uses
+Subject: [PATCH 15/17] feat(zr): Feed assist button in the tool window uses
  ACE_WM_ASSIST (works during a pause)
 
 Signed-off-by: ducati1198 <noreply@github.com>
@@ -5163,7 +5163,7 @@ Signed-off-by: ducati1198 <noreply@github.com>
  2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/src/components/widgets/zr/ZrPrintDialog.vue b/src/components/widgets/zr/ZrPrintDialog.vue
-index c2fa0d26..d640405a 100644
+index c2fa0d2..d640405 100644
 --- a/src/components/widgets/zr/ZrPrintDialog.vue
 +++ b/src/components/widgets/zr/ZrPrintDialog.vue
 @@ -393,7 +393,7 @@ export default class ZrPrintDialog extends Mixins(ZrMixin) {
@@ -5176,7 +5176,7 @@ index c2fa0d26..d640405a 100644
  
    get visibleFiles () {
 diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
-index 00b948f7..7111b684 100644
+index 00b948f..7111b68 100644
 --- a/src/components/widgets/zr/ZrToolDialog.vue
 +++ b/src/components/widgets/zr/ZrToolDialog.vue
 @@ -132,7 +132,8 @@
@@ -5193,10 +5193,10 @@ index 00b948f7..7111b684 100644
 2.43.0
 
 
-From bff9220642e95e22c24389b68870308e0298c77c Mon Sep 17 00:00:00 2001
+From a5f61c022fd9944b6bd5adac3e99759d9ee64283 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Fri, 13 Nov 2026 17:20:58 -0500
-Subject: [PATCH 16/16] Toolheads card: banner with Turn on when the ACE_Pro
+Subject: [PATCH 16/17] Toolheads card: banner with Turn on when the ACE_Pro
  switch is off
 
 ---
@@ -5205,7 +5205,7 @@ Subject: [PATCH 16/16] Toolheads card: banner with Turn on when the ACE_Pro
  2 files changed, 30 insertions(+)
 
 diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
-index 9c9c17b4..23eb2abe 100644
+index 9c9c17b..23eb2ab 100644
 --- a/src/components/widgets/zr/ZrToolheadsCard.vue
 +++ b/src/components/widgets/zr/ZrToolheadsCard.vue
 @@ -26,6 +26,26 @@
@@ -5236,7 +5236,7 @@ index 9c9c17b4..23eb2abe 100644
          class="zr-unit rounded pa-2"
          :class="$vuetify.theme.dark ? 'grey darken-4' : 'grey lighten-4'"
 diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
-index 8692f6fe..8ac9d96e 100644
+index 8692f6f..8ac9d96 100644
 --- a/src/components/widgets/zr/zrMixin.ts
 +++ b/src/components/widgets/zr/zrMixin.ts
 @@ -96,6 +96,16 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
@@ -5251,6 +5251,240 @@ index 8692f6fe..8ac9d96e 100644
 +
 +  zrAceTurnOn (): void {
 +    this.sendGcode('SET_PIN PIN=ACE_Pro VALUE=1')
++  }
++
+   get zrAce (): Record<string, any> {
+     const o = this.zrPrinter.ace_instance_0
+     return o != null && typeof o === 'object' ? o : {}
+-- 
+2.43.0
+
+
+From f63cff64f57896001c73a22a0f7824f92f5b0678 Mon Sep 17 00:00:00 2001
+From: t <t@t>
+Date: Fri, 13 Nov 2026 23:03:02 -0500
+Subject: [PATCH 17/17] feat(zr): Auto load switch, Park and Select need only X
+ and Y, no Load/Unload with an ACE
+
+Park runs SET_GCODE_OFFSET X=0 Y=0 Z=0 and PARK_CURRENT_TOOL; Select needs only X and Y;
+Purge asks to home first; Load and Unload are left out when an ACE is present;
+Toolheads card gets an Auto load switch for the ACE_Auto_Load output pin.
+
+Signed-off-by: t <t@t>
+---
+ src/components/widgets/zr/ZrToolDialog.vue    | 98 ++++++++++++++-----
+ src/components/widgets/zr/ZrToolheadsCard.vue | 25 +++++
+ src/components/widgets/zr/zrMixin.ts          | 14 +++
+ 3 files changed, 110 insertions(+), 27 deletions(-)
+
+diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
+index 7111b68..459afbd 100644
+--- a/src/components/widgets/zr/ZrToolDialog.vue
++++ b/src/components/widgets/zr/ZrToolDialog.vue
+@@ -222,11 +222,26 @@
+           :outlined="action.outlined"
+           :disabled="action.disabled"
+           :title="action.hint"
+-          @click="action.run"
++          @click="onAction(action)"
+         >
+           {{ action.label }}
+         </app-btn>
+       </div>
++
++      <app-dialog
++        v-model="homeDialog"
++        title="Home first"
++        save-button-text="Home"
++        max-width="380"
++        @save="homeThenRun"
++      >
++        <v-card-text class="pt-4">
++          The printer is not homed. Home all axes first (G28), then <b>{{ homeAction ? homeAction.label : '' }}</b> runs.
++          <div class="mt-2 text-caption">
++            Homing may swap toolheads: it parks the one on the carriage and uses T0.
++          </div>
++        </v-card-text>
++      </app-dialog>
+     </v-card-text>
+   </app-dialog>
+ </template>
+@@ -237,7 +252,7 @@ import { EventBus } from '@/eventBus'
+ import ZrMixin, { zrShared } from './zrMixin'
+ import { ZR_MATERIALS, ZR_PALETTE, zrColorName, zrSwatchCss } from './zr'
+ 
+-interface ZrAction { label: string, color?: string, outlined?: boolean, disabled: boolean, hint?: string, run: () => void }
++interface ZrAction { label: string, color?: string, outlined?: boolean, disabled: boolean, hint?: string, run: () => void, home?: string[] }
+ 
+ @Component({})
+ export default class ZrToolDialog extends Mixins(ZrMixin) {
+@@ -335,8 +350,8 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+     list.push({
+       label: 'Select',
+       color: 'primary',
+-      disabled: busy || head.onCarriage || !this.homed,
+-      hint: !this.homed ? 'Home all axes first' : undefined,
++      disabled: busy || head.onCarriage,
++      hint: !this.homed ? 'Not homed: homes X and Y only, then picks up the toolhead' : undefined,
+       run: () => this.run(`_CHANGE_TOOL T=${i}`, `Picking up toolhead ${i + 1}`)
+     })
+ 
+@@ -344,29 +359,35 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+       list.push({
+         label: 'Park',
+         color: 'warning',
+-        disabled: busy || !this.homed,
+-        run: () => this.run('PARK_CURRENT_TOOL', `Parking toolhead ${i + 1}`)
++        disabled: busy,
++        hint: !this.homed ? 'Not homed: homes X and Y only, then parks' : undefined,
++        // the tool offset is dropped first without a move: parking only moves X and Y (it homes them itself), a Z move would fail while Z is not homed
++        run: () => this.run(['SET_GCODE_OFFSET X=0 Y=0 Z=0', 'PARK_CURRENT_TOOL'], `Parking toolhead ${i + 1}`)
++      })
++    }
++
++    // with an ACE the ACE feeder section has its own Load / Unload (ACE_WM_LOAD / ACE_WM_UNLOAD): these two are only for printers without one
++    if (!this.zrHasAce) {
++      const loadMacro = this.zrHasMacro('ZR_LOAD') ? 'ZR_LOAD' : 'LOAD_FILAMENT'
++      const unloadMacro = this.zrHasMacro('ZR_UNLOAD') ? 'ZR_UNLOAD' : 'UNLOAD_FILAMENT'
++      list.push({
++        label: 'Load',
++        color: 'success',
++        outlined: true,
++        disabled: busy,
++        hint: `Heats toolhead ${i + 1} and feeds filament`,
++        run: () => this.run(`${loadMacro} T=${i}`, `Loading toolhead ${i + 1}`)
++      })
++      list.push({
++        label: 'Unload',
++        color: 'error',
++        outlined: true,
++        disabled: busy,
++        hint: `Heats toolhead ${i + 1} and retracts filament`,
++        run: () => this.run(`${unloadMacro} T=${i}`, `Unloading toolhead ${i + 1}`)
+       })
+     }
+ 
+-    const loadMacro = this.zrHasMacro('ZR_LOAD') ? 'ZR_LOAD' : 'LOAD_FILAMENT'
+-    const unloadMacro = this.zrHasMacro('ZR_UNLOAD') ? 'ZR_UNLOAD' : 'UNLOAD_FILAMENT'
+-    list.push({
+-      label: 'Load',
+-      color: 'success',
+-      outlined: true,
+-      disabled: busy,
+-      hint: `Heats toolhead ${i + 1} and feeds filament`,
+-      run: () => this.run(`${loadMacro} T=${i}`, `Loading toolhead ${i + 1}`)
+-    })
+-    list.push({
+-      label: 'Unload',
+-      color: 'error',
+-      outlined: true,
+-      disabled: busy,
+-      hint: `Heats toolhead ${i + 1} and retracts filament`,
+-      run: () => this.run(`${unloadMacro} T=${i}`, `Unloading toolhead ${i + 1}`)
+-    })
+     list.push({
+       label: heating ? 'Cool' : 'Heat',
+       color: heating ? undefined : 'deep-orange',
+@@ -379,9 +400,10 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+         label: 'Purge',
+         color: 'warning',
+         outlined: true,
+-        disabled: busy || !head.onCarriage || !this.homed,
++        disabled: busy || !head.onCarriage,
+         hint: head.onCarriage ? 'Purges 100 mm and wipes the nozzle' : 'Select this toolhead first',
+-        run: () => this.run(`ZR_PURGE TEMP=${this.temp}`, 'Purging')
++        run: () => this.run(`ZR_PURGE TEMP=${this.temp}`, 'Purging'),
++        home: [`_CHANGE_TOOL T=${i}`, `ZR_PURGE TEMP=${this.temp}`]
+       })
+     }
+ 
+@@ -399,7 +421,29 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+     return list
+   }
+ 
+-  run (gcode: string, message: string) {
++  homeDialog = false
++  homeAction: ZrAction | null = null
++
++  // Purge needs Z homed: instead of being greyed out it asks to home first (Select and Park need only X and Y)
++  onAction (action: ZrAction) {
++    if (action.home && !this.homed) {
++      this.homeAction = action
++      this.homeDialog = true
++      return
++    }
++    action.run()
++  }
++
++  homeThenRun () {
++    const action = this.homeAction
++    this.homeDialog = false
++    this.homeAction = null
++    if (!action || !action.home) return
++    this.zrSend(['SET_GCODE_OFFSET X=0 Y=0 Z=0', 'G28', ...action.home])
++    EventBus.$emit(`Homing, then ${action.label}`, { timeout: 3000 })
++  }
++
++  run (gcode: string | string[], message: string) {
+     this.zrSend(gcode)
+     EventBus.$emit(message, { timeout: 3000 })
+   }
+diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
+index 23eb2ab..06e56a0 100644
+--- a/src/components/widgets/zr/ZrToolheadsCard.vue
++++ b/src/components/widgets/zr/ZrToolheadsCard.vue
+@@ -377,6 +377,31 @@
+           </div>
+         </template>
+ 
++        <template v-if="zrAutoLoadAvailable">
++          <v-divider class="my-2" />
++          <div class="d-flex align-center">
++            <span class="text-body-2 mr-2">Auto load</span>
++            <v-chip
++              x-small
++              label
++              class="mr-2"
++              title="When a spool is put in an ACE slot the printer starts loading it by itself (homes first if needed). Turn off to load only with the Load button."
++            >
++              start loading when a spool is inserted
++            </v-chip>
++            <v-spacer />
++            <v-switch
++              :input-value="zrAutoLoadOn"
++              dense
++              hide-details
++              class="mt-0 pt-0"
++              :disabled="!klippyReady"
++              aria-label="ACE auto load"
++              @change="zrAutoLoadSet"
++            />
++          </div>
++        </template>
++
+         <template v-if="zrEndlessAvailable">
+           <v-divider class="my-2" />
+           <div class="d-flex align-center">
+diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
+index 8ac9d96..f080b4d 100644
+--- a/src/components/widgets/zr/zrMixin.ts
++++ b/src/components/widgets/zr/zrMixin.ts
+@@ -106,6 +106,20 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+     this.sendGcode('SET_PIN PIN=ACE_Pro VALUE=1')
+   }
+ 
++  // The ACE_Auto_Load switch ([output_pin ACE_Auto_Load]): at 1 the ACE starts loading by itself when a spool is put in a slot.
++  get zrAutoLoadAvailable (): boolean {
++    return this.zrHasAce && this.zrPrinter['output_pin ACE_Auto_Load'] != null
++  }
++
++  get zrAutoLoadOn (): boolean {
++    const pin = this.zrPrinter['output_pin ACE_Auto_Load']
++    return pin == null || Number(pin.value) >= 0.5
++  }
++
++  zrAutoLoadSet (on: boolean | null): void {
++    this.zrSend(`ACE_WM_AUTO ENABLE=${on ? 1 : 0}`)
 +  }
 +
    get zrAce (): Record<string, any> {

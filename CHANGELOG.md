@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.2
+
+Quick homing with the tool on the carriage, an ACE auto load switch, and Fluidd hardware-action fixes (needs WM_Ultra_Vanilla_Klipper 2.7.2 for the LED part).
+
+- **Quick homing (`_WM_ACE_HOME`, `_WM_ACE_HOME_Z`)**: `ACE_WM_LOAD` and `ACE_WM_UNLOAD` home X, Y and Z with the tool that is already on the carriage instead of docking it and taking T0. A hot nozzle (above 150 C) is wiped first, then homed. It falls back to WonderMaker's own `G28` when a print runs or is paused, the fail flag is set, all tools are docked, or the stored tool offset is missing or too large.
+- **`SET_GCODE_OFFSET` wrapper**: skips the offset move while Z is not homed, so tool changes no longer fail with "Must home axis first".
+- **ACE auto load switch**: new `ACE_Auto_Load` output pin (Fluidd Outputs) in `rpi_ace_driver.cfg`; `ACE_WM_AUTO ENABLE=0|1` sets it, the choice is remembered across restarts, and the watcher only auto loads when it is on.
+- **Fluidd panel**: "Auto load" switch in the ACE section of the Toolheads card; Park and Select in Hardware actions need only X and Y homed; Purge asks to home first with a Home button; Load and Unload are hidden when an ACE is present (shown again without one).
+
 ## 1.7.1
 
 Automatic load and unload work again on upstream Klipper (needs WM_Ultra_Vanilla_Klipper 2.7.1 for the LED part).
