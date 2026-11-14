@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.5
+
+- **`z_rise` before every X/Y move of the ACE macros** (the bed is lowered first so the nozzle cannot scratch it): at the start of `ACE_WM_LOAD` and `ACE_WM_UNLOAD`, and in `_WM_ACE_HOME` before the homing and the hot-nozzle wipe, and in `_WM_ACE_HOME_Z` before the move to the middle of the bed. `z_rise` is WonderMaker's own macro; WM_Ultra_Vanilla_Klipper 2.7.4 fixes it for upstream Klipper (it never did anything there) and adds it to the tool lock and unlock and the wipe macros.
+
 ## 1.7.4
 
 - **The `SET_GCODE_OFFSET` wrapper is in both `rpi_ace.cfg` and WM_Ultra_Vanilla_Klipper 2.7.3 (`rpi_pi.cfg`).** The ACE panel works on its own, and with both installed Klipper merges the two identical sections into one macro.
