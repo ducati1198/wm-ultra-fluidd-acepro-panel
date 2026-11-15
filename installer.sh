@@ -530,7 +530,7 @@ restart_question() {
         if ask_yn "Restart Klipper now?" N; then
             svc_restart "$KLIPPER_SERVICE" && print_success "Klipper restarted. Read ~/printer_data/logs/klippy.log for '[ace]' lines."
         else
-            print_info "Not restarted. Do it from Fluidd (FIRMWARE_RESTART) or:  sudo systemctl restart $KLIPPER_SERVICE"
+            print_info "Not restarted. When no print is running, restart the Klipper service:  sudo systemctl restart $KLIPPER_SERVICE   (RESTART or FIRMWARE_RESTART in Fluidd does not load a new driver, and a new rpi_ace_driver.cfg with the old driver still in memory stops Klipper with 'Missing sensor')"
         fi
     else
         print_info "Klipper is not running, so nothing was restarted. The ACE driver loads the next time Klipper starts."

@@ -131,8 +131,8 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Works without an ACE Pro** | Say no to the ACE question and you get the WonderMaker Toolheads panel and the endless-spool option only. Every ACE element stays hidden. Add the ACE later by running the installer again. |
 | **ACE Pro as feeder** | `ACE_WM_LOAD T=n` feeds slot n to the hub inlet (fast), then to the toolhead sensor (slow). WonderMaker's own insert routine then heats and loads the filament. |
 | **Uses WonderMaker's own sensors** | The hub sensor `path_N` stops the fast feed, the toolhead sensor `filament<N>` stops the slow feed. No new sensors needed. |
-| **Unload** | `ACE_WM_UNLOAD T=n` runs WonderMaker's `UNLOAD_FILAMENT`, then the ACE pulls the filament back until `path_N` clears and into the ACE. |
-| **Auto-load** | Put a spool into an ACE slot and it loads to the matching toolhead (switch off with `ACE_WM_AUTO ENABLE=0`). |
+| **Unload** | `ACE_WM_UNLOAD T=n` picks up the real toolhead n (not the one a print map points to), forms a tip with the extruder, then the ACE pulls the filament back until the toolhead sensor is clear and its slot is empty. The hub sensors `path_N` are not used for this: they always read on. |
+| **Auto-load** | Put a spool into an ACE slot and it loads to the matching toolhead (switch off with `ACE_WM_AUTO ENABLE=0` or the Auto Load switch in Fluidd). It waits until the ACE is quiet (no slot preloading or shifting for 5 s), loads the spools in the order you put them in, and tries a feed the ACE refuses again every 4 s, up to 10 times, with a console message each time. After an unload the slot is held for 5 s only (`unload_hold` in `rpi_ace.cfg`); a spool that is ready when those 5 s end is not loaded by itself, a window asks **Load T0** or **No**. |
 | **Feed assist** | Follows the active toolhead while printing. |
 | **Dryer** | Start and stop from Fluidd, six material presets (PLA, PETG, ABS/ASA, TPU, Nylon/PA, PVA). Max 65 °C. |
 | **Filament mapping at print start** | "Choose toolheads" window: opens every time you press Print, so you always see which toolhead prints which filament before it starts. |
@@ -434,6 +434,8 @@ Everything you may want to tune is at the top of `~/printer_data/config/rpi_ace.
 
 Driver settings (`rpi_ace_driver.cfg`): `ace_count: 1`, `register_tool_commands: False` (keeps WonderMaker's own `T0`…`T3`), `feed_speed`, `retract_speed`, `max_dryer_temperature: 65`, `moonraker_lane_sync_enabled: True` (publishes the ACE slots to Moonraker's `lane_data` for OrcaSlicer; set `False` to switch it off).
 
+The driver is given no filament sensor: `filament_runout_sensor_name_nozzle` and `filament_runout_sensor_name_rdm` are left out on purpose. Those two only serve the driver's own colour changes, which this printer does not use, and the driver switches off the runout reaction of every sensor it is given. Up to 1.7.9 they pointed at `filament0` and `path_0`, so after every Klipper start the runout pause of those two was off (for `path_0` until the next restart, for `filament0` until T0 was picked up). From 1.7.10 the driver accepts having no sensor when `register_tool_commands: False`, and all eight sensors keep their runout pause and insert reaction. The load and unload macros in `rpi_ace.cfg` read the sensors themselves, as before.
+
 Endless spool settings (`rpi_endless.cfg`): `variable_hop` (Z lift while heads are swapped, 4 mm), `variable_prime_mm` (20), `variable_prime_speed` (300).
 
 ---
@@ -553,7 +555,7 @@ Written for the day the printer is running again. Do them in this order, empty b
 - The driver starts and talks to the ACE; `ACE_FEED` / `ACE_RETRACT` do not block, so the polling state machine can watch the sensors.
 - The slot status field (`ready` / `empty`) is read correctly, and `ACE_STOP_FEED` / `ACE_STOP_RETRACT` are harmless when the ACE is idle.
 - Load: the ACE feeds fast to the hub, creeps to the tool head sensor, stops, and feed assist turns on. Filament reached the nozzle (T2 confirmed; T0, T1 and T3 loaded).
-- Unload on T0, T1, T2 and T3: the tool is picked up by itself, the extruder pulls the tip, the ACE retracts, and the slot ends up empty. Auto-load is held off for a while afterwards so the slot's empty-then-ready flicker does not start a new load.
+- Unload on T0, T1, T2 and T3: the tool is picked up by itself, the extruder pulls the tip, the ACE retracts, and the slot ends up empty. Auto-load is held off for 5 s afterwards (it was 90 s until 1.7.10). Measured on the printer: after an unload the slot goes to empty and stays empty, the ACE does not grip the old filament end again.
 - Tool head LEDs (`wm_tool_leds.cfg` in wm-ultra-rpi): blue with filament, red without.
 
 ### Still unverified (needs the printer)
@@ -580,7 +582,7 @@ Written for the day the printer is running again. Do them in this order, empty b
 | `ACE_WM_UNLOAD T=0..3` | Picks up the tool, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back until its slot is empty. |
 | `ACE_WM_RETRACT T=0..3` | Only the ACE part of an unload (after WonderMaker's `UNLOAD_FILAMENT`). |
 | `ACE_WM_STOP` | Stop any feed or retract started by these macros. |
-| `ACE_WM_AUTO ENABLE=1\|0` | Auto-load on spool insert. |
+| `ACE_WM_AUTO ENABLE=1\|0` | Auto-load on spool insert. Loads wait for a quiet ACE and run in the order the spools were put in. |
 | `ACE_WM_DRY_START TEMP=55 DURATION=360` | Start drying (max 65 °C). |
 | `ACE_WM_DRY_STOP` | Stop drying. |
 | `WM_ENDLESS_SET ENABLE=1\|0` | Endless spool on / off (the Fluidd switch does the same). |
@@ -653,7 +655,8 @@ At the end of an install or update (after the Klipper restart question) the inst
 | Category | Colour | What goes in |
 |---|---|---|
 | AcePro | red | `ACE_*`, `WM_ENDLESS_*`, `WM_STATS_*`, `WM_SET_TOOL_MAP` |
-| Raspberry Pi | blue | the other `WM_*` macros (calibration, nozzle and offsets macros of the Pi installer) |
+| Raspberry Pi | blue | the other `WM_*` macros of the Pi installer (bed leveling, PID, first run calibration, chamber light, unload menu ...) |
+| Offset Calibration | pink | the tool offset and Z calibration macros: `WM_FULL_OFFSET_CAL`, `WM_OFFSETS_ACCURATE`, `WM_OFFSETS_RAPID`, `WM_OFFSETS_Z_HOT`, `WM_NOZZLE_GROWTH_CAL`, `WM_NOZZLE_GROWTH`, `WM_Z_TRIM`, `WM_Z_TRIM_MENU`, `WM_PROBE_CALIBRATE` |
 | WM Ultra Calibration | yellow | WonderMaker's calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
 | WM Ultra Tool Change | green | `T0`..`T3`, `LOCK`, `UNLOCK`, `PARK_CURRENT_TOOL` ... |
 | WM Ultra Filament | orange | `LOAD_FILAMENT`, `UNLOAD_FILAMENT`, `WIPE_NOZZLE` ... |
@@ -664,7 +667,10 @@ At the end of an install or update (after the Klipper restart question) the inst
 
 `M104`, `M106`, `M107`, `M109`, `M141`, `M190`, `M191`, `M221` and `z_rise` are hidden: nobody presses them by hand.
 
-- A category is created only when a macro for it exists (no AcePro category on a printer without the ACE parts), and an existing category with the same name is reused.
+The categories are listed in this order: Raspberry Pi, Offset Calibration, AcePro, WM Ultra Calibration, WM Ultra Tool Change, WM Ultra Filament, ZR Tools, WM Ultra Print, WM Ultra Tests, Timelapse.
+
+- A category is created only when a macro for it exists (no AcePro category on a printer without the ACE parts, no WM Ultra Tests category when no `TEST_*` macro is left), and an existing category with the same name is reused.
+- **Updating from 1.7.9 or older:** the offset macros were in Raspberry Pi. They are moved to Offset Calibration once, and only if you left them as the installer put them (still in Raspberry Pi, still blue). One you moved or recoloured stays where it is, and one you move back afterwards is not moved again.
 - **Your own choices are never changed.** A macro is sorted only while its Fluidd entry is still the default one. A macro you moved, recoloured, renamed or hid is left alone, and every macro is dealt with once: one you unhide or move back later is not touched again. Macros added by a later update are sorted the first time they are seen.
 - It needs Moonraker, and Klipper ready, because Klipper is what knows the macros. If Klipper is not running the installer says so and tells you to run `--fluidd-categories` later. It never fails the install.
 - The settings Fluidd had before are saved in `~/acepro-backup/fluidd-macros-before-<date>.json`. Uninstalling does not remove the categories (they are your Fluidd settings). Hard-refresh the browser to see the change.

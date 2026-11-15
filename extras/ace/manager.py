@@ -878,19 +878,35 @@ class AceManager:
         toolhead_sensor_name = instance.filament_runout_sensor_name_nozzle
         toolhead_resolved = False
 
-        # Try standard filament_switch_sensor <name>
-        try:
-            toolhead_sensor = self.printer.lookup_object(
-                f"filament_switch_sensor {toolhead_sensor_name}")
-            self.sensors[SENSOR_TOOLHEAD] = toolhead_sensor.runout_helper
-            self._prev_sensors_enabled_state[SENSOR_TOOLHEAD] = (
-                toolhead_sensor.runout_helper.sensor_enabled)
+        # No name: only possible when the printer owns the tool changes
+        # (register_tool_commands: False, see config.py). The driver then
+        # works as feeder and dryer only and takes no toolhead sensor, so it
+        # does not switch off the runout reaction of any of the printer's
+        # sensors. Every sensor read below is guarded for this case
+        # (get_switch_state returns False for a sensor that is not there).
+        if toolhead_sensor_name is None:
+            self.sensors.pop(SENSOR_TOOLHEAD, None)
+            self._prev_sensors_enabled_state.pop(SENSOR_TOOLHEAD, None)
             toolhead_resolved = True
             self.gcode.respond_info(
-                f"ACE: Toolhead sensor '{toolhead_sensor_name}' "
-                f"(filament_switch_sensor)")
-        except Exception:
-            pass
+                "ACE: No toolhead sensor (filament_runout_sensor_name_nozzle "
+                "not set, the printer owns the tool changes). The printer's "
+                "filament sensors are left as they are")
+
+        # Try standard filament_switch_sensor <name>
+        if not toolhead_resolved:
+            try:
+                toolhead_sensor = self.printer.lookup_object(
+                    f"filament_switch_sensor {toolhead_sensor_name}")
+                self.sensors[SENSOR_TOOLHEAD] = toolhead_sensor.runout_helper
+                self._prev_sensors_enabled_state[SENSOR_TOOLHEAD] = (
+                    toolhead_sensor.runout_helper.sensor_enabled)
+                toolhead_resolved = True
+                self.gcode.respond_info(
+                    f"ACE: Toolhead sensor '{toolhead_sensor_name}' "
+                    f"(filament_switch_sensor)")
+            except Exception:
+                pass
 
         # Try filament_tracker <name>
         if not toolhead_resolved:

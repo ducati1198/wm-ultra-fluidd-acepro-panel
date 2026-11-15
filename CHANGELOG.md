@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.8.0
+
+ACE load and unload fixes from the printer, a smarter auto load, and a rebuilt Fluidd panel. Needs WM_Ultra_Vanilla_Klipper 2.8.0 for the chamber light button and the unload menu.
+
+- **Unload and load use the real toolhead (`config/rpi_ace.cfg`).** `ACE_WM_LOAD`, `ACE_WM_UNLOAD`, `_WM_ACE_GRAB` and `_WM_ACE_UNLOAD_RUN` called `T<n>` and `M109 / M104 T<n>`, which follow the print map of the last print. With a map like "print tool 1 on toolhead 2" the unload of T1 went to toolhead 2. They now use `_CHANGE_TOOL T=n` and `SET_HEATER_TEMPERATURE`.
+- **Unload no longer fails with "hub sensor never cleared".** The hub sensors `path_0` to `path_3` always read on, so they cannot tell when the filament is back. The end of an unload is now: toolhead sensor clear and the ACE slot empty or ready.
+- **Auto load waits for the ACE and keeps the order.** A spool put in a slot goes into a queue. The load starts when the ACE has been quiet for 5 s (no slot preloading or shifting), spools load in the order they were put in, `ACE_WM_LOAD` queues itself while the ACE is preloading, and a feed the ACE refuses is tried again every 4 s, up to 10 times, with a console message.
+- **A second spool is loaded after the first.** The hold after a load blocked every slot for 90 s. It now only holds the slot that was just loaded or unloaded (`hold_slot`).
+- **Hold after an unload: 5 s instead of 90 s** (new `unload_hold` in `_WM_ACE`). Measured on the printer: after an unload the slot goes to empty and stays empty. A spool put back within the old 90 s was ignored for good, with no message. If the slot is ready when the 5 s end and the toolhead is empty, a window asks **Load T0** or **No** (`_WM_ACE_ASK_LOAD`, `_WM_ACE_ASK_YES`, `_WM_ACE_ASK_NO`); nothing loads without the click. The window was not tried on the printer yet, the 5 s hold was.
+- **Works with the unload menu of the Pi installer** (`WM_UNLOAD_MENU`, `rpi_unload.cfg` in WM_Ultra_Vanilla_Klipper 2.8.0): `ACE_WM_STOP` also stops the menu's list and a failed ACE step ends it. Both calls are skipped when the menu is not installed.
+- **Fluidd panel rebuilt** (new zip, patch and checksum):
+  - Toolheads card: an ACE READY line under the toolhead status, bigger hub and head sensor dots, smaller dryer presets, a chamber target box with Set and Off, the Set, Off and Dry buttons at the same height.
+  - **The CHAMBER LIGHT button switches the Moonraker power device `chamber_light`** instead of calling the screen board from the browser. Fluidd, the touchscreen and the macro `WM_CHAMBER_LIGHT` now always show the same state. The button is shown when Moonraker has that device (WM_Ultra_Vanilla_Klipper 2.8.0 writes it: `./installer.sh --light`). The old way (reading `rpi_chamber_light.json`) is removed from the panel.
+- Tests: 9 new checks for the hold and the Load window in `tests/test_macros.py`, 2 new checks for the Fluidd zip.
+
+## 1.7.10
+
+- **New Fluidd macro category "Offset Calibration" (pink), second in the list after Raspberry Pi (`scripts/wm_fluidd_categories.py`).** It holds the tool offset and Z calibration macros of the Pi installer: `WM_FULL_OFFSET_CAL`, `WM_OFFSETS_ACCURATE`, `WM_OFFSETS_RAPID`, `WM_OFFSETS_Z_HOT`, `WM_NOZZLE_GROWTH_CAL`, `WM_NOZZLE_GROWTH`, `WM_Z_TRIM`, `WM_Z_TRIM_MENU`, `WM_PROBE_CALIBRATE`. The chamber light and unload macros (`WM_CHAMBER_LIGHT`, `WM_UNLOAD_MENU`, `WM_UNLOAD_STOP`) and `WM_FIRST_RUN_CAL` are in Raspberry Pi, blue, like the other `WM_*` macros. A new install gets this layout as it is.
+- **Update from 1.7.9 or older:** the three offset macros that were in Raspberry Pi move to the new category once, and only while they are still as the installer put them. A macro you moved or recoloured stays, and one you move back is not moved again.
+- A new category is now placed after the category that comes before it in the list, not at the end.
+- **Fix: the runout pause of `path_0` and `filament0` was switched off after every Klipper start.** `rpi_ace_driver.cfg` named these two sensors for the driver, and the driver switches off the runout reaction of the sensors it is given. A runout at the hub then paused a print for T1 to T3 but not for T0. The driver (`extras/ace/config.py`, `extras/ace/manager.py`) now accepts having no toolhead sensor when `register_tool_commands: False`, and `config/rpi_ace_driver.cfg` no longer names any. Setups where the driver does the tool changes are not changed: the default sensor name `filament_runout_nozzle` still applies there. A sensor option written as `none` or left empty now also means no sensor.
+- `config/rpi_ace_driver.cfg` and `config/rpi_ace.cfg`: the descriptions at the top now say what this setup is (ACE Pro as feeder and dryer, the printer keeps its own T0 to T3, the macros read the sensors themselves).
+- **A short description next to every setting** in `config/rpi_ace_driver.cfg`, `config/rpi_ace.cfg`, `config/rpi_endless.cfg` and `config/rpi_stats.cfg` (40 added). Only comments changed, no value.
+- An update replaces `rpi_ace_driver.cfg`, so the two old sensor lines go away by themselves. Restart the Klipper service after the update (a `RESTART` does not reload the driver).
+- Tests: 10 new checks in `tests/test_fluidd_categories.py`.
+
 ## 1.7.9
 
 - **OrcaSlicer plugin 0.7.2 (`orca_plugin/spool_toolhead_mapper.py`).** The `FILE=` part of `WM_SET_TOOL_MAP` / `ACE_SET_TOOL_MAP` now holds only the file name, not the full folder path Orca gives. Fluidd and the macro compare file names, so with a full path your "Choose toolheads" choice in Fluidd was always overwritten by Orca's map; now it is kept. The slicing step also writes lines to `~/.spool_toolhead_mapper.log` (started, skipped, what it wrote). 3 new tests.

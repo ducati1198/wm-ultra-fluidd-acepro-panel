@@ -93,5 +93,21 @@ check("head in its own chain refused", raises(lambda: run(endl, "WM_ENDLESS_CHAI
 check("repeat refused", raises(lambda: run(endl, "WM_ENDLESS_CHAIN_SET", {"HEAD": "0", "CHAIN": "1,1"})))
 check("bad head refused", raises(lambda: run(endl, "WM_ENDLESS_CHAIN_SET", {"HEAD": "7", "CHAIN": "1"})))
 
+# ---- rpi_ace.cfg: short hold after an unload, and the Load window (1.8.0)
+ace = load("rpi_ace.cfg")
+W = {"tool": 0, "mode": "unload_hub", "unload_hold": 5}
+o = run(ace, "_WM_ACE_FINISH", gvars={"_WM_ACE": W})
+check("after an unload the hold is unload_hold and the window is armed", "SET_GCODE_VARIABLE MACRO=_WM_ACE VARIABLE=hold VALUE=5" in o and "SET_GCODE_VARIABLE MACRO=_WM_ACE VARIABLE=hold_ask VALUE=1" in o)
+o = run(ace, "_WM_ACE_FINISH", gvars={"_WM_ACE": dict(W, mode="load_final")})
+check("after a load the hold stays 90 s and no window is armed", "SET_GCODE_VARIABLE MACRO=_WM_ACE VARIABLE=hold VALUE=90" in o and "SET_GCODE_VARIABLE MACRO=_WM_ACE VARIABLE=hold_ask VALUE=0" in o)
+o = run(ace, "_WM_ACE_ASK_LOAD", {"T": "2"})
+check("Load window: closes any open window first", o[0] == 'RESPOND TYPE=command MSG="action:prompt_end"')
+check("Load window: asks for T2, Load and No buttons", any("prompt_begin Load T2" in l for l in o) and any("Load T2|_WM_ACE_ASK_YES T=2|primary" in l for l in o) and any("No|_WM_ACE_ASK_NO T=2" in l for l in o))
+check("Load window: bad T only reports", not any("prompt_begin" in l for l in run(ace, "_WM_ACE_ASK_LOAD", {"T": "9"})))
+check("Load button loads the tool", "ACE_WM_LOAD T=1" in run(ace, "_WM_ACE_ASK_YES", {"T": "1"}))
+check("No button loads nothing", not any(l.startswith("ACE_WM_LOAD") for l in run(ace, "_WM_ACE_ASK_NO", {"T": "1"})))
+check("rpi_ace.cfg needs no macro of the Pi installer (_WM_FAIL)", "_WM_FAIL" not in open(os.path.join(CFG, "rpi_ace.cfg")).read())
+check("no ; # * inside a RESPOND MSG of the new macros", not any(c in l.split('MSG="', 1)[1] for k in ("_WM_ACE_ASK_LOAD", "_WM_ACE_ASK_YES", "_WM_ACE_ASK_NO") for l in ace[k].splitlines() if 'MSG="' in l for c in ";#*"))
+
 print(f"\npassed: {PASS}  failed: {FAIL}")
 sys.exit(1 if FAIL else 0)

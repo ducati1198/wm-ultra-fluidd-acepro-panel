@@ -146,6 +146,14 @@ def park_pull_length(ace_config, toolhead_paths):
     return float(ace_config["parkposition_to_toolhead_length"])
 
 
+def _sensor_name(value):
+    """A sensor name option: empty or "none" (any case) means no sensor."""
+    if value is None:
+        return None
+    value = str(value).strip()
+    return None if value == "" or value.lower() == "none" else value
+
+
 def read_ace_config(config):
     """
     Read and validate all ACE config values, return as dict.
@@ -159,12 +167,13 @@ def read_ace_config(config):
     # from the active protocol (ACE1=115200, ACE2=230400).
     raw_baud = config.get("baud", "auto")
     ace_config["baud"] = raw_baud
-    ace_config["filament_runout_sensor_name_rdm"] = config.get(
+    ace_config["filament_runout_sensor_name_rdm"] = _sensor_name(config.get(
         "filament_runout_sensor_name_rdm", None
-    )
-    ace_config["filament_runout_sensor_name_nozzle"] = config.get(
-        "filament_runout_sensor_name_nozzle", "filament_runout_nozzle"
-    )
+    ))
+    # None = not set. Resolved below, once register_tool_commands is known.
+    ace_config["filament_runout_sensor_name_nozzle"] = _sensor_name(config.get(
+        "filament_runout_sensor_name_nozzle", None
+    ))
     ace_config["feed_assist_active_after_ace_connect"] = config.getboolean(
         "feed_assist_active_after_ace_connect", True
     )
@@ -268,6 +277,13 @@ def read_ace_config(config):
     ace_config["register_tool_commands"] = config.getboolean(
         "register_tool_commands", True
     )
+    # Toolhead sensor: the driver's own tool changes need one, so the old default name
+    # stays when the driver registers T0..Tn. A printer that owns its tool changes
+    # (register_tool_commands: False) only uses the ACE as feeder and dryer: with no
+    # sensor named, the driver takes none and leaves the printer's sensors alone.
+    if (ace_config["filament_runout_sensor_name_nozzle"] is None
+            and ace_config["register_tool_commands"]):
+        ace_config["filament_runout_sensor_name_nozzle"] = "filament_runout_nozzle"
     # Orca filament sync via Moonraker database namespace "lane_data"
     # Enabled by default to keep Orca lane data up to date. Set to False to opt-out
     # of Moonraker writes.

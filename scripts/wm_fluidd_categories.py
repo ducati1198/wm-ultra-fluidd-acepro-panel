@@ -10,7 +10,10 @@ Rules that keep the user's own choices safe:
   * Every macro is dealt with once. Its name is then recorded in Moonraker's database (namespace "wm_ultra",
     key "fluidd_categories"), so a macro you later move back or unhide is never touched again. Macros added
     by a later update are new, so they are sorted the first time they are seen.
-  * Categories are created only when missing (matched by name, ignoring case). Existing ones are kept.
+  * Categories are created only when missing (matched by name, ignoring case). Existing ones are kept. A new one
+    is placed after the category that comes before it in the list below, when that one exists.
+  * The offset and Z calibration macros were in "Raspberry Pi" up to 1.7.9. They are moved to "Offset Calibration"
+    once, and only while their entry is still what the installer wrote. One you moved or recoloured stays.
 
 Usage:
   wm_fluidd_categories.py apply [--url URL] [--wait SECONDS] [--backup FILE] [--dry-run]
@@ -24,10 +27,14 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# The Pi installer's tool offset and Z calibration macros: their own category, so they are found in one place.
+OFFSET_MACROS = ["WM_FULL_OFFSET_CAL", "WM_OFFSETS_ACCURATE", "WM_OFFSETS_RAPID", "WM_OFFSETS_Z_HOT", "WM_NOZZLE_GROWTH_CAL",
+                 "WM_NOZZLE_GROWTH", "WM_Z_TRIM", "WM_Z_TRIM_MENU", "WM_PROBE_CALIBRATE"]
 # (category name, colour, exact macro names, name prefixes). The first rule that matches wins.
 CATEGORIES = [
     ("Timelapse", "#00bcd4", ["GET_TIMELAPSE_SETUP", "HYPERLAPSE", "TIMELAPSE_RENDER", "TIMELAPSE_TAKE_FRAME", "TEST_STREAM_DELAY"], []),
     ("AcePro", "#f44336", ["WM_SET_TOOL_MAP"], ["ACE_", "WM_ENDLESS_", "WM_STATS_"]),
+    ("Offset Calibration", "#e91e63", OFFSET_MACROS, []),
     ("Raspberry Pi", "#2196f3", [], ["WM_"]),
     ("WM Ultra Calibration", "#ffeb3b",
      ["G29", "PROBE_CALIBRATE", "BED_MESH_CALIBRATE", "CALIBRATE_OFFSET_ALL_RAPID_MODE", "CALIBRATE_OFFSET_ALL_FINE_MODE",
@@ -44,10 +51,15 @@ CATEGORIES = [
     ("WM Ultra Tests", "#607d8b", [], ["TEST_"]),
 ]
 # Shown in this order in Fluidd (the order the categories are created in).
-CATEGORY_ORDER = ["Raspberry Pi", "AcePro", "WM Ultra Calibration", "WM Ultra Tool Change", "WM Ultra Filament",
+CATEGORY_ORDER = ["Raspberry Pi", "Offset Calibration", "AcePro", "WM Ultra Calibration", "WM Ultra Tool Change", "WM Ultra Filament",
                   "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"]
 # Helper macros nobody presses by hand: hidden the first time they are seen.
 HIDDEN = ["M104", "M106", "M107", "M109", "M141", "M190", "M191", "M221", "z_rise"]
+
+# Macros an earlier version sorted into another category. They are moved once, and only while their entry is still
+# exactly what that version wrote (same category, same colour, visible, no alias): (macro names, old category, old colour).
+MOVES = [(OFFSET_MACROS, "Raspberry Pi", "#2196f3")]
+MOVED_MARK = "moved:"      # "moved:<name>" in the handled list = this macro's move was dealt with (a macro name has no colon)
 
 NS_FLUIDD, KEY_MACROS = "fluidd", "macros"
 NS_OURS, KEY_HANDLED = "wm_ultra", "fluidd_categories"
@@ -85,7 +97,7 @@ def plan(macros, fluidd_value, handled, now_ms=None):
     by_name = {m.get("name", "").lower(): m for m in stored}
     cat_id = {c.get("name", "").lower(): c.get("id") for c in cats}
     created = []
-    report = {"categorized": 0, "hidden": 0, "kept": 0, "created": created}
+    report = {"categorized": 0, "hidden": 0, "kept": 0, "moved": 0, "created": created}
     new_handled = list(handled)
     seq = 0
 
@@ -94,7 +106,13 @@ def plan(macros, fluidd_value, handled, now_ms=None):
         if name.lower() not in cat_id:
             seq += 1
             cid = str(now_ms + seq)
-            cats.append({"id": cid, "name": name})
+            # after the nearest category that comes before it in CATEGORY_ORDER; at the end when none of those exists
+            pos = len(cats)
+            before = [n.lower() for n in CATEGORY_ORDER[:CATEGORY_ORDER.index(name)]] if name in CATEGORY_ORDER else []
+            for i, c in enumerate(cats):
+                if c.get("name", "").lower() in before:
+                    pos = i + 1
+            cats.insert(pos, {"id": cid, "name": name})
             cat_id[name.lower()] = cid
             expanded.append(len(cats) - 1)
             created.append(name)
@@ -114,6 +132,8 @@ def plan(macros, fluidd_value, handled, now_ms=None):
     for name, (kind, colour) in sorted(wanted.items(), key=lambda kv: kv[0].lower()):
         entry = by_name.get(name.lower())
         new_handled.append(name)
+        if any(name.lower() in [n.lower() for n in names] for names, _, _ in MOVES):
+            new_handled.append(MOVED_MARK + name)     # sorted by this version: there is nothing to move later
         if entry is not None and not pristine(entry):
             report["kept"] += 1          # you changed it yourself (or it is already hidden): left as it is
             continue
@@ -128,7 +148,21 @@ def plan(macros, fluidd_value, handled, now_ms=None):
             entry["categoryId"] = ensure_category(kind)
             entry["color"] = colour
             report["categorized"] += 1
-    report["changed"] = bool(created or report["categorized"] or report["hidden"] or len(new_handled) != len(handled))
+    # one-time moves of macros an earlier version sorted elsewhere
+    for names, old_cat, old_colour in MOVES:
+        for name in names:
+            mark = MOVED_MARK + name
+            entry = by_name.get(name.lower())
+            if mark.lower() in done or name.lower() not in done or entry is None or name not in macros:
+                continue                      # already dealt with, or sorted by this version (so it is in the right place)
+            new_handled.append(mark)
+            r = match(name)
+            if (r and r[0] not in ("hide", old_cat) and old_cat.lower() in cat_id and str(entry.get("categoryId")) == str(cat_id[old_cat.lower()])
+                    and entry.get("color") == old_colour and entry.get("visible", True) is True and not entry.get("alias")):
+                entry["categoryId"] = ensure_category(r[0])
+                entry["color"] = r[1]
+                report["moved"] += 1
+    report["changed"] = bool(created or report["categorized"] or report["hidden"] or report["moved"] or len(new_handled) != len(handled))
     return value, new_handled, report
 
 
@@ -188,6 +222,8 @@ def main(argv):
             print("Fluidd macros: nothing new to sort.")
             return 0
         msg = "Fluidd macros: %d sorted into categories, %d hidden, %d left as you set them" % (rep["categorized"], rep["hidden"], rep["kept"])
+        if rep["moved"]:
+            msg += ", %d moved to Offset Calibration" % rep["moved"]
         if rep["created"]:
             msg += "; new categories: " + ", ".join(rep["created"])
         if a.dry_run:
