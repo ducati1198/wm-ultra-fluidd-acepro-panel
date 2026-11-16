@@ -6,7 +6,7 @@ Fluidd v1.38.0 with:
 
 - the WonderMaker **Toolheads** card (four toolheads, chamber with a target box, air filter, chamber light through the Moonraker power device `chamber_light`, doors, print with colours), and
 - the **Choose toolheads** window at print start (filament mapping; opens every time you press Print), and
-- the **ACE Pro** parts inside that same card: slot state and hub/head sensor dots per toolhead, ACE header (connection, temperature, humidity), dryer with six material presets, endless-spool section (sets of identical toolheads, Swap automatically switch, swap offer), and an "ACE feeder · slot N" section in the toolhead dialog (Load, Unload, Feed assist, manual Feed/Retract, Stop).
+- the **ACE Pro** parts inside that same card: slot state and tangle/head sensor dots per toolhead, ACE header (connection, temperature, humidity), dryer with six material presets, endless-spool section (sets of identical toolheads, Swap automatically switch, swap offer), and an "ACE feeder · slot N" section in the toolhead dialog (Load, Unload, Feed assist, manual Feed/Retract, Stop).
 
 There is no separate ACE card. The ACE parts appear only when Klipper reports `ace_instance_0`; the endless-spool row only when the macro `WM_ENDLESS_CONTINUE` exists.
 

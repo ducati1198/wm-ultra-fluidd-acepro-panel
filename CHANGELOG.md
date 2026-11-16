@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.12.0
+
+Endless spool: a tangle can start a swap too, a spare needs filament at the ACE, and the feed assist comes back after an ACE reconnect. Tested on a ZR Ultra-S with an ACE Pro (a tangle swap with the Fixed button). Goes with WM_Ultra_Vanilla_Klipper 2.13.0 (its `hub.cfg` tells the endless spool which toolhead tangled).
+
+- **The hub sensors are tangle sensors.** 1.11.0 read `path_N` as "toolhead empty": when the ACE dropped off USB for a moment, the filament pulled tight, the tangle sensor fired and the endless spool swapped away from a toolhead that was not empty. `config/rpi_endless.cfg` no longer reads them as filament sensors: only the toolhead's own sensor says empty.
+- **Swap on a tangle** (new switch, `WM_ENDLESS_SET TANGLE=1|0`, saved, default on). A spool whose end is fixed to the spool never frees the filament, so the toolhead sensor never sees "empty": only the tangle sensor notices it. With the switch on, a tangle on the printing toolhead starts a swap to an identical toolhead; with it off, or with no spare, the print stays paused. The toolhead that tangled is **out of the line** until `WM_ENDLESS_FIXED T=n` (the **Fixed** button under that toolhead, or in the window that opens at the swap), a reload of its filament, or the end of the print, so the printer does not swap back to it and tangle again.
+- **A spare must have filament at the ACE too.** With an ACE Pro connected and in use, a toolhead whose ACE slot is empty is skipped, even with filament still in the toolhead. Without an ACE, with the ACE disconnected or switched off, only the toolhead sensors count: the endless spool works the same without an ACE.
+- **Feed assist after an ACE reconnect (`config/rpi_ace.cfg`, `_WM_ACE_ASSIST_SYNC`).** When the ACE comes back from a USB drop it reports no feed assist; it is switched on again for the toolhead that is on the carriage (at most every 10 s). A toolhead the endless spool swapped away from stays off.
+- **Fluidd panel rebuilt** (new zip, patch and checksum): the light "Hub" is called **Tangle**; "TANGLE OR SPOOL END" and a **Fixed** button under a toolhead that is out of the line; in the Endless spool section the ACE spools (filament or empty) left of the circle, the **Swap on a tangle** switch, and chips "tangle or spool end, check" and "spool empty at the ACE, refill".
+
 ## 1.11.0
 
 Endless spool swaps by itself, for sets of 2, 3 or 4 identical toolheads. Tested on a ZR Ultra-S: one real runout and 10 swaps in one four-tool print, nozzle height after every swap within 0.02 mm. Goes with WM_Ultra_Vanilla_Klipper 2.12.0 (tool mapping reset at the end of a print, 20 mm purge in RESUME).

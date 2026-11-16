@@ -141,7 +141,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Endless spool (experimental)** | Off by default. When a toolhead runs out the print pauses, and a toolhead with the same material and colour takes over **by itself** (switch "Swap automatically"), with one purge and wipe. Sets of 2, 3 or 4 identical toolheads, or two sets of 2. The card shows who takes over for whom. WonderMaker has no endless spool from the factory (section 8). |
 | **Tool-change progress bar** | A bar in the card while WonderMaker changes tools (lifting, putting the old head back, locking the new one), read from WonderMaker's own flag and the dock sensors. Not yet tested on a printer. |
 | **Counters** | Tool changes in total and per toolhead, plus the print time of each toolhead on the carriage (pauses not counted), with a Reset button. |
-| **Sensor lights** | Every toolhead shows its Hub, Head and Dock sensors; below the toolheads the carriage's Tool lock and Lock motor home sensors. |
+| **Sensor lights** | Every toolhead shows its Tangle (the sensor at the hub: off when the filament is pulled tight), Head and Dock sensors; below the toolheads the carriage's Tool lock and Lock motor home sensors. |
 | **Unload Menu button** | Opens the unload window of the Pi installer (`WM_UNLOAD_MENU`): one toolhead or all of them, with or without an ACE. |
 | **Touchscreen line** | The touchscreen board's version, an "update" chip when a newer version is on GitHub, its CPU and free memory. The board sends it every minute (needs WM_Ultra_Vanilla_Klipper 2.11.0 on the board). |
 | **OrcaSlicer plugin** | Pick the toolhead for each filament inside Orca; written into the G-code as `WM_SET_TOOL_MAP` ([`orca_plugin/`](orca_plugin/INSTALL.md)). |
@@ -451,7 +451,7 @@ The ACE has no card of its own. It lives inside the WonderMaker **Toolheads** ca
 - **ACE header:** connection state, temperature and humidity.
 - **Per toolhead:** ACE slot state (ready / empty / loading / assist) and two sensor dots (hub `path_N`, head `filament<N>`).
 - **Dryer row:** target temperature, duration, Dry / Stop, and six presets.
-- **Endless spool section:** the on/off switch and a **Swap automatically** switch; while it is on, a circle with the four toolheads in their filament colours (a green arc joins the identical ones, an empty one is faded, the printing one has a white edge) and chips that say who takes over for whom ("T1 ⇄ T2 PLA identical", "T1 printing, next: T2", "T3 no spare", "T1 empty, refill"). A banner with a one-tap confirmation only when Swap automatically is off, or a message when no identical toolhead has filament.
+- **Endless spool section:** the on/off switch, a **Swap automatically** and a **Swap on a tangle** switch, with an ACE the four ACE spools (filament or empty); while it is on, a circle with the four toolheads in their filament colours (a green arc joins the identical ones, an empty one is faded, the printing one has a white edge) and chips that say who takes over for whom ("T1 ⇄ T2 PLA identical", "T1 printing, next: T2", "T3 no spare", "T1 empty, refill"). A banner with a one-tap confirmation only when Swap automatically is off, or a message when no identical toolhead has filament.
 - **Switches under it (1.9.0):** **ACE Pro** (the ACE driver on or off, `SET_PIN PIN=ACE_Pro`), **Bed warp wait** (`WM_BED_SOAK ENABLE=`) and **Nozzle heat growth** (`SET_PIN PIN=Nozzle_Heat_Growth`, from WM_Ultra_Vanilla_Klipper's Z offset tools). Each one is shown only when its pin or macro exists on the printer. ACE Pro and Nozzle heat growth cannot be switched while a print runs.
 - **Friendly sensor names (1.9.0):** the Filament Sensors card shows T<n> head filament, T<n> hub filament, T<n> in dock, Tool lock and Lock motor home, with the real Klipper name in small letters under each.
 - **Toolhead dialog → "ACE feeder · slot N":** Load from ACE, Unload to ACE, Feed assist on/off, manual Feed / Retract with length and speed, Stop motor.
@@ -592,7 +592,8 @@ Written for the day the printer is running again. Do them in this order, empty b
 | `ACE_WM_AUTO ENABLE=1\|0` | Auto-load on spool insert. Loads wait for a quiet ACE and run in the order the spools were put in. |
 | `ACE_WM_DRY_START TEMP=55 DURATION=360` | Start drying (max 65 °C). |
 | `ACE_WM_DRY_STOP` | Stop drying. |
-| `WM_ENDLESS_SET ENABLE=1\|0 AUTO=1\|0` | Endless spool on / off, and Swap automatically on / off (the two Fluidd switches do the same). |
+| `WM_ENDLESS_SET ENABLE=1\|0 AUTO=1\|0 TANGLE=1\|0` | Endless spool on / off, Swap automatically on / off, Swap on a tangle on / off (the three Fluidd switches do the same; all are saved). |
+| `WM_ENDLESS_FIXED T=0` | After a tangle swap: the spool of this toolhead is free or replaced, it may take over again (the Fixed button does the same). |
 | `WM_ENDLESS_PLAN` | Shows the sets of identical toolheads and who takes over for whom; moves nothing. |
 | `WM_SET_TOOL_MAP MAP=0:2,1:3 [FILE=] [KEEP_EXISTING=1]` | Print tool → toolhead for the next print (written by the OrcaSlicer plugin; Fluidd's choice wins for the same file with `KEEP_EXISTING=1`). |
 | `WM_STATS_RESET` | Tool-change counters back to 0. |
@@ -609,25 +610,28 @@ Loads and unloads are refused while a print is running. Printing, colour mapping
 
 How it works:
 
-1. A toolhead runs out → WonderMaker pauses the print (its normal behaviour): the toolhead's own filament sensor after 2.5 s, or the hub sensor at once.
-2. Every 3 s the printer looks (`_WM_ENDLESS_TICK`): is the print paused and is the toolhead on the carriage empty? Then it takes the **next toolhead in number order that has the same material and colour and has filament**; after the last toolhead it starts again from the first. Material and colour are the ones you set in the toolhead dialog. This runs on the printer, so no browser has to be open.
+1. A toolhead runs out → WonderMaker pauses the print (its normal behaviour): the toolhead's own filament sensor, after 2.5 s. The four sensors at the hub are **tangle sensors**: they fire when the filament is pulled tight (a tangle, or a finished spool whose end is fixed to the spool) and pause the print at once.
+2. Every 3 s the printer looks (`_WM_ENDLESS_TICK`): is the print paused, and is the toolhead on the carriage empty, or did its tangle sensor fire (switch **Swap on a tangle**, on by default)? Then it takes the **next toolhead in number order that has the same material and colour and is ready**: filament in the toolhead, not set aside after a tangle, and with an ACE Pro connected also filament in its ACE slot. After the last toolhead it starts again from the first. Material and colour are the ones you set in the toolhead dialog. This runs on the printer, so no browser has to be open.
 3. With **Swap automatically** on (the default) the swap starts by itself. With it off, the card offers the toolhead and you tap **Swap & continue**. No identical toolhead with filament: one message, and the print stays paused until you load filament and resume.
 4. The swap (`WM_ENDLESS_CONTINUE FROM= TO=`): tool change with WonderMaker's `_CHANGE_TOOL` straight from the park position (the empty, cold nozzle never goes back to the part); the temperature of the empty toolhead and the print's tool mapping go to the spare; WonderMaker's `RESUME` heats it, purges and wipes once at the wipe area and returns to the print; a last step moves the nozzle by the difference between the offsets of the two toolheads, so it stands exactly where the other one stopped (X, Y and Z).
 5. Every later tool command of the print for the empty toolhead takes the spare. When the spare runs out too, the next one in the set takes over. A refilled toolhead is back in the line. When the print ends or is cancelled, the tool mapping is back to normal (WM_Ultra_Vanilla_Klipper 2.12.0 or newer resets its saved copy too).
-6. If anything is not as expected, it stops with a message and the print stays paused.
+6. **After a tangle swap** the toolhead that tangled is out of the line, so the printer does not swap back to it and tangle again. A window opens (Fluidd and touchscreen) and the card shows "TANGLE OR SPOOL END" with a **Fixed** button under that toolhead. It is back in the line when you press Fixed (`WM_ENDLESS_FIXED T=n`), when you reload its filament, or when the print ends.
+7. If anything is not as expected, it stops with a message and the print stays paused.
 
 **Sets.** Every group of toolheads with the same material and colour is a set: two, three or all four toolheads, or two sets of two (for example toolheads 1 + 2 red PLA and 3 + 4 blue PETG). A set swaps only inside itself.
 
 <div align="center">
 <img src="docs/img/fluidd-endless-section.png" alt="Endless spool section of the Toolheads card" width="80%"><br>
-<em>The Endless spool section: all four toolheads are one set here.</em><br><br>
+<em>The Endless spool section: the ACE spools on the left, the set in the circle, the switches and chips on the right. Toolhead 2 is unloaded here.</em><br><br>
+<img src="docs/img/fluidd-toolhead-tiles.png" alt="Toolhead tiles with the Tangle, Head and Dock lights" width="80%"><br>
+<em>The toolhead tiles with the Tangle, Head and Dock lights.</em><br><br>
 <img src="docs/img/fluidd-endless-offer.png" alt="Endless spool offer in the Toolheads card" width="48%"> <img src="docs/img/fluidd-endless-confirm.png" alt="Confirmation dialog" width="48%"><br>
 <em>With Swap automatically off: the offer and the one-tap confirmation (demo data, pictures from an older version).</em>
 </div>
 
 `WM_ENDLESS_PLAN` prints the sets and moves nothing. Turn it on with the Fluidd switch or `WM_ENDLESS_SET ENABLE=1`.
 
-**Tested** on a ZR Ultra-S with an ACE Pro (2026-11-16): one real runout and 10 swaps in one print of a four-tool cube, every toolhead taking over at least twice, the nozzle height after each swap within 0.02 mm of the layer. **First use:** still a cheap print with you at the printer.
+**Tested** on a ZR Ultra-S with an ACE Pro (2026-11-16): 10 swaps in one print of a four-tool cube, every toolhead taking over at least twice, the nozzle height after each swap within 0.02 mm of the layer; and a tangle swap with the window and the Fixed button. Not tested: a printer without an ACE, a real runout at a toolhead sensor (the runouts were faked), and the feed assist coming back after an ACE reconnect. **First use:** still a cheap print with you at the printer.
 
 ---
 

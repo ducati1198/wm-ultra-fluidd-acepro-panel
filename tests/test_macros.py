@@ -109,7 +109,7 @@ check("paused: print_duration stands still, nothing added", "SET_GCODE_VARIABLE 
 
 print("Feed assist (B-040)")
 ace = load("rpi_ace.cfg")
-A0 = {"mode": "idle", "manual": -2, "pstate": "printing", "assist": -1}
+A0 = {"mode": "idle", "manual": -2, "pstate": "printing", "assist": -1, "ace_instance": 0, "resync": 0}
 o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 0}, state="printing", gvars={"_WM_ACE": dict(A0)})
 check("printing with T0 on the carriage: assist on for T0", "ACE_ENABLE_FEED_ASSIST T=0" in o)
 o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 99}, state="printing", gvars={"_WM_ACE": dict(A0, assist=0)})
@@ -120,6 +120,21 @@ o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 2}, state="st
 check("assist set by hand (ACE_WM_ASSIST T=3) wins while no print starts or ends", "ACE_ENABLE_FEED_ASSIST T=3" in o)
 o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 0}, state="printing", gvars={"_WM_ACE": dict(A0, mode="load_fast")})
 check("no assist change while a load runs", not any("FEED_ASSIST" in l for l in o))
+AI = lambda slot, conn="connected": {"connection_state": conn, "feed_assist_slot": slot}
+def arun(w, cur, state="printing", ace=None):
+    env = jinja2.Environment("{%", "%}", "{", "}", extensions=["jinja2.ext.do"])
+    printer = {"save_variables": {"variables": {"current_extruder": cur}}, "print_stats": {"state": state}, "gcode_macro _WM_ACE": w}
+    if ace is not None: printer["ace_instance_0"] = ace
+    out = env.from_string(globals()["ace"]["_WM_ACE_ASSIST_SYNC"]).render(params={}, printer=printer)
+    return [l.strip() for l in out.splitlines() if l.strip() and not l.strip().startswith("#")]
+AW = dict(A0, ace_instance=0, resync=0, assist=0)
+o = arun(dict(AW), 0, ace=AI(-1))
+check("ACE came back without feed assist: on again for the toolhead that prints, then a 10 s hold", "ACE_ENABLE_FEED_ASSIST T=0" in o and "SET_GCODE_VARIABLE MACRO=_WM_ACE VARIABLE=resync VALUE=10" in o and not any(l.startswith("ACE_DISABLE") for l in o))
+check("inside the hold: not sent again", not any(l.startswith("ACE_ENABLE") for l in arun(dict(AW, resync=4), 0, ace=AI(-1))))
+check("ACE reports our slot: nothing to do", arun(dict(AW), 0, ace=AI(0)) == [])
+check("ACE not connected yet: nothing sent", not any(l.startswith("ACE_ENABLE") for l in arun(dict(AW), 0, ace=AI(-1, "disconnected"))))
+o = arun(dict(AW), 1, ace=AI(-1))
+check("the endless spool swapped to T1 meanwhile: assist goes on for T1, the lost T0 is not switched off or on", "ACE_ENABLE_FEED_ASSIST T=1" in o and not any("T=0" in l for l in o))
 w = ace["_wm_ace_watch"]
 check("the watcher only calls _WM_ACE_ASSIST_SYNC for feed assist (no assist command of its own)", "_WM_ACE_ASSIST_SYNC" in w and "ACE_ENABLE_FEED_ASSIST" not in w and "toolhead.extruder" not in w)
 
@@ -131,7 +146,8 @@ def erun(name, params=None, variables=None, state="paused", sensors=None, w=None
     """like run(), with the filament sensors and the objects the endless macros read"""
     env = _j.Environment("{%", "%}", "{", "}", extensions=["jinja2.ext.do"])
     env.globals["action_raise_error"] = lambda m: (_ for _ in ()).throw(Err(m))
-    W = {"from": -1, "to": -1, "swap_file": "", "tried": 0, "ofx": 0.0, "ofy": 0.0, "ofz": 0.1, "ocx": 0.3, "ocy": 0.35, "ocz": 0.004, "pending": 0, "keeps": 1, "fake": -1}
+    W = {"from": -1, "to": -1, "swap_file": "", "tried": 0, "ofx": 0.0, "ofy": 0.0, "ofz": 0.1, "ocx": 0.3, "ocy": 0.35, "ocz": 0.004, "pending": 0, "keeps": 1, "fake": -1,
+         "tangle": -1, "out0": 0, "out1": 0, "out2": 0, "out3": 0}
     W.update(w or {})
     printer = {"save_variables": {"variables": dict(variables or {})}, "print_stats": {"state": state, "print_duration": 100.0, "filename": "a.gcode"},
                "gcode_macro _WM_ENDLESS": W, "gcode_macro _WM_PAUSE_STATE": {"active": 1}, "gcode_macro _WM_LIVEZ": {},
@@ -161,8 +177,33 @@ check("no identical toolhead: no swap, one message, the pause is marked as handl
 o = erun("_WM_ENDLESS_TICK", variables=dict(SAME, zr_t0_mat=None, zr_t1_mat=None, zr_t2_mat=None, zr_t3_mat=None), sensors=E0)
 check("material not set: never identical", not any(l.startswith("WM_ENDLESS_CONTINUE") for l in o))
 check("toolhead on the carriage has filament: nothing happens", erun("_WM_ENDLESS_TICK", variables=SAME) == [])
-check("the hub sensor counts too (path_0 empty)", "WM_ENDLESS_CONTINUE FROM=0 TO=1" in erun("_WM_ENDLESS_TICK", variables=SAME, extra={"filament_switch_sensor path_0": {"filament_detected": False}}))
-check("a spare whose hub sensor is empty is skipped", "WM_ENDLESS_CONTINUE FROM=0 TO=2" in erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0, extra={"filament_switch_sensor path_1": {"filament_detected": False}}))
+HUB_OFF = {"filament_switch_sensor path_0": {"filament_detected": False}, "filament_switch_sensor path_1": {"filament_detected": False}}
+check("a hub (tangle) sensor that reads off does not make a toolhead empty", erun("_WM_ENDLESS_TICK", variables=SAME, extra=HUB_OFF) == [])
+check("a spare is not skipped for its hub (tangle) sensor", "WM_ENDLESS_CONTINUE FROM=0 TO=1" in erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0, extra=HUB_OFF))
+o = erun("_WM_ENDLESS_TANGLE", {"T": "2"}, state="paused")
+check("_WM_ENDLESS_TANGLE remembers the toolhead (only in a print)", "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=tangle VALUE=2" in o and erun("_WM_ENDLESS_TANGLE", {"T": "2"}, state="standby") == [])
+o = erun("_WM_ENDLESS_TICK", variables=SAME, w={"tangle": 0})
+check("tangle on the printing toolhead: swap, toolhead out of the line, window with Fixed and Close", "WM_ENDLESS_CONTINUE FROM=0 TO=1" in o and "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=out0 VALUE=1" in o and any("prompt_footer_button Fixed|WM_ENDLESS_FIXED T=0" in l for l in o) and any("prompt_show" in l for l in o) and o.index("WM_ENDLESS_CONTINUE FROM=0 TO=1") > max(i for i, l in enumerate(o) if "prompt_show" in l))
+check("Swap on a tangle off: a tangle starts nothing", erun("_WM_ENDLESS_TICK", variables=dict(SAME, wm_endless_tangle=0), w={"tangle": 0}) == [])
+check("a tangle of another toolhead than the one on the carriage starts nothing", erun("_WM_ENDLESS_TICK", variables=SAME, w={"tangle": 2}) == [])
+o = erun("_WM_ENDLESS_TICK", variables=dict(SAME, zr_t1_color=1, zr_t2_color=2, zr_t3_color=3), w={"tangle": 0})
+check("tangle with no identical toolhead: stays paused, nothing is taken out of the line", not any(l.startswith("WM_ENDLESS_CONTINUE") or "VARIABLE=out0" in l for l in o) and any("stays paused" in l for l in o))
+check("a toolhead that is out of the line is skipped as a spare", "WM_ENDLESS_CONTINUE FROM=0 TO=2" in erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0, w={"out1": 1}))
+o = erun("_WM_ENDLESS_TICK", variables=SAME, state="printing", sensors=[True, False, True, True], w={"out1": 1})
+check("out of the line + its toolhead sensor goes off: reload seen (2)", "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=out1 VALUE=2" in o)
+o = erun("_WM_ENDLESS_TICK", variables=SAME, state="printing", w={"out1": 2})
+check("reloaded: back in the line", "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=out1 VALUE=0" in o)
+check("print over: every toolhead is back in the line", "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=out3 VALUE=0" in erun("_WM_ENDLESS_TICK", variables=SAME, state="complete", w={"out3": 1}))
+check("resumed: the remembered tangle is cleared", "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=tangle VALUE=-1" in erun("_WM_ENDLESS_TICK", variables=SAME, state="printing", w={"tangle": 0}))
+o = erun("WM_ENDLESS_FIXED", {"T": "1"}, variables=SAME, w={"out1": 1})
+check("WM_ENDLESS_FIXED T=1 puts the toolhead back and closes the window", "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=out1 VALUE=0" in o and any("prompt_end" in l for l in o))
+check("WM_ENDLESS_FIXED refuses a wrong toolhead", raises(lambda: erun("WM_ENDLESS_FIXED", {"T": "7"}, variables=SAME)))
+ACE = {"gcode_macro _WM_ACE": {"ace_instance": 0}, "ace_instance_0": {"connection_state": "connected", "slots": [{"status": "ready"}, {"status": "empty"}, {"status": "ready"}, {"status": "ready"}]}}
+check("with an ACE: a spare whose ACE slot is empty is skipped", "WM_ENDLESS_CONTINUE FROM=0 TO=2" in erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0, extra=ACE))
+check("ACE not connected: its slots do not count", "WM_ENDLESS_CONTINUE FROM=0 TO=1" in erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0, extra=dict(ACE, ace_instance_0=dict(ACE["ace_instance_0"], connection_state="disconnected"))))
+check("ACE Pro switched off: its slots do not count", "WM_ENDLESS_CONTINUE FROM=0 TO=1" in erun("_WM_ENDLESS_TICK", variables=dict(SAME, ace_global_enabled=False), sensors=E0, extra=ACE))
+o = erun("WM_ENDLESS_SET", {"TANGLE": "0"}, variables=SAME)
+check("WM_ENDLESS_SET TANGLE=0 is saved (stays over a Klipper restart)", "SAVE_VARIABLE VARIABLE=wm_endless_tangle VALUE=0" in o)
 check("switch off: nothing", erun("_WM_ENDLESS_TICK", variables=dict(SAME, wm_endless=0), sensors=E0) == [])
 check("swap automatically off: nothing", erun("_WM_ENDLESS_TICK", variables=dict(SAME, wm_endless_auto=0), sensors=E0) == [])
 check("already handled in this pause: nothing", erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0, w={"tried": 1}) == [])
