@@ -123,14 +123,67 @@ check("no assist change while a load runs", not any("FEED_ASSIST" in l for l in 
 w = ace["_wm_ace_watch"]
 check("the watcher only calls _WM_ACE_ASSIST_SYNC for feed assist (no assist command of its own)", "_WM_ACE_ASSIST_SYNC" in w and "ACE_ENABLE_FEED_ASSIST" not in w and "toolhead.extruder" not in w)
 
-print("Endless chain")
-o = run(endl, "WM_ENDLESS_CHAIN_SET", {"HEAD": "0", "CHAIN": "2,1"})
-check("saves the chain as text", any("wm_endless_chain0 VALUE=\"'2,1'\"" in l for l in o))
-o = run(endl, "WM_ENDLESS_CHAIN_SET", {"HEAD": "0", "CHAIN": ""})
-check("empty clears", any("wm_endless_chain0 VALUE=\"''\"" in l for l in o))
-check("head in its own chain refused", raises(lambda: run(endl, "WM_ENDLESS_CHAIN_SET", {"HEAD": "0", "CHAIN": "0,1"})))
-check("repeat refused", raises(lambda: run(endl, "WM_ENDLESS_CHAIN_SET", {"HEAD": "0", "CHAIN": "1,1"})))
-check("bad head refused", raises(lambda: run(endl, "WM_ENDLESS_CHAIN_SET", {"HEAD": "7", "CHAIN": "1"})))
+print("Endless spool (automatic swap, sets of 2 to 4)")
+import jinja2 as _j
+
+
+def erun(name, params=None, variables=None, state="paused", sensors=None, w=None, extra=None):
+    """like run(), with the filament sensors and the objects the endless macros read"""
+    env = _j.Environment("{%", "%}", "{", "}", extensions=["jinja2.ext.do"])
+    env.globals["action_raise_error"] = lambda m: (_ for _ in ()).throw(Err(m))
+    W = {"from": -1, "to": -1, "swap_file": "", "tried": 0, "ofx": 0.0, "ofy": 0.0, "ofz": 0.1, "ocx": 0.3, "ocy": 0.35, "ocz": 0.004, "pending": 0, "keeps": 1, "fake": -1}
+    W.update(w or {})
+    printer = {"save_variables": {"variables": dict(variables or {})}, "print_stats": {"state": state, "print_duration": 100.0, "filename": "a.gcode"},
+               "gcode_macro _WM_ENDLESS": W, "gcode_macro _WM_PAUSE_STATE": {"active": 1}, "gcode_macro _WM_LIVEZ": {},
+               "gcode_macro RESUME": {"resume_temperature%d" % i: 220.0 for i in range(4)},
+               "gcode_move": {"homing_origin": type("O", (), {"x": 0.0, "y": 0.0, "z": 0.096})()}}
+    for i, det in enumerate(sensors or [True] * 4):
+        printer["filament_switch_sensor filament%d" % i] = {"filament_detected": det}
+    printer.update(extra or {})
+    out = env.from_string(endl[name]).render(params=params or {}, printer=printer)
+    return [l.strip() for l in out.splitlines() if l.strip() and not l.strip().startswith("#")]
+
+
+SAME = {"wm_endless": 1, "current_extruder": 0}
+for i in range(4): SAME.update({"zr_t%d_mat" % i: 1, "zr_t%d_color" % i: 255})
+V3 = dict(SAME, zr_t3_mat=2)
+E0 = [False, True, True, True]
+o = erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0)
+check("T0 empty, all identical: T1 takes over", "WM_ENDLESS_CONTINUE FROM=0 TO=1" in o and "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=tried VALUE=1" in o)
+o = erun("_WM_ENDLESS_TICK", variables=dict(SAME, current_extruder=3), sensors=[True, True, True, False])
+check("T3 empty: starts again from T0", "WM_ENDLESS_CONTINUE FROM=3 TO=0" in o)
+o = erun("_WM_ENDLESS_TICK", variables=SAME, sensors=[False, False, True, True])
+check("the next one is empty too: it is skipped (T2)", "WM_ENDLESS_CONTINUE FROM=0 TO=2" in o)
+o = erun("_WM_ENDLESS_TICK", variables=dict(V3, current_extruder=2), sensors=[True, True, False, True])
+check("set of 3: T2 empty goes to T0, never to T3 (other material)", "WM_ENDLESS_CONTINUE FROM=2 TO=0" in o)
+o = erun("_WM_ENDLESS_TICK", variables=dict(SAME, zr_t1_color=1, zr_t2_color=2, zr_t3_color=3), sensors=E0)
+check("no identical toolhead: no swap, one message, the pause is marked as handled", not any(l.startswith("WM_ENDLESS_CONTINUE") for l in o) and any("stays paused" in l for l in o) and any("VARIABLE=tried VALUE=1" in l for l in o))
+o = erun("_WM_ENDLESS_TICK", variables=dict(SAME, zr_t0_mat=None, zr_t1_mat=None, zr_t2_mat=None, zr_t3_mat=None), sensors=E0)
+check("material not set: never identical", not any(l.startswith("WM_ENDLESS_CONTINUE") for l in o))
+check("toolhead on the carriage has filament: nothing happens", erun("_WM_ENDLESS_TICK", variables=SAME) == [])
+check("the hub sensor counts too (path_0 empty)", "WM_ENDLESS_CONTINUE FROM=0 TO=1" in erun("_WM_ENDLESS_TICK", variables=SAME, extra={"filament_switch_sensor path_0": {"filament_detected": False}}))
+check("a spare whose hub sensor is empty is skipped", "WM_ENDLESS_CONTINUE FROM=0 TO=2" in erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0, extra={"filament_switch_sensor path_1": {"filament_detected": False}}))
+check("switch off: nothing", erun("_WM_ENDLESS_TICK", variables=dict(SAME, wm_endless=0), sensors=E0) == [])
+check("swap automatically off: nothing", erun("_WM_ENDLESS_TICK", variables=dict(SAME, wm_endless_auto=0), sensors=E0) == [])
+check("already handled in this pause: nothing", erun("_WM_ENDLESS_TICK", variables=SAME, sensors=E0, w={"tried": 1}) == [])
+check("not paused: the handled mark is cleared", "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=tried VALUE=0" in erun("_WM_ENDLESS_TICK", variables=SAME, state="printing", w={"tried": 1}))
+check("the test variable fake makes a toolhead empty", "WM_ENDLESS_CONTINUE FROM=0 TO=1" in erun("_WM_ENDLESS_TICK", variables=SAME, w={"fake": 0}))
+o = erun("WM_ENDLESS_CONTINUE", {"FROM": "0", "TO": "1"}, variables=SAME, sensors=E0)
+check("the swap: offsets of the empty head stored, tool change from the park position, no move back to the part", "_CHANGE_TOOL T=1" in o and "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=ofz VALUE=0.096" in o and not any(l.startswith("RESTORE_GCODE_STATE") or l.startswith("G1") for l in o) and o[-1] == "_WM_ENDLESS_3")
+check("refused when the print is not paused", raises(lambda: erun("WM_ENDLESS_CONTINUE", {"FROM": "0", "TO": "1"}, variables=SAME, state="printing")))
+check("refused when the spare has no filament", raises(lambda: erun("WM_ENDLESS_CONTINUE", {"FROM": "0", "TO": "1"}, variables=SAME, sensors=[False, False, True, True])))
+check("refused when FROM is not on the carriage", raises(lambda: erun("WM_ENDLESS_CONTINUE", {"FROM": "2", "TO": "1"}, variables=SAME)))
+o = erun("_WM_ENDLESS_3", variables=dict(SAME, current_extruder=1), w={"from": 0, "to": 1})
+check("after the tool change: temperature and tool mapping go to the spare, RESUME does the only purge, then the last step", "SET_GCODE_VARIABLE MACRO=RESUME VARIABLE=resume_temperature1 VALUE=220.0" in o and "SET_GCODE_VARIABLE MACRO=RESUME VARIABLE=resume_temperature0 VALUE=0" in o and "SAVE_VARIABLE VARIABLE=box_modify_t0_backup VALUE=1" in o and o[-2:] == ["RESUME", "_WM_ENDLESS_4"] and not any(l.startswith("E_axis_move") or l.startswith("WIPE_NOZZLE") or l.startswith("M109") for l in o) and "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=pending VALUE=1" in o)
+check("tool change failed: error, no resume", raises(lambda: erun("_WM_ENDLESS_3", variables=SAME, w={"from": 0, "to": 1})))
+o = erun("_WM_ENDLESS_4", variables=SAME, w={"pending": 1, "to": 1, "ofz": 0.09608, "ocz": 0.0036, "ofx": 0.0, "ocx": 0.309375, "ofy": 0.0, "ocy": 0.354688})
+check("last step: the spare head moves by the difference of the offsets (no print state test), inside a saved state", "G1 X0.3094 Y0.3547 Z-0.0925 F600" in o and o.index("SAVE_GCODE_STATE NAME=_wm_endless") < o.index("G91") < o.index("RESTORE_GCODE_STATE NAME=_wm_endless") and "SET_GCODE_VARIABLE MACRO=_WM_ENDLESS VARIABLE=pending VALUE=0" in o)
+check("last step runs once only", erun("_WM_ENDLESS_4", variables=SAME, w={"pending": 0}) == [])
+check("keeps=0 (a Klipper whose restore brings the offsets back): no move", not any(l.startswith("G1") for l in erun("_WM_ENDLESS_4", variables=SAME, w={"pending": 1, "keeps": 0})))
+o = erun("WM_ENDLESS_SET", {"AUTO": "0"}, variables=SAME)
+check("WM_ENDLESS_SET AUTO=0 saves wm_endless_auto and leaves the main switch", "SAVE_VARIABLE VARIABLE=wm_endless_auto VALUE=0" in o and not any("VARIABLE=wm_endless VALUE" in l for l in o))
+check("the chain macro is gone", "WM_ENDLESS_CHAIN_SET" not in endl)
+check("the watcher only calls _WM_ENDLESS_TICK (renders when it runs)", "_WM_ENDLESS_TICK" in endl["_WM_ENDLESS_WATCH"] and "printer." not in endl["_WM_ENDLESS_WATCH"])
 
 # ---- rpi_ace.cfg: short hold after an unload, and the Load window (1.8.0)
 ace = load("rpi_ace.cfg")

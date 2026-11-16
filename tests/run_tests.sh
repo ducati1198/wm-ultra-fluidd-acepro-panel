@@ -311,7 +311,7 @@ echo "Fluidd macro categories"
 check "categories: rules, never-touch-user-changes and fake Moonraker tests pass" bash -c 'python3 -I "$0/tests/test_fluidd_categories.py" | tail -1 | grep -q "failed: 0"' "$REPO"
 check "macros: counters, print time per toolhead, feed assist (B-040) and the other new macros render right" bash -c 'python3 -I "$0/tests/test_macros.py" | tail -1 | grep -q "failed: 0"' "$REPO"
 check "Fluidd zip: Unload Menu button, Dock and Tool lock lights, print time, touchscreen line from wm_screen_status.json" bash -c 'j="$(unzip -p "$0/fluidd/fluidd-v1.38.0-zr-ace.zip" "assets/*.js")"; for t in "Unload Menu" "WM_UNLOAD_MENU" "Lock motor home" "wm_stat_time" "wm_screen_status.json" "_WM_STATS_TICK"; do echo "$j" | grep -q "$t" || exit 1; done' "$REPO"
-check "Fluidd patch: the new Toolheads card commit is in the series" grep -q "Subject: \[PATCH 26/26\] feat(zr): unload menu, sensor lights, board line" "$REPO/fluidd/fluidd-v1.38.0-zr-ace.patch"
+check "Fluidd patch: the new Toolheads card commit is in the series" grep -q "Subject: \[PATCH 26/27\] feat(zr): unload menu, sensor lights, board line" "$REPO/fluidd/fluidd-v1.38.0-zr-ace.patch" && grep -q "Subject: \[PATCH 27/27\] feat(zr): endless spool section" "$REPO/fluidd/fluidd-v1.38.0-zr-ace.patch"
 FCH="$(new_home fcat)"
 ACE_MOONRAKER_URL=http://127.0.0.1:1 inst "$FCH" "$A_ALL"
 check "install: with Moonraker unreachable the install still finishes and says how to run it later" bash -c 'echo "$0" | grep -q "Fluidd macro categories" && echo "$0" | grep -q "fluidd-categories" && echo "$0" | grep -q "installed"' "$OUT"
@@ -324,6 +324,8 @@ check "--dry-run does not run it" bash -c 'ACE_MOONRAKER_URL=http://127.0.0.1:1 
 check "--help lists --fluidd-categories" bash -c 'bash "$0" --help | grep -q -- "--fluidd-categories"' "$INST"
 
 echo "Fluidd build: Chamber light button"
+check "Fluidd zip: Endless spool section (Swap automatically, sets), the chain field is gone" bash -c 'j="$(unzip -p "$0/fluidd/fluidd-v1.38.0-zr-ace.zip" "assets/*.js")"; echo "$j" | grep -q "Swap automatically" && echo "$j" | grep -q "zr-endless-ring" && echo "$j" | grep -q "WM_ENDLESS_SET AUTO=" && ! echo "$j" | grep -q "WM_ENDLESS_CHAIN_SET"' "$REPO"
+check "rpi_endless.cfg: automatic swap watcher, no chain macro, no first purge" bash -c 'f="$0/config/rpi_endless.cfg"; grep -q "^\[delayed_gcode _WM_ENDLESS_WATCH\]" "$f" && grep -q "^\[gcode_macro _WM_ENDLESS_4\]" "$f" && ! grep -q "WM_ENDLESS_CHAIN_SET\|E_axis_move\|variable_hop" "$f"' "$REPO"
 check "Fluidd zip matches its sha256 file" bash -c 'cd "$0/fluidd" && sha256sum -c fluidd-v1.38.0-zr-ace.zip.sha256' "$REPO"
 check "Fluidd zip: the Chamber light button switches the Moonraker power device chamber_light" bash -c 'unzip -p "$0/fluidd/fluidd-v1.38.0-zr-ace.zip" "assets/*.js" | grep -q "chamber_light"' "$REPO"
 check "Fluidd zip: the old direct call to the screen board is gone (no rpi_chamber_light.json)" bash -c '! unzip -p "$0/fluidd/fluidd-v1.38.0-zr-ace.zip" "assets/*.js" | grep -q "rpi_chamber_light.json"' "$REPO"
@@ -340,7 +342,7 @@ inst "$HR" "$A_ALL"
 for n in ace_driver ace endless stats; do mv "$CR/rpi_$n.cfg" "$CR/wm_$n.cfg"; done
 mv "$CR/rpi-ultra-install.conf" "$CR/wm-ultra-install.conf"
 sed -i -E 's/\[include rpi_(ace_driver|ace|endless|stats)\.cfg\]/[include wm_\1.cfg]/' "$CR/printer.cfg"
-sed -i 's/^variable_hop:.*/variable_hop: 7/' "$CR/wm_endless.cfg"
+sed -i 's/^variable_keeps:.*/variable_keeps: 0/' "$CR/wm_endless.cfg"
 cp "$CR/printer.cfg" "$ROOT/ren_printer_before.cfg"
 inst "$HR" 'n\ny\n' --check
 check "--check on an old-named install says to run --update" bash -c 'echo "$0" | grep -q "old wm_ names"' "$OUT"
@@ -354,7 +356,7 @@ for f in wm_ace_driver.cfg wm_ace.cfg wm_endless.cfg wm_stats.cfg wm-ultra-insta
 check "printer.cfg includes only the rpi_ names" bash -c '! grep -qE "include wm_" "$0/printer.cfg" && test "$(grep -c "include rpi_" "$0/printer.cfg")" = 4' "$CR"
 check "no include line twice" test "$(grep -c 'include rpi_ace.cfg' "$CR/printer.cfg")" = 1
 check "SAVE_CONFIG block untouched" test "$(tail -1 "$CR/printer.cfg")" = "#*# control = pid"
-check "your tuned value survives the rename (hop 7)" grep -q '^variable_hop: *7' "$CR/rpi_endless.cfg"
+check "your changed value survives the rename (keeps 0)" grep -q '^variable_keeps: *0' "$CR/rpi_endless.cfg"
 check "a rename backup folder exists" test -n "$(ls -d "$HR"/acepro-backup/wm-*-rename 2>/dev/null)"
 inst "$HR" 'n\ny\n' --check
 check "--check is clean after the update" test "$RC" -eq 0

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.11.0
+
+Endless spool swaps by itself, for sets of 2, 3 or 4 identical toolheads. Tested on a ZR Ultra-S: one real runout and 10 swaps in one four-tool print, nozzle height after every swap within 0.02 mm. Goes with WM_Ultra_Vanilla_Klipper 2.12.0 (tool mapping reset at the end of a print, 20 mm purge in RESUME).
+
+- **Automatic swap (`config/rpi_endless.cfg`).** New `_WM_ENDLESS_WATCH` / `_WM_ENDLESS_TICK`: every 3 s, a paused print with an empty toolhead on the carriage (its own sensor or its hub sensor) gets the next toolhead in number order with the same material and colour (`zr_tN_mat`, `zr_tN_color`) that has filament; after the last toolhead it starts again from the first. It runs on the printer, no browser needed. `WM_ENDLESS_SET AUTO=1|0` (saved as `wm_endless_auto`, default on) is the new **Swap automatically** switch; with it off the card offers the swap as before.
+- **The swap itself is new.** Before, it first drove the empty, cold nozzle back onto the part, purged 20 mm wherever the toolhead stood after the tool change, and it had never run on a printer. Now: tool change from the park position, WonderMaker's `RESUME` does the only purge and wipe, and a last step (`_WM_ENDLESS_4`) moves the spare nozzle by the difference between the offsets of the two toolheads. Why that step: `RESTORE_GCODE_STATE` goes back to the machine position of the old toolhead and keeps the offsets of the new one (WonderMaker's Klipper, and upstream Klipper with `wm_gcode_compat`), which left the nozzle up to 0.16 mm too high or too low until the next layer.
+- **No chain any more.** `WM_ENDLESS_CHAIN_SET`, the "If this spool runs out" field of the toolhead dialog and the saved `wm_endless_chainN` values are no longer used: identical material and colour decide. `WM_ENDLESS_PLAN` now shows the sets. The settings `variable_hop`, `variable_prime_mm` and `variable_prime_speed` are gone (nothing to tune).
+- **Fluidd panel rebuilt** (new zip, patch and checksum): Endless spool section in the Toolheads card with a circle of the four toolheads in their filament colours and chips that say who takes over for whom, the Swap automatically switch, the chain field removed from the toolhead dialog.
+
 ## 1.10.0
 
 Toolheads card additions, the feed assist fix, print time per toolhead and the new Fluidd category layout. Goes with WM_Ultra_Vanilla_Klipper 2.11.0 (the touchscreen line needs it on the screen board). Tested on a ZR Ultra-S.

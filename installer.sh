@@ -79,7 +79,7 @@ CFG_FILES=(rpi_ace_driver.cfg rpi_ace.cfg rpi_endless.cfg rpi_stats.cfg)
 INCLUDE_LINES=("[include rpi_ace_driver.cfg]" "[include rpi_ace.cfg]" "[include rpi_endless.cfg]" "[include rpi_stats.cfg]")
 # Values the installer keeps when you update (file:key). "var" keys are `variable_<key>:` lines, "opt" keys are `<key>:` lines.
 KEEP_VARS_ACE=(max_total_mm hub_to_head_mm tail_mm fast_speed slow_speed retract_speed tick_s fast_timeout_s slow_timeout_s auto)
-KEEP_VARS_ENDLESS=(hop prime_mm prime_speed)
+KEEP_VARS_ENDLESS=(keeps)
 KEEP_OPTS_DRIVER=(feed_speed retract_speed max_dryer_temperature moonraker_lane_sync_enabled)
 
 # ============================================================================
