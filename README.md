@@ -129,8 +129,8 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | | |
 |---|---|
 | **Works without an ACE Pro** | Say no to the ACE question and you get the WonderMaker Toolheads panel and the endless-spool option only. Every ACE element stays hidden. Add the ACE later by running the installer again. |
-| **ACE Pro as feeder** | `ACE_WM_LOAD T=n` feeds slot n to the hub inlet (fast), then to the toolhead sensor (slow). WonderMaker's own insert routine then heats and loads the filament. |
-| **Uses WonderMaker's own sensors** | The hub sensor `path_N` stops the fast feed, the toolhead sensor `filament<N>` stops the slow feed. No new sensors needed. |
+| **ACE Pro as feeder** | `ACE_WM_LOAD T=n` feeds slot n to the toolhead sensor. The first load of a tool runs slow all the way and measures the tube length (saved as `wm_ace_len_t0` … `wm_ace_len_t3`); later loads feed fast up to 60 mm before the tool head, then slow until the sensor sees the filament. WonderMaker's own insert routine then heats and loads the filament. |
+| **Uses WonderMaker's own sensors** | Only the toolhead sensor `filament<N>` is read: it stops the feed. The hub sensors `path_N` are not filament sensors on this printer (they always read on), so nothing reads them. No new sensors needed. |
 | **Unload** | `ACE_WM_UNLOAD T=n` picks up the real toolhead n (not the one a print map points to), forms a tip with the extruder, then the ACE pulls the filament back until the toolhead sensor is clear and its slot is empty. The hub sensors `path_N` are not used for this: they always read on. |
 | **Auto-load** | Put a spool into an ACE slot and it loads to the matching toolhead (switch off with `ACE_WM_AUTO ENABLE=0` or the Auto Load switch in Fluidd). It waits until the ACE is quiet (no slot preloading or shifting for 5 s), loads the spools in the order you put them in, and tries a feed the ACE refuses again every 4 s, up to 10 times, with a console message each time. After an unload the slot is held for 5 s only (`unload_hold` in `rpi_ace.cfg`); a spool that is ready when those 5 s end is not loaded by itself, a window asks **Load T0** or **No**. |
 | **Feed assist** | Follows the active toolhead while printing. |
@@ -424,12 +424,14 @@ Everything you may want to tune is at the top of `~/printer_data/config/rpi_ace.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `variable_hub_to_head_mm` | 900 | Hub inlet → toolhead sensor. Limit of the slow phase. **Measure your tubes.** |
+| `variable_hub_to_head_mm` | 2000 | The longest slow feed of one load (it stops earlier, when the toolhead sensor sees the filament). |
+| `variable_slow_tail_mm` | 60 | The last part before the tool head is always fed slow. The fast part is the measured tube length minus this. |
 | `variable_max_total_mm` | 4000 | Absolute safety limit for one load. |
-| `variable_tail_mm` | 1800 | Retract distance after the hub sensor clears (hub → inside the ACE). |
-| `variable_fast_speed` / `slow_speed` | 60 / 20 mm/s | ACE → hub / hub → toolhead. |
+| `variable_fast_speed` / `slow_speed` | 60 / 20 mm/s | The fast part / the last part to the tool head. |
 | `variable_retract_speed` | 50 mm/s | Unload. |
-| `variable_fast_timeout_s` / `slow_timeout_s` | 90 / 60 | A load that takes longer stops with an error. |
+| `variable_fast_timeout_s` / `slow_timeout_s` | 90 / 150 | A load that takes longer stops with an error (the measuring load feeds the whole tube slow: 1038 mm took 56 s). |
+
+The tube length of each tool is measured by its first load and saved in `saved_variables.cfg` (`wm_ace_len_t<n>`). When the filament reaches the tool head already in the fast part (a shorter tube, or the filament did not start at the ACE), the length is set to 0 and measured again at the next load. A load with a fast part only corrects the saved length downwards. Put `SAVE_VARIABLE VARIABLE=wm_ace_len_t1 VALUE=0` to measure T1 again.
 | `variable_auto` | 1 | 1 = load automatically when a spool is put into a slot. |
 
 Driver settings (`rpi_ace_driver.cfg`): `ace_count: 1`, `register_tool_commands: False` (keeps WonderMaker's own `T0`…`T3`), `feed_speed`, `retract_speed`, `max_dryer_temperature: 65`, `moonraker_lane_sync_enabled: True` (publishes the ACE slots to Moonraker's `lane_data` for OrcaSlicer; set `False` to switch it off).
@@ -448,6 +450,8 @@ The ACE has no card of its own. It lives inside the WonderMaker **Toolheads** ca
 - **Per toolhead:** ACE slot state (ready / empty / loading / assist) and two sensor dots (hub `path_N`, head `filament<N>`).
 - **Dryer row:** target temperature, duration, Dry / Stop, and six presets.
 - **Endless spool row:** a switch, plus a banner and one-tap confirmation when a head runs out.
+- **Switches under it (1.9.0):** **ACE Pro** (the ACE driver on or off, `SET_PIN PIN=ACE_Pro`), **Bed warp wait** (`WM_BED_SOAK ENABLE=`) and **Nozzle heat growth** (`SET_PIN PIN=Nozzle_Heat_Growth`, from WM_Ultra_Vanilla_Klipper's Z offset tools). Each one is shown only when its pin or macro exists on the printer. ACE Pro and Nozzle heat growth cannot be switched while a print runs.
+- **Friendly sensor names (1.9.0):** the Filament Sensors card shows T<n> head filament, T<n> hub filament, T<n> in dock, Tool lock and Lock motor home, with the real Klipper name in small letters under each.
 - **Toolhead dialog → "ACE feeder · slot N":** Load from ACE, Unload to ACE, Feed assist on/off, manual Feed / Retract with length and speed, Stop motor.
 
 Everything ACE-related is **hidden** when Klipper has no ACE object (`ace_instance_0`). The endless-spool row is hidden when the `WM_ENDLESS_CONTINUE` macro does not exist. So you can install the panel before the ACE hardware.
@@ -543,7 +547,7 @@ Written for the day the printer is running again. Do them in this order, empty b
 3. **Dryer:** start the PLA preset for a few minutes, then Stop.
 4. **Manual feed:** in the toolhead dialog, Feed 50 mm at speed 25, then Retract 50 mm. Check the direction and the Stop button.
 5. **Sensor check:** push filament by hand to the hub and to the toolhead and watch the two dots.
-6. **Measure the tubes** and set `variable_hub_to_head_mm` and `variable_tail_mm`.
+6. **Tube lengths:** the first `ACE_WM_LOAD` of each tool runs slow and measures its tube (console: "tube length of T0 measured, 1038 mm"). The next loads are faster.
 7. `ACE_WM_LOAD T=0`, then `ACE_WM_UNLOAD T=0`, one head at a time (tried on all four heads).
 8. Auto-load by inserting a spool, then feed assist during a short print.
 9. Endless spool (section 8) only on a cheap print with you standing next to the printer. Set a chain first (toolhead dialog → "If this spool runs out") and check that the swap offer names the head you chose.
@@ -554,7 +558,8 @@ Written for the day the printer is running again. Do them in this order, empty b
 
 - The driver starts and talks to the ACE; `ACE_FEED` / `ACE_RETRACT` do not block, so the polling state machine can watch the sensors.
 - The slot status field (`ready` / `empty`) is read correctly, and `ACE_STOP_FEED` / `ACE_STOP_RETRACT` are harmless when the ACE is idle.
-- Load: the ACE feeds fast to the hub, creeps to the tool head sensor, stops, and feed assist turns on. Filament reached the nozzle (T2 confirmed; T0, T1 and T3 loaded).
+- Load: the first load of a tool measures its tube (T0: 1038 mm), later loads feed fast and creep the last 60 mm to the tool head sensor, stop, and feed assist turns on. Tested on T0 to T3 (1.9.0).
+- ACE unplugged and plugged in again: the touchscreen and Fluidd window "ACE connection issue" closes by itself 10 s after the ACE is back (1.9.0).
 - Unload on T0, T1, T2 and T3: the tool is picked up by itself, the extruder pulls the tip, the ACE retracts, and the slot ends up empty. Auto-load is held off for 5 s afterwards (it was 90 s until 1.7.10). Measured on the printer: after an unload the slot goes to empty and stays empty, the ACE does not grip the old filament end again.
 - Tool head LEDs (`wm_tool_leds.cfg` in wm-ultra-rpi): blue with filament, red without.
 
@@ -645,7 +650,7 @@ cd ~/wm-ultra-fluidd-acepro-panel && git pull
 | Klipper: T0..T3 behave differently | `register_tool_commands: False` is missing in `rpi_ace_driver.cfg` (`--check` reports it). |
 | No ACE parts in the Fluidd card | The ACE is not reported yet: restart Klipper, check the USB cable and the ACE power, hard-refresh the browser. |
 | ACE not on USB | Data wires only (D+, D-, GND), no 5 V. Check the adapter with a multimeter. |
-| Load stops with a timeout | Check `path_N` / `filament<N>` in the card, tube length, then raise the timeouts or `hub_to_head_mm`. |
+| Load stops with a timeout | Check `filament<N>` in the card and the tube, then raise the timeouts or `hub_to_head_mm`. To measure a tube again: `SAVE_VARIABLE VARIABLE=wm_ace_len_t<n> VALUE=0`. |
 | Fluidd update in Moonraker removed the panel | `./installer.sh --update`, answer yes to the Fluidd question. |
 
 ### 3.5 Fluidd macro categories

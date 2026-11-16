@@ -45,7 +45,7 @@ CATEGORIES = [
      ["T0", "T1", "T2", "T3", "LOCK", "UNLOCK", "UNLOCK_TOOL_FINISH", "PARK_CURRENT_TOOL", "PARK_CURRENT_TOOL_RETRY", "Z_HOMING"], []),
     ("WM Ultra Filament", "#ff9800",
      ["LOAD_FILAMENT", "UNLOAD_FILAMENT", "EXTRUDE_FILAMENT", "RETRACT_FILAMENT", "filament_insert", "filament_insert_gcode",
-      "POP", "E_axis_move", "RESET_FLOW_EXTRUDER", "WIPE_NOZZLE", "WIPE_NOZZLE_SIMPLE", "WIPE_NOZZ"], []),
+      "POP", "E_axis_move", "RESET_FLOW_EXTRUDER", "WIPE_NOZZLE", "WIPE_NOZZ"], []),
     ("ZR Tools", "#9c27b0", [], ["ZR_"]),
     ("WM Ultra Print", "#9e9e9e", ["START_PRINT", "PRINT_END", "CANCEL_PRINT", "PAUSE", "RESUME", "G30", "G31"], []),
     ("WM Ultra Tests", "#607d8b", [], ["TEST_"]),

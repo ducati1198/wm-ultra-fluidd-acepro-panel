@@ -3014,6 +3014,13 @@ class AceManager:
                         self._close_connection_dialog()
                         self._connection_issue_shown = False
 
+        # WonderMaker Pi (B-032): close the window as soon as every ACE is connected again (10 s), not only after
+        # about 3 min of stable connection. _connection_issue_shown stays set until stable, so it does not open again.
+        if getattr(self, "_connection_dialog_open", False):
+            st = [i.serial_mgr.get_connection_status() for i in self.instances]
+            if st and all(x.get("connected") and x.get("time_connected", 0.0) >= 10.0 for x in st):
+                self._close_connection_dialog("ACE: connected again - window closed")
+
         # If we have unstable instances and haven't shown dialog yet
         if unstable_instances and not self._connection_issue_shown:
             self._handle_connection_issue(unstable_instances, eventtime)
@@ -3214,14 +3221,18 @@ class AceManager:
         self.gcode.run_script_from_command(
             'RESPOND TYPE=command MSG="action:prompt_show"'
         )
+        self._connection_dialog_open = True
 
-    def _close_connection_dialog(self):
+    def _close_connection_dialog(self, message="ACE: Connection restored - dialog closed"):
         """Close the connection issue dialog."""
         try:
-            self.gcode.run_script_from_command(
-                'RESPOND TYPE=command MSG="action:prompt_end"'
-            )
-            self.gcode.respond_info("ACE: Connection restored - dialog closed")
+            # WonderMaker Pi (B-032): only while our window is open, a prompt_end closes any window
+            if getattr(self, "_connection_dialog_open", False):
+                self.gcode.run_script_from_command(
+                    'RESPOND TYPE=command MSG="action:prompt_end"'
+                )
+                self._connection_dialog_open = False
+            self.gcode.respond_info(message)
         except Exception as e:
             self.gcode.respond_info(f"ACE: Error closing dialog: {e}")
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.9.0
+
+Faster ACE loads, the ACE window that closes by itself, and three switches plus friendly sensor names in Fluidd. Goes with WM_Ultra_Vanilla_Klipper 2.9.0 (live Z adjust per tool). Everything was tested on a ZR Ultra-S.
+
+- **ACE load: fast part with the learned tube length (`config/rpi_ace.cfg`).** The hub sensors `path_N` always read on, so the old "fast until the hub sensor" never stopped at the hub: the load ran fast all the way by accident. Now the first load of a tool runs slow and measures the tube (saved `wm_ace_len_t0` … `wm_ace_len_t3`, T0 measured 1038 mm); later loads feed fast up to `slow_tail_mm` (60 mm) before the tool head, then slow until the toolhead sensor sees the filament. Only the toolhead sensor is read. `hub_to_head_mm` is now the longest slow feed (2000), `slow_timeout_s` 150. A load that reaches the tool head in the fast part measures again next time. Tested on T0 to T3.
+- **Live Z adjust (`SET_GCODE_OFFSET` in `config/rpi_ace.cfg`).** When WM_Ultra_Vanilla_Klipper 2.9.0 is installed, a Z adjust is handed to its `_WM_LIVEZ_SGO`, which keeps one live adjust per tool. Without it nothing changes.
+- **ACE "connection issue" window closes by itself (`extras/ace/manager.py`).** It closed only after about 3 minutes of stable connection. It now closes 10 s after every ACE is connected again; the issue stays marked until the connection is stable, so the window does not open again in that time. The driver sends `prompt_end` only while its own window is open (a `prompt_end` closes any window). Tested with a real unplug.
+- **Cleanup (`config/rpi_ace.cfg`):** the unused `unload_tail` branch and `tail_mm` are gone, and the `ACE_WM_RETRACT` description is right. `WIPE_NOZZLE_SIMPLE` (removed from WonderMaker's files by WM_Ultra_Vanilla_Klipper 2.9.0) left the Fluidd macro category list.
+- **Fluidd panel rebuilt** (new zip, patch and checksum):
+  - Toolheads card: switches **ACE Pro**, **Bed warp wait** and **Nozzle heat growth**, each shown only when the printer has it. ACE Pro and Nozzle heat growth are locked while a print runs.
+  - Filament Sensors card: friendly names (T<n> head filament, T<n> hub filament, T<n> in dock, Tool lock, Lock motor home) with the real Klipper name under each.
+- Tests: the update test uses the new default of `hub_to_head_mm`.
+
 ## 1.8.0
 
 ACE load and unload fixes from the printer, a smarter auto load, and a rebuilt Fluidd panel. Needs WM_Ultra_Vanilla_Klipper 2.8.0 for the chamber light button and the unload menu.

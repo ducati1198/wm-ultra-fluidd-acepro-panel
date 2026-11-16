@@ -68,7 +68,7 @@ check "Klipper was not restarted"                   bash -c '! echo "$0" | grep 
 inst "$H" "" --check;  check "--check passes"       test "$RC" -eq 0
 
 echo "2. Update keeps tuned values"
-sed -i 's/^variable_hub_to_head_mm: *710/variable_hub_to_head_mm: 1234/;s/^variable_fast_timeout_s: *90/variable_fast_timeout_s: 45/' "$C/rpi_ace.cfg"
+sed -i 's/^variable_hub_to_head_mm: *2000/variable_hub_to_head_mm: 1234/;s/^variable_fast_timeout_s: *90/variable_fast_timeout_s: 45/' "$C/rpi_ace.cfg"
 sed -i 's/^feed_speed: 60/feed_speed: 33/' "$C/rpi_ace_driver.cfg"
 inst "$H" 'n\ny\n' --update
 check "update finished"                             test "$RC" -eq 0
