@@ -47,21 +47,21 @@ MACROS = ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP", 
 print("rules")
 v, h, r = wmfc.plan(MACROS, None, [], now_ms=1000)
 check("AcePro: ACE_*, WM_ENDLESS_*, WM_STATS_*, WM_SET_TOOL_MAP", all(cat_of(v, n) == "AcePro" for n in ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP"]))
-check("Raspberry Pi: the other WM_* macros", cat_of(v, "WM_BED_LEVELING") == "Raspberry Pi" and cat_of(v, "WM_SCREWS_CAL") == "Raspberry Pi")
-check("Offset Calibration: the offset and Z calibration macros, pink", cat_of(v, "WM_OFFSETS_RAPID") == "Offset Calibration" and [m["color"] for m in v["stored"] if m["name"] == "WM_OFFSETS_RAPID"] == ["#e91e63"])
+check("RPI Calibration: the Pi's calibration macros, pink, with readable names", all(cat_of(v, n) == "RPI Calibration" for n in ["WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_OFFSETS_RAPID"])
+      and [m["color"] for m in v["stored"] if m["name"] == "WM_OFFSETS_RAPID"] == ["#e91e63"] and next(m for m in v["stored"] if m["name"] == "WM_BED_LEVELING")["alias"] == "Bed Leveling")
 check("WonderMaker factory macros land in their categories",
-      cat_of(v, "G29") == "WM Ultra Calibration" and cat_of(v, "RAPID_MODE") == "WM Ultra Calibration" and cat_of(v, "T0") == "WM Ultra Tool Change"
+      cat_of(v, "G29") == "WM Factory Calibration" and cat_of(v, "RAPID_MODE") == "WM Factory Calibration" and cat_of(v, "T0") == "WM Ultra Tool Change"
       and cat_of(v, "PARK_CURRENT_TOOL") == "WM Ultra Tool Change" and cat_of(v, "LOAD_FILAMENT") == "WM Ultra Filament" and cat_of(v, "WIPE_NOZZ") == "WM Ultra Filament"
       and cat_of(v, "ZR_LOAD") == "ZR Tools" and cat_of(v, "START_PRINT") == "WM Ultra Print" and cat_of(v, "TEST_XY") == "WM Ultra Tests")
 check("TEST_STREAM_DELAY goes to Timelapse, not Tests", cat_of(v, "TEST_STREAM_DELAY") == "Timelapse" and cat_of(v, "HYPERLAPSE") == "Timelapse")
-check("colours", [m["color"] for m in v["stored"] if m["name"] == "ACE_WM_LOAD"] == ["#f44336"] and [m["color"] for m in v["stored"] if m["name"] == "WM_BED_LEVELING"] == ["#2196f3"]
+check("colours", [m["color"] for m in v["stored"] if m["name"] == "ACE_WM_LOAD"] == ["#f44336"] and [m["color"] for m in v["stored"] if m["name"] == "WM_BED_LEVELING"] == ["#e91e63"]
       and [m["color"] for m in v["stored"] if m["name"] == "G29"] == ["#ffeb3b"])
 check("helper macros are hidden, not categorized", all(next(m for m in v["stored"] if m["name"] == n)["visible"] is False and cat_of(v, n) == "-" for n in ["M104", "z_rise"]))
 check("macros starting with _ and unknown macros are left out", not any(m["name"] in ("_HIDDEN_HELPER", "SOMETHING_ELSE") for m in v["stored"]))
-check("categories are created in Fluidd's order, only the ones needed", [c["name"] for c in v["categories"]] == ["Raspberry Pi", "Offset Calibration", "AcePro", "WM Ultra Calibration", "WM Ultra Tool Change", "WM Ultra Filament", "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"])
-check("new categories are expanded", v["expanded"] == [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+check("categories are created in Fluidd's order, only the ones needed", [c["name"] for c in v["categories"]] == ["RPI Calibration", "AcePro", "WM Factory Calibration", "WM Ultra Tool Change", "WM Ultra Filament", "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"])
+check("new categories are expanded", v["expanded"] == [0, 0, 1, 2, 3, 4, 5, 6, 7, 8])
 check("only the macros that exist are used (a printer without an ACE gets no AcePro category)", "AcePro" not in [c["name"] for c in wmfc.plan(["WM_BED_LEVELING", "G29"], None, [], now_ms=5)[0]["categories"]])
-check("the report counts", r["categorized"] == 18 and r["hidden"] == 2 and r["kept"] == 0 and len(r["created"]) == 10)
+check("the report counts", r["categorized"] == 18 and r["hidden"] == 2 and r["kept"] == 0 and len(r["created"]) == 9)
 
 print("never touch what the user changed")
 mine = {"stored": [entry("G29", categoryId="77", color="#123456"), entry("WM_BED_LEVELING", alias="Level bed"), entry("ZR_LOAD", visible=False),
@@ -90,31 +90,72 @@ v5, h5, r5 = wmfc.plan(MACROS + ["ACE_WM_DRY_START", "TEST_FAN"], v3, h3, now_ms
 check("macros added by a later update are sorted the first time they are seen", cat_of(v5, "ACE_WM_DRY_START") == "AcePro" and cat_of(v5, "TEST_FAN") == "WM Ultra Tests" and r5["categorized"] == 2)
 check("handled names are remembered", set(h5) >= set(h3) | {"ACE_WM_DRY_START", "TEST_FAN"})
 
-print("offset calibration category")
-ALLO = wmfc.OFFSET_MACROS + ["WM_CHAMBER_LIGHT", "WM_UNLOAD_MENU", "WM_UNLOAD_STOP", "WM_FIRST_RUN_CAL", "ACE_WM_LOAD", "G29"]
+print("1.10.0 layout")
+ALLO = wmfc.RPI_CAL_MACROS + ["WM_CHAMBER_LIGHT", "WM_NOZZLE_CHANGE", "WM_UNLOAD_MENU", "WM_UNLOAD_STOP", "WM_EXTRUDER_SETUP", "ACE_WM_LOAD", "G29",
+                              "SET_GCODE_OFFSET", "Z_OFFSET_APPLY_PROBE", "Z_OFFSET_APPLY_ENDSTOP", "WM_BED_SOAK"]
 vo, ho, ro = wmfc.plan(ALLO, None, [], now_ms=1000)
-check("all nine offset macros land in Offset Calibration", all(cat_of(vo, n) == "Offset Calibration" for n in wmfc.OFFSET_MACROS) and len(wmfc.OFFSET_MACROS) == 9)
-check("light, unload and first run macros stay in Raspberry Pi, blue", all(cat_of(vo, n) == "Raspberry Pi" and next(m for m in vo["stored"] if m["name"] == n)["color"] == "#2196f3" for n in ["WM_CHAMBER_LIGHT", "WM_UNLOAD_MENU", "WM_UNLOAD_STOP", "WM_FIRST_RUN_CAL"]))
-check("Offset Calibration is second, after Raspberry Pi", [c["name"] for c in vo["categories"]][:3] == ["Raspberry Pi", "Offset Calibration", "AcePro"])
+check("all 24 Pi calibration macros land in RPI Calibration, Extruder Setup too", all(cat_of(vo, n) == "RPI Calibration" for n in wmfc.RPI_CAL_MACROS) and len(wmfc.RPI_CAL_MACROS) == 24 and cat_of(vo, "WM_EXTRUDER_SETUP") == "RPI Calibration")
+check("readable names: Speed Test, Live Z Menu, Bed Warp Wait", [next(m for m in vo["stored"] if m["name"] == n)["alias"] for n in ["WM_AUTO_SPEED", "WM_LIVE_Z_MENU", "WM_BED_SOAK_MENU"]] == ["Speed Test", "Live Z Menu", "Bed Warp Wait"])
+check("Unload Menu and Unload Stop are in WM Ultra Filament", cat_of(vo, "WM_UNLOAD_MENU") == "WM Ultra Filament" and next(m for m in vo["stored"] if m["name"] == "WM_UNLOAD_MENU")["alias"] == "Unload Menu" and cat_of(vo, "WM_UNLOAD_STOP") == "WM Ultra Filament")
+check("Chamber Light and Nozzle Change are in ZR Tools, purple, with names", all(cat_of(vo, n) == "ZR Tools" and next(m for m in vo["stored"] if m["name"] == n)["color"] == "#9c27b0" for n in ["WM_CHAMBER_LIGHT", "WM_NOZZLE_CHANGE"]) and next(m for m in vo["stored"] if m["name"] == "WM_CHAMBER_LIGHT")["alias"] == "Chamber Light")
+check("the buttons' helpers are hidden: SET_GCODE_OFFSET, Z_OFFSET_APPLY_*, WM_BED_SOAK", all(next(m for m in vo["stored"] if m["name"] == n)["visible"] is False for n in ["SET_GCODE_OFFSET", "Z_OFFSET_APPLY_PROBE", "Z_OFFSET_APPLY_ENDSTOP", "WM_BED_SOAK"]))
+check("RPI Calibration comes first; no Raspberry Pi and no Offset Calibration category", [c["name"] for c in vo["categories"]][:2] == ["RPI Calibration", "AcePro"] and not {"Raspberry Pi", "Offset Calibration"} & {c["name"] for c in vo["categories"]})
 check("a fresh sort moves nothing afterwards", ro["moved"] == 0 and not wmfc.plan(ALLO, vo, ho, now_ms=2000)[2]["changed"])
-# a printer sorted by 1.7.9: the offset macros sit in Raspberry Pi, blue, and are in the handled list
-old = {"stored": [entry("WM_OFFSETS_RAPID", categoryId="10", color="#2196f3"), entry("WM_OFFSETS_ACCURATE", categoryId="10", color="#2196f3"),
-                  entry("WM_PROBE_CALIBRATE", categoryId="10", color="#00ff00"), entry("WM_Z_TRIM", categoryId="55", color="#2196f3"),
-                  entry("WM_BED_LEVELING", categoryId="10", color="#2196f3"), entry("ACE_WM_LOAD", categoryId="11", color="#f44336"), entry("ZR_LOAD", categoryId="12", color="#9c27b0")],
-       "categories": [{"id": "10", "name": "Raspberry Pi"}, {"id": "11", "name": "AcePro"}, {"id": "12", "name": "ZR Tools"}, {"id": "55", "name": "Mine"}], "expanded": [0, 0, 1, 2, 3]}
-oldh = ["WM_OFFSETS_RAPID", "WM_OFFSETS_ACCURATE", "WM_PROBE_CALIBRATE", "WM_Z_TRIM", "WM_BED_LEVELING", "ACE_WM_LOAD", "ZR_LOAD"]
-om = ["WM_OFFSETS_RAPID", "WM_OFFSETS_ACCURATE", "WM_PROBE_CALIBRATE", "WM_Z_TRIM", "WM_BED_LEVELING", "ACE_WM_LOAD", "ZR_LOAD", "WM_OFFSETS_Z_HOT"]
+
+# a printer sorted by 1.9.x: Offset Calibration (pink), Raspberry Pi (blue) with calibration, unload and WM_BED_SOAK, WM Ultra Calibration
+old = {"stored": [entry("WM_OFFSETS_RAPID", categoryId="20", color="#e91e63"), entry("WM_Z_TRIM", categoryId="20", color="#e91e63"),
+                  entry("WM_BED_LEVELING", categoryId="10", color="#2196f3"), entry("WM_AUTO_SPEED", categoryId="10", color="#2196f3"),
+                  entry("WM_UNLOAD_MENU", categoryId="10", color="#2196f3"), entry("WM_BED_SOAK", categoryId="10", color="#2196f3"),
+                  entry("WM_CHAMBER_LIGHT", categoryId="10", color="#2196f3"), entry("WM_SCREWS_CAL", categoryId="10", color="#00ff00"),
+                  entry("G29", categoryId="30", color="#ffeb3b"), entry("ACE_WM_LOAD", categoryId="11", color="#f44336")],
+       "categories": [{"id": "10", "name": "Raspberry Pi"}, {"id": "20", "name": "Offset Calibration"}, {"id": "11", "name": "AcePro"},
+                      {"id": "30", "name": "WM Ultra Calibration"}], "expanded": [0, 0, 1, 2, 3]}
+oldh = ["WM_OFFSETS_RAPID", "WM_Z_TRIM", "WM_BED_LEVELING", "WM_AUTO_SPEED", "WM_UNLOAD_MENU", "WM_BED_SOAK", "WM_CHAMBER_LIGHT", "WM_SCREWS_CAL",
+        "G29", "ACE_WM_LOAD", "moved:WM_OFFSETS_RAPID", "moved:WM_Z_TRIM"]
+om = ["WM_OFFSETS_RAPID", "WM_Z_TRIM", "WM_BED_LEVELING", "WM_AUTO_SPEED", "WM_UNLOAD_MENU", "WM_BED_SOAK", "WM_CHAMBER_LIGHT", "WM_SCREWS_CAL",
+      "G29", "ACE_WM_LOAD", "WM_LIVE_Z_MENU"]
 vm, hm, rm = wmfc.plan(om, old, oldh, now_ms=5000)
-check("update from 1.7.9: untouched offset macros move to Offset Calibration, pink", cat_of(vm, "WM_OFFSETS_RAPID") == "Offset Calibration" and cat_of(vm, "WM_OFFSETS_ACCURATE") == "Offset Calibration" and next(m for m in vm["stored"] if m["name"] == "WM_OFFSETS_RAPID")["color"] == "#e91e63" and rm["moved"] == 2)
-check("update: one the user recoloured, or moved to an own category, stays", cat_of(vm, "WM_PROBE_CALIBRATE") == "Raspberry Pi" and next(m for m in vm["stored"] if m["name"] == "WM_PROBE_CALIBRATE")["color"] == "#00ff00" and cat_of(vm, "WM_Z_TRIM") == "Mine")
-check("update: other Raspberry Pi macros stay, a new offset macro is sorted", cat_of(vm, "WM_BED_LEVELING") == "Raspberry Pi" and cat_of(vm, "WM_OFFSETS_Z_HOT") == "Offset Calibration" and rm["categorized"] == 1)
-check("update: the new category is placed right after Raspberry Pi, ids kept", [c["name"] for c in vm["categories"]] == ["Raspberry Pi", "Offset Calibration", "AcePro", "ZR Tools", "Mine"] and vm["categories"][0]["id"] == "10")
+check("update from 1.9.x: WM Ultra Calibration is renamed WM Factory Calibration, same id, G29 stays in it",
+      {"id": "30", "name": "WM Factory Calibration"} in vm["categories"] and cat_of(vm, "G29") == "WM Factory Calibration")
+check("update: untouched calibration macros from Offset Calibration and Raspberry Pi move to RPI Calibration, with names",
+      all(cat_of(vm, n) == "RPI Calibration" for n in ["WM_OFFSETS_RAPID", "WM_Z_TRIM", "WM_BED_LEVELING", "WM_AUTO_SPEED"])
+      and next(m for m in vm["stored"] if m["name"] == "WM_AUTO_SPEED")["alias"] == "Speed Test")
+check("update: WM_UNLOAD_MENU moves to WM Ultra Filament as Unload Menu", cat_of(vm, "WM_UNLOAD_MENU") == "WM Ultra Filament" and next(m for m in vm["stored"] if m["name"] == "WM_UNLOAD_MENU")["alias"] == "Unload Menu")
+check("update: WM_BED_SOAK is hidden", next(m for m in vm["stored"] if m["name"] == "WM_BED_SOAK")["visible"] is False and cat_of(vm, "WM_BED_SOAK") == "-")
+check("update: one the user recoloured stays in Raspberry Pi; the chamber light moves to ZR Tools", cat_of(vm, "WM_SCREWS_CAL") == "Raspberry Pi" and cat_of(vm, "WM_CHAMBER_LIGHT") == "ZR Tools" and next(m for m in vm["stored"] if m["name"] == "WM_CHAMBER_LIGHT")["color"] == "#9c27b0")
+check("update: the empty Offset Calibration is removed; Raspberry Pi stays while your macro is in it; ids kept",
+      [c["name"] for c in vm["categories"]] == ["Raspberry Pi", "RPI Calibration", "AcePro", "WM Factory Calibration", "WM Ultra Filament", "ZR Tools"] and vm["categories"][0]["id"] == "10")
+check("update: a new macro is sorted with its name", cat_of(vm, "WM_LIVE_Z_MENU") == "RPI Calibration" and rm["moved"] == 7 and rm["categorized"] == 1)
+check("update: a second run changes nothing", not wmfc.plan(om, vm, hm, now_ms=6000)[2]["changed"])
+kept = json.loads(json.dumps(old)); kept["stored"][1]["categoryId"] = "20"; kept["stored"][1]["color"] = "#123456"
+vk = wmfc.plan(om, kept, oldh, now_ms=5000)[0]
+check("update: Offset Calibration stays while a macro you recoloured is still in it", "Offset Calibration" in [c["name"] for c in vk["categories"]] and cat_of(vk, "WM_Z_TRIM") == "Offset Calibration")
+mine2 = json.loads(json.dumps(old)); mine2["categories"].append({"id": "40", "name": "WM Factory Calibration"})
+vr = wmfc.plan(om, mine2, oldh, now_ms=5000)[0]
+check("update: no rename when WM Factory Calibration already exists", "WM Ultra Calibration" in [c["name"] for c in vr["categories"]])
 for m in vm["stored"]:
-    if m["name"] == "WM_OFFSETS_RAPID":
-        m["categoryId"] = "10"; m["color"] = "#2196f3"      # the user puts it back in Raspberry Pi
+    if m["name"] == "WM_AUTO_SPEED":
+        m["categoryId"] = "10"; m["color"] = "#2196f3"; m["alias"] = ""      # the user puts it back in Raspberry Pi
 vn, hn, rn = wmfc.plan(om, vm, hm, now_ms=6000)
-check("update: a macro the user moves back afterwards is not moved again", cat_of(vn, "WM_OFFSETS_RAPID") == "Raspberry Pi" and not rn["changed"])
-check("the input is not modified by a move", old["stored"][0]["categoryId"] == "10" and len(old["categories"]) == 4)
+check("update: a macro the user moves back afterwards is not moved again", cat_of(vn, "WM_AUTO_SPEED") == "Raspberry Pi" and not rn["changed"])
+check("the input is not modified by a move", old["stored"][0]["categoryId"] == "20" and len(old["categories"]) == 4)
+
+
+allpi = json.loads(json.dumps(old)); allpi["stored"] = [m for m in allpi["stored"] if m["name"] != "WM_SCREWS_CAL"]
+vp = wmfc.plan([n for n in om if n != "WM_SCREWS_CAL"], allpi, [h for h in oldh if h != "WM_SCREWS_CAL"], now_ms=5000)[0]
+check("update: Raspberry Pi is removed once nothing is left in it", "Raspberry Pi" not in [c["name"] for c in vp["categories"]] and cat_of(vp, "WM_CHAMBER_LIGHT") == "ZR Tools")
+check("a WM_ macro that is in no list stays uncategorized (Claude asks where it goes)", wmfc.match("WM_SOMETHING_NEW") is None)
+
+print("one colour per category")
+check("every category has its own colour", len({c[1].lower() for c in wmfc.CATEGORIES}) == len(wmfc.CATEGORIES))
+mix = {"stored": [entry("WM_OFFSETS_RAPID", categoryId="5", color="#2196f3"), entry("WM_Z_TRIM", categoryId="5", color=""),
+                  entry("WM_BED_PID", categoryId="5", color="#abcdef"), entry("G29", categoryId="6", color="#e91e63")],
+       "categories": [{"id": "5", "name": "RPI Calibration"}, {"id": "6", "name": "WM Factory Calibration"}], "expanded": [0, 0, 1]}
+vc, hc, rc_ = wmfc.plan(["WM_OFFSETS_RAPID", "WM_Z_TRIM", "WM_BED_PID", "G29"], mix, ["WM_OFFSETS_RAPID", "WM_Z_TRIM", "WM_BED_PID", "G29"], now_ms=7000)
+col = {m["name"]: m["color"] for m in vc["stored"]}
+check("installer colours (or none) become the category's colour", col["WM_OFFSETS_RAPID"] == "#e91e63" and col["WM_Z_TRIM"] == "#e91e63" and col["G29"] == "#ffeb3b" and rc_.get("recoloured") == 3)
+check("a colour you picked yourself stays", col["WM_BED_PID"] == "#abcdef")
+check("after recolouring a second run changes nothing", not wmfc.plan(["WM_OFFSETS_RAPID", "WM_Z_TRIM", "WM_BED_PID", "G29"], vc, hc, now_ms=8000)[2]["changed"])
 
 print("against a fake Moonraker")
 DB = {("fluidd", "macros"): {"stored": [entry("G29")], "categories": [], "expanded": [0]}}
@@ -162,7 +203,7 @@ rc, out = run("--dry-run")
 check("dry run says what it would do and writes nothing", rc == 0 and "dry run" in out and STATE["writes"] == 0)
 rc, out = run("--backup", bk)
 check("apply writes the Fluidd macros and our own record, and saves the old settings", rc == 0 and STATE["writes"] == 2 and ("wm_ultra", "fluidd_categories") in DB and json.load(open(bk))["fluidd_macros"]["stored"][0]["name"] == "G29")
-check("the user's category-less G29 that existed before was sorted too", cat_of(DB[("fluidd", "macros")], "G29") == "WM Ultra Calibration")
+check("the user's category-less G29 that existed before was sorted too", cat_of(DB[("fluidd", "macros")], "G29") == "WM Factory Calibration")
 before = STATE["writes"]
 rc, out = run("--backup", bk)
 check("a second apply says nothing is new and writes nothing", rc == 0 and "nothing new" in out and STATE["writes"] == before)

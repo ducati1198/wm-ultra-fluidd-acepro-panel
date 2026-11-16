@@ -14,6 +14,15 @@ Rules that keep the user's own choices safe:
     is placed after the category that comes before it in the list below, when that one exists.
   * The offset and Z calibration macros were in "Raspberry Pi" up to 1.7.9. They are moved to "Offset Calibration"
     once, and only while their entry is still what the installer wrote. One you moved or recoloured stays.
+  * One colour per category, and every category its own colour (table CATEGORIES). A macro in one of these categories
+    whose colour is still one the installer writes (or none) gets its category's colour; a colour you picked stays.
+  * 1.10.0 layout: WonderMaker's own calibration macros are in "WM Factory Calibration" (the category "WM Ultra
+    Calibration" is renamed once, keeping its macros). Every calibration macro of the Pi installer is in "RPI Calibration"
+    with a readable name (Speed Test, Live Z Menu ...); "Offset Calibration" is emptied into it and removed when empty.
+    The unload window (Unload Menu, Unload Stop) is in "WM Ultra Filament", Nozzle Change and Chamber Light in "ZR Tools";
+    "Raspberry Pi" is removed when empty. SET_GCODE_OFFSET, Z_OFFSET_APPLY_ENDSTOP,
+    Z_OFFSET_APPLY_PROBE and WM_BED_SOAK are hidden (buttons and switches call them). Each of these moves happens once
+    and only for an entry still as the installer wrote it.
 
 Usage:
   wm_fluidd_categories.py apply [--url URL] [--wait SECONDS] [--backup FILE] [--dry-run]
@@ -27,38 +36,70 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-# The Pi installer's tool offset and Z calibration macros: their own category, so they are found in one place.
+# The Pi installer's tool offset and Z calibration macros (their own category up to 1.9.x, part of RPI Calibration since 1.10.0).
 OFFSET_MACROS = ["WM_FULL_OFFSET_CAL", "WM_OFFSETS_ACCURATE", "WM_OFFSETS_RAPID", "WM_OFFSETS_Z_HOT", "WM_NOZZLE_GROWTH_CAL",
                  "WM_NOZZLE_GROWTH", "WM_Z_TRIM", "WM_Z_TRIM_MENU", "WM_PROBE_CALIBRATE"]
-# (category name, colour, exact macro names, name prefixes). The first rule that matches wins.
+# Every calibration macro of the Pi installer (1.10.0): one category, "RPI Calibration".
+RPI_CAL_MACROS = OFFSET_MACROS + ["WM_FIRST_RUN_CAL", "WM_CAL_HELP", "WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_BED_PID",
+                                  "WM_NOZZLE_TEMP_CAL", "WM_VIBRATION_COMP", "WM_LIVE_Z_MENU", "WM_LIVE_Z_ZERO", "WM_BED_SOAK_MENU",
+                                  "WM_BED_WARP_MEASURE", "WM_BED_WARP_STOP", "WM_AUTO_SPEED", "WM_AUTO_SPEED_VALIDATE",
+                                  "WM_EXTRUDER_SETUP"]
+UNLOAD_MACROS = ["WM_UNLOAD_MENU", "WM_UNLOAD_STOP"]
+# The Pi installer's printer tools that are not calibration: with WonderMaker's ZR tools (1.10.0; there is no
+# "Raspberry Pi" category any more). A WM_ macro that is in none of these lists stays uncategorized.
+ZR_PI_MACROS = ["WM_NOZZLE_CHANGE", "WM_CHAMBER_LIGHT"]
+FACTORY_CAL = ["G29", "PROBE_CALIBRATE", "BED_MESH_CALIBRATE", "CALIBRATE_OFFSET_ALL_RAPID_MODE", "CALIBRATE_OFFSET_ALL_FINE_MODE",
+               "RAPID_MODE", "NOZZLE_PREPARE", "NOZZLE_CALIBRATE_TOOL_OFFSET", "CALIBRATE_TOOL_OFFSET", "CALIBRATE_TOOL_Z_OFFSET",
+               "CALIBRATE_TOOL_POSITION", "GET_TOOL_POSITION", "CALIBRATE_WIPE_POSITION", "SAVE_TOOL_OFFSET", "SAVE_T_OFFSET",
+               "SAVE_T_POSITON", "RESPOND_T_OFFSET", "RESPOND_T_POSITION"]
+# (category name, colour, exact macro names, name prefixes). The first rule that matches wins (rule order, not display order).
 CATEGORIES = [
     ("Timelapse", "#00bcd4", ["GET_TIMELAPSE_SETUP", "HYPERLAPSE", "TIMELAPSE_RENDER", "TIMELAPSE_TAKE_FRAME", "TEST_STREAM_DELAY"], []),
     ("AcePro", "#f44336", ["WM_SET_TOOL_MAP"], ["ACE_", "WM_ENDLESS_", "WM_STATS_"]),
-    ("Offset Calibration", "#e91e63", OFFSET_MACROS, []),
-    ("Raspberry Pi", "#2196f3", [], ["WM_"]),
-    ("WM Ultra Calibration", "#ffeb3b",
-     ["G29", "PROBE_CALIBRATE", "BED_MESH_CALIBRATE", "CALIBRATE_OFFSET_ALL_RAPID_MODE", "CALIBRATE_OFFSET_ALL_FINE_MODE",
-      "RAPID_MODE", "NOZZLE_PREPARE", "NOZZLE_CALIBRATE_TOOL_OFFSET", "CALIBRATE_TOOL_OFFSET", "CALIBRATE_TOOL_Z_OFFSET",
-      "CALIBRATE_TOOL_POSITION", "GET_TOOL_POSITION", "CALIBRATE_WIPE_POSITION", "SAVE_TOOL_OFFSET", "SAVE_T_OFFSET",
-      "SAVE_T_POSITON", "RESPOND_T_OFFSET", "RESPOND_T_POSITION"], []),
-    ("WM Ultra Tool Change", "#4caf50",
-     ["T0", "T1", "T2", "T3", "LOCK", "UNLOCK", "UNLOCK_TOOL_FINISH", "PARK_CURRENT_TOOL", "PARK_CURRENT_TOOL_RETRY", "Z_HOMING"], []),
+    ("RPI Calibration", "#e91e63", RPI_CAL_MACROS, []),
     ("WM Ultra Filament", "#ff9800",
      ["LOAD_FILAMENT", "UNLOAD_FILAMENT", "EXTRUDE_FILAMENT", "RETRACT_FILAMENT", "filament_insert", "filament_insert_gcode",
-      "POP", "E_axis_move", "RESET_FLOW_EXTRUDER", "WIPE_NOZZLE", "WIPE_NOZZ"], []),
-    ("ZR Tools", "#9c27b0", [], ["ZR_"]),
+      "POP", "E_axis_move", "RESET_FLOW_EXTRUDER", "WIPE_NOZZLE", "WIPE_NOZZ"] + UNLOAD_MACROS, []),
+    ("WM Factory Calibration", "#ffeb3b", FACTORY_CAL, []),
+    ("WM Ultra Tool Change", "#4caf50",
+     ["T0", "T1", "T2", "T3", "LOCK", "UNLOCK", "UNLOCK_TOOL_FINISH", "PARK_CURRENT_TOOL", "PARK_CURRENT_TOOL_RETRY", "Z_HOMING"], []),
+    ("ZR Tools", "#9c27b0", ZR_PI_MACROS, ["ZR_"]),
     ("WM Ultra Print", "#9e9e9e", ["START_PRINT", "PRINT_END", "CANCEL_PRINT", "PAUSE", "RESUME", "G30", "G31"], []),
     ("WM Ultra Tests", "#607d8b", [], ["TEST_"]),
 ]
-# Shown in this order in Fluidd (the order the categories are created in).
-CATEGORY_ORDER = ["Raspberry Pi", "Offset Calibration", "AcePro", "WM Ultra Calibration", "WM Ultra Tool Change", "WM Ultra Filament",
-                  "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"]
+# Shown in this order in Fluidd (the order the categories are created in). "Raspberry Pi" is only there for placement:
+# no macro goes into it any more, but on an update it can still exist while you keep a macro of your own in it.
+CATEGORY_ORDER = ["Raspberry Pi", "RPI Calibration", "Offset Calibration", "AcePro", "WM Factory Calibration", "WM Ultra Tool Change",
+                  "WM Ultra Filament", "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"]
 # Helper macros nobody presses by hand: hidden the first time they are seen.
-HIDDEN = ["M104", "M106", "M107", "M109", "M141", "M190", "M191", "M221", "z_rise"]
+HIDDEN = ["M104", "M106", "M107", "M109", "M141", "M190", "M191", "M221", "z_rise",
+          "SET_GCODE_OFFSET", "Z_OFFSET_APPLY_ENDSTOP", "Z_OFFSET_APPLY_PROBE", "WM_BED_SOAK"]
+# Readable names shown by Fluidd instead of the macro name (the macro name itself does not change).
+ALIASES = {
+    "WM_FIRST_RUN_CAL": "First Run Calibration", "WM_CAL_HELP": "Calibration Help", "WM_BED_LEVELING": "Bed Leveling",
+    "WM_SCREWS_CAL": "Bed Screws", "WM_BED_PID": "Bed PID", "WM_NOZZLE_TEMP_CAL": "Nozzle PID", "WM_VIBRATION_COMP": "Input Shaper",
+    "WM_FULL_OFFSET_CAL": "Full Offset Calibration", "WM_OFFSETS_RAPID": "Offsets Rapid", "WM_OFFSETS_ACCURATE": "Offsets Accurate",
+    "WM_OFFSETS_Z_HOT": "Z Offsets Hot", "WM_PROBE_CALIBRATE": "Probe Calibrate", "WM_NOZZLE_GROWTH_CAL": "Nozzle Growth Calibration",
+    "WM_NOZZLE_GROWTH": "Nozzle Growth Value", "WM_Z_TRIM_MENU": "Z Trim Menu", "WM_Z_TRIM": "Z Trim", "WM_LIVE_Z_MENU": "Live Z Menu",
+    "WM_LIVE_Z_ZERO": "Live Z Zero", "WM_BED_SOAK_MENU": "Bed Warp Wait", "WM_BED_WARP_MEASURE": "Measure Bed Warp",
+    "WM_BED_WARP_STOP": "Stop Bed Warp Measure", "WM_AUTO_SPEED": "Speed Test", "WM_AUTO_SPEED_VALIDATE": "Speed Check",
+    "WM_UNLOAD_MENU": "Unload Menu", "WM_UNLOAD_STOP": "Unload Stop", "WM_EXTRUDER_SETUP": "Extruder Setup",
+    "WM_NOZZLE_CHANGE": "Nozzle Change", "WM_CHAMBER_LIGHT": "Chamber Light",
+}
+# Categories an earlier version created under another name: renamed once (id and macros kept), when the new name is not there yet.
+RENAMES = [("WM Ultra Calibration", "WM Factory Calibration")]
+RENAME_MARK = "renamed:"
+# Categories an earlier version created that this version no longer uses: removed once, only when no macro is left in them.
+RETIRED = ["Offset Calibration", "Raspberry Pi"]
+RETIRED_MARK = "removed:"
 
-# Macros an earlier version sorted into another category. They are moved once, and only while their entry is still
-# exactly what that version wrote (same category, same colour, visible, no alias): (macro names, old category, old colour).
-MOVES = [(OFFSET_MACROS, "Raspberry Pi", "#2196f3")]
+# Macros an earlier version sorted into another category. They are moved once (to where match() puts them now, with
+# the readable name), and only while their entry is still exactly what that version wrote (one of the old category +
+# colour pairs, visible, no alias): (macro names, [(old category, old colour)], mark).
+MOVES = [(OFFSET_MACROS, [("Raspberry Pi", "#2196f3")], "moved:"),
+         (RPI_CAL_MACROS + UNLOAD_MACROS + ZR_PI_MACROS + ["WM_BED_SOAK"], [("Raspberry Pi", "#2196f3"), ("Offset Calibration", "#e91e63")], "moved110:")]
+# Colours earlier versions wrote for categories that are gone (they count as installer colours, not yours).
+OLD_COLOURS = ["#2196f3"]
 MOVED_MARK = "moved:"      # "moved:<name>" in the handled list = this macro's move was dealt with (a macro name has no colon)
 
 NS_FLUIDD, KEY_MACROS = "fluidd", "macros"
@@ -100,6 +141,16 @@ def plan(macros, fluidd_value, handled, now_ms=None):
     report = {"categorized": 0, "hidden": 0, "kept": 0, "moved": 0, "created": created}
     new_handled = list(handled)
     seq = 0
+    for old_name, new_name in RENAMES:
+        mark = RENAME_MARK + old_name
+        if mark.lower() in done:
+            continue
+        old_c = next((c for c in cats if c.get("name", "").lower() == old_name.lower()), None)
+        if old_c is not None and new_name.lower() not in cat_id:
+            old_c["name"] = new_name
+            cat_id[new_name.lower()] = cat_id.pop(old_name.lower())
+            report.setdefault("renamed", []).append("%s -> %s" % (old_name, new_name))
+        new_handled.append(mark)
 
     def ensure_category(name):
         nonlocal seq
@@ -132,8 +183,9 @@ def plan(macros, fluidd_value, handled, now_ms=None):
     for name, (kind, colour) in sorted(wanted.items(), key=lambda kv: kv[0].lower()):
         entry = by_name.get(name.lower())
         new_handled.append(name)
-        if any(name.lower() in [n.lower() for n in names] for names, _, _ in MOVES):
-            new_handled.append(MOVED_MARK + name)     # sorted by this version: there is nothing to move later
+        for names, _, mark in MOVES:
+            if name.lower() in [n.lower() for n in names]:
+                new_handled.append(mark + name)       # sorted by this version: there is nothing to move later
         if entry is not None and not pristine(entry):
             report["kept"] += 1          # you changed it yourself (or it is already hidden): left as it is
             continue
@@ -147,22 +199,57 @@ def plan(macros, fluidd_value, handled, now_ms=None):
         else:
             entry["categoryId"] = ensure_category(kind)
             entry["color"] = colour
+            entry["alias"] = ALIASES.get(name, "")
             report["categorized"] += 1
     # one-time moves of macros an earlier version sorted elsewhere
-    for names, old_cat, old_colour in MOVES:
+    for names, olds, mark_prefix in MOVES:
         for name in names:
-            mark = MOVED_MARK + name
+            mark = mark_prefix + name
             entry = by_name.get(name.lower())
-            if mark.lower() in done or name.lower() not in done or entry is None or name not in macros:
+            if mark.lower() in done or mark in new_handled or name.lower() not in done or entry is None or name not in macros:
                 continue                      # already dealt with, or sorted by this version (so it is in the right place)
             new_handled.append(mark)
             r = match(name)
-            if (r and r[0] not in ("hide", old_cat) and old_cat.lower() in cat_id and str(entry.get("categoryId")) == str(cat_id[old_cat.lower()])
-                    and entry.get("color") == old_colour and entry.get("visible", True) is True and not entry.get("alias")):
+            here = [oc for oc, ocol in olds if oc.lower() in cat_id and str(entry.get("categoryId")) == str(cat_id[oc.lower()])
+                    and entry.get("color") == ocol]
+            if not r or not here or entry.get("visible", True) is not True or entry.get("alias") or r[0] == here[0]:
+                continue
+            if r[0] == "hide":
+                entry["visible"] = False
+                entry["categoryId"] = "0"
+                entry["color"] = ""
+            else:
                 entry["categoryId"] = ensure_category(r[0])
                 entry["color"] = r[1]
-                report["moved"] += 1
-    report["changed"] = bool(created or report["categorized"] or report["hidden"] or report["moved"] or len(new_handled) != len(handled))
+                entry["alias"] = ALIASES.get(name, "")
+            report["moved"] += 1
+    # one colour per category: a macro in one of our categories gets that category's colour, unless you gave it your own
+    ours = {c.lower(): col for c, col, _, _ in CATEGORIES}
+    installer_colours = {col.lower() for col in ours.values()} | {c.lower() for c in OLD_COLOURS} | {""}
+    names_by_id = {str(c.get("id")): c.get("name", "").lower() for c in cats}
+    for m in stored:
+        cname = names_by_id.get(str(m.get("categoryId")))
+        want = ours.get(cname) if cname else None
+        if want and (m.get("color") or "").lower() != want.lower() and (m.get("color") or "").lower() in installer_colours:
+            m["color"] = want
+            report["recoloured"] = report.get("recoloured", 0) + 1
+    # categories this version no longer uses: removed once, when empty
+    for cname in RETIRED:
+        mark = RETIRED_MARK + cname
+        cid = cat_id.get(cname.lower())
+        if cid is None or mark.lower() in done or mark in new_handled:
+            continue
+        if any(str(m.get("categoryId")) == str(cid) for m in stored):
+            continue                          # you still keep macros there: the category stays
+        new_handled.append(mark)
+        pos = next(i for i, c in enumerate(cats) if str(c.get("id")) == str(cid))
+        del cats[pos]
+        del cat_id[cname.lower()]
+        value["expanded"] = [e - 1 if e > pos else e for e in expanded if e != pos]
+        expanded = value["expanded"]
+        report.setdefault("removed", []).append(cname)
+    report["changed"] = bool(created or report["categorized"] or report["hidden"] or report["moved"] or report.get("renamed") or report.get("recoloured")
+                             or report.get("removed") or len(new_handled) != len(handled))
     return value, new_handled, report
 
 
@@ -223,7 +310,13 @@ def main(argv):
             return 0
         msg = "Fluidd macros: %d sorted into categories, %d hidden, %d left as you set them" % (rep["categorized"], rep["hidden"], rep["kept"])
         if rep["moved"]:
-            msg += ", %d moved to Offset Calibration" % rep["moved"]
+            msg += ", %d moved to their new category" % rep["moved"]
+        if rep.get("recoloured"):
+            msg += ", %d recoloured to their category's colour" % rep["recoloured"]
+        if rep.get("renamed"):
+            msg += "; renamed: " + ", ".join(rep["renamed"])
+        if rep.get("removed"):
+            msg += "; removed empty: " + ", ".join(rep["removed"])
         if rep["created"]:
             msg += "; new categories: " + ", ".join(rep["created"])
         if a.dry_run:

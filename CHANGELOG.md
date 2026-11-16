@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.10.0
+
+Toolheads card additions, the feed assist fix, print time per toolhead and the new Fluidd category layout. Goes with WM_Ultra_Vanilla_Klipper 2.11.0 (the touchscreen line needs it on the screen board). Tested on a ZR Ultra-S.
+
+- **Feed assist on the wrong slot (B-040, `config/rpi_ace.cfg`).** The 1 s watcher decided the feed assist with the values of the moment its timer fired; behind `START_PRINT` or a cancel its commands ran minutes later. Seen: assist on slot 1 while T0 printed, assist switched on for T0 after it was parked, then a 60 s ACE timeout and the ACE stuck "shifting" until it was switched off and on. The decision is now the new macro `_WM_ACE_ASSIST_SYNC`, which reads the printer when it runs, and the tool is the saved `current_extruder` (99 = none on the carriage). Tested: assist on slot 0 for a T0 print after T1 was parked, off after the cancel, no timeout.
+- **Print time per toolhead (`config/rpi_stats.cfg`).** `_WM_STATS_TICK` adds the growth of `print_stats.print_duration` (pauses not counted) to the toolhead on the carriage and saves `wm_stat_time0` … `wm_stat_time3` about once a minute, at a tool change and at the end of a print. `WM_STATS_RESET` also zeroes them. The 2 s poll only calls the macro (same reason as B-040).
+- **Fluidd categories (`scripts/wm_fluidd_categories.py`):** every category its own colour and one colour per category (installer colours are corrected, your own colours stay); WonderMaker's calibration in "WM Factory Calibration" (renamed from WM Ultra Calibration), every calibration macro of the Pi installer in "RPI Calibration" with readable names (Extruder Setup too), Unload Menu / Unload Stop in WM Ultra Filament, Nozzle Change and Chamber Light in ZR Tools, `SET_GCODE_OFFSET`, `Z_OFFSET_APPLY_*` and `WM_BED_SOAK` hidden, the empty Offset Calibration and Raspberry Pi categories removed. On an update each move happens once and only for entries left as the installer wrote them (README 3.5).
+- **Fluidd panel rebuilt** (new zip, patch and checksum). Toolheads card:
+  - **Unload Menu** button (`WM_UNLOAD_MENU`): a full-size blue button on its own line; locked only while a print runs or is paused (the macro refuses then).
+  - Hub, Head and **Dock** lights for every toolhead, a little smaller (before: only with an ACE, without Dock); **Tool lock** and **Lock motor home** lights of the carriage.
+  - **Print time per toolhead** next to the tool-change counts.
+  - **Touchscreen line:** version, "update" chip when GitHub has a newer one, board CPU, KlipperScreen CPU, free memory, from `config/wm_screen_status.json` (uploaded by the board every minute), so it works also when the browser cannot reach the board.
+- Tests: `tests/test_macros.py` is now part of `run_tests.sh` (counters, print time, feed assist); new category tests for the 1.9.x update path.
+
 ## 1.9.0
 
 Faster ACE loads, the ACE window that closes by itself, and three switches plus friendly sensor names in Fluidd. Goes with WM_Ultra_Vanilla_Klipper 2.9.0 (live Z adjust per tool). Everything was tested on a ZR Ultra-S.

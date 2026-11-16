@@ -309,6 +309,9 @@ check "uninstall: the hook lines are gone and the cfgs are as before" bash -c 'f
 
 echo "Fluidd macro categories"
 check "categories: rules, never-touch-user-changes and fake Moonraker tests pass" bash -c 'python3 -I "$0/tests/test_fluidd_categories.py" | tail -1 | grep -q "failed: 0"' "$REPO"
+check "macros: counters, print time per toolhead, feed assist (B-040) and the other new macros render right" bash -c 'python3 -I "$0/tests/test_macros.py" | tail -1 | grep -q "failed: 0"' "$REPO"
+check "Fluidd zip: Unload Menu button, Dock and Tool lock lights, print time, touchscreen line from wm_screen_status.json" bash -c 'j="$(unzip -p "$0/fluidd/fluidd-v1.38.0-zr-ace.zip" "assets/*.js")"; for t in "Unload Menu" "WM_UNLOAD_MENU" "Lock motor home" "wm_stat_time" "wm_screen_status.json" "_WM_STATS_TICK"; do echo "$j" | grep -q "$t" || exit 1; done' "$REPO"
+check "Fluidd patch: the new Toolheads card commit is in the series" grep -q "Subject: \[PATCH 26/26\] feat(zr): unload menu, sensor lights, board line" "$REPO/fluidd/fluidd-v1.38.0-zr-ace.patch"
 FCH="$(new_home fcat)"
 ACE_MOONRAKER_URL=http://127.0.0.1:1 inst "$FCH" "$A_ALL"
 check "install: with Moonraker unreachable the install still finishes and says how to run it later" bash -c 'echo "$0" | grep -q "Fluidd macro categories" && echo "$0" | grep -q "fluidd-categories" && echo "$0" | grep -q "installed"' "$OUT"

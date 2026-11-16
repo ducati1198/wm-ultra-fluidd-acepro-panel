@@ -133,7 +133,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Uses WonderMaker's own sensors** | Only the toolhead sensor `filament<N>` is read: it stops the feed. The hub sensors `path_N` are not filament sensors on this printer (they always read on), so nothing reads them. No new sensors needed. |
 | **Unload** | `ACE_WM_UNLOAD T=n` picks up the real toolhead n (not the one a print map points to), forms a tip with the extruder, then the ACE pulls the filament back until the toolhead sensor is clear and its slot is empty. The hub sensors `path_N` are not used for this: they always read on. |
 | **Auto-load** | Put a spool into an ACE slot and it loads to the matching toolhead (switch off with `ACE_WM_AUTO ENABLE=0` or the Auto Load switch in Fluidd). It waits until the ACE is quiet (no slot preloading or shifting for 5 s), loads the spools in the order you put them in, and tries a feed the ACE refuses again every 4 s, up to 10 times, with a console message each time. After an unload the slot is held for 5 s only (`unload_hold` in `rpi_ace.cfg`); a spool that is ready when those 5 s end is not loaded by itself, a window asks **Load T0** or **No**. |
-| **Feed assist** | Follows the active toolhead while printing. |
+| **Feed assist** | Follows the toolhead on the carriage while printing, and goes off as soon as it is parked. The choice is made when the check runs, never with values from before a long macro (B-040, tested). |
 | **Dryer** | Start and stop from Fluidd, six material presets (PLA, PETG, ABS/ASA, TPU, Nylon/PA, PVA). Max 65 °C. |
 | **Filament mapping at print start** | "Choose toolheads" window: opens every time you press Print, so you always see which toolhead prints which filament before it starts. |
 | **One Fluidd card** | Everything sits in the WonderMaker **Toolheads** card, in the look of the ACE Pro card from [acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper). No separate ACE panel. |
@@ -141,7 +141,10 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Endless spool (experimental)** | Off by default. When a head runs out the print pauses, and the card offers a spare head with the same colour and material. WonderMaker has no endless spool from the factory (section 8). |
 | **Your own endless-spool chain** | In each toolhead's dialog: "If this spool runs out, take over with Toolhead N, then M". The chain is tried first, then the same colour and material (section 8). Not yet tested on a printer. |
 | **Tool-change progress bar** | A bar in the card while WonderMaker changes tools (lifting, putting the old head back, locking the new one), read from WonderMaker's own flag and the dock sensors. Not yet tested on a printer. |
-| **Counters** | Tool changes in total and per toolhead, with a Reset button. Not yet tested on a printer. |
+| **Counters** | Tool changes in total and per toolhead, plus the print time of each toolhead on the carriage (pauses not counted), with a Reset button. |
+| **Sensor lights** | Every toolhead shows its Hub, Head and Dock sensors; below the toolheads the carriage's Tool lock and Lock motor home sensors. |
+| **Unload Menu button** | Opens the unload window of the Pi installer (`WM_UNLOAD_MENU`): one toolhead or all of them, with or without an ACE. |
+| **Touchscreen line** | The touchscreen board's version, an "update" chip when a newer version is on GitHub, its CPU and free memory. The board sends it every minute (needs WM_Ultra_Vanilla_Klipper 2.11.0 on the board). |
 | **OrcaSlicer plugin** | Pick the toolhead for each filament inside Orca; written into the G-code as `WM_SET_TOOL_MAP` ([`orca_plugin/`](orca_plugin/INSTALL.md)). |
 | **Orca filament sync** | With an ACE, the slots are published to Moonraker's `lane_data` so Orca's "sync filament from printer" can see them. Not yet tested. |
 | **Safe installer** | Asks plain questions, shows what changes, backs up first, `--undo`, `--check`, `--dry-run`, tests. |
@@ -659,23 +662,24 @@ At the end of an install or update (after the Klipper restart question) the inst
 
 | Category | Colour | What goes in |
 |---|---|---|
+| RPI Calibration | pink | every calibration macro of the Pi installer, with readable names: Extruder Setup, First Run Calibration, Bed Leveling, Bed Screws, Bed PID, Nozzle PID, Input Shaper, Full Offset Calibration, Offsets Rapid / Accurate, Z Offsets Hot, Probe Calibrate, Nozzle Growth, Z Trim, Z Trim Menu, Live Z Menu, Live Z Zero, Bed Warp Wait, Measure Bed Warp, Speed Test, Speed Check ... |
 | AcePro | red | `ACE_*`, `WM_ENDLESS_*`, `WM_STATS_*`, `WM_SET_TOOL_MAP` |
-| Raspberry Pi | blue | the other `WM_*` macros of the Pi installer (bed leveling, PID, first run calibration, chamber light, unload menu ...) |
-| Offset Calibration | pink | the tool offset and Z calibration macros: `WM_FULL_OFFSET_CAL`, `WM_OFFSETS_ACCURATE`, `WM_OFFSETS_RAPID`, `WM_OFFSETS_Z_HOT`, `WM_NOZZLE_GROWTH_CAL`, `WM_NOZZLE_GROWTH`, `WM_Z_TRIM`, `WM_Z_TRIM_MENU`, `WM_PROBE_CALIBRATE` |
-| WM Ultra Calibration | yellow | WonderMaker's calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
+| WM Factory Calibration | yellow | WonderMaker's own calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
 | WM Ultra Tool Change | green | `T0`..`T3`, `LOCK`, `UNLOCK`, `PARK_CURRENT_TOOL` ... |
-| WM Ultra Filament | orange | `LOAD_FILAMENT`, `UNLOAD_FILAMENT`, `WIPE_NOZZLE` ... |
-| ZR Tools | purple | `ZR_*` |
+| WM Ultra Filament | orange | `LOAD_FILAMENT`, `UNLOAD_FILAMENT`, `WIPE_NOZZLE` ..., and Unload Menu / Unload Stop (`WM_UNLOAD_MENU`, `WM_UNLOAD_STOP`) |
+| ZR Tools | purple | `ZR_*`, and the Pi installer's Nozzle Change and Chamber Light |
 | WM Ultra Print | grey | `START_PRINT`, `PRINT_END`, `PAUSE`, `RESUME` ... |
 | WM Ultra Tests | dark grey | `TEST_*` |
 | Timelapse | cyan | `GET_TIMELAPSE_SETUP`, `HYPERLAPSE`, `TIMELAPSE_*`, `TEST_STREAM_DELAY` |
 
-`M104`, `M106`, `M107`, `M109`, `M141`, `M190`, `M191`, `M221` and `z_rise` are hidden: nobody presses them by hand.
+Every category has its own colour, and every macro in a category has that colour. A macro whose colour is still one the installer writes gets its category's colour at each install and update; a colour you picked yourself stays.
 
-The categories are listed in this order: Raspberry Pi, Offset Calibration, AcePro, WM Ultra Calibration, WM Ultra Tool Change, WM Ultra Filament, ZR Tools, WM Ultra Print, WM Ultra Tests, Timelapse.
+Hidden (nobody presses them by hand; buttons and switches call them): `M104`, `M106`, `M107`, `M109`, `M141`, `M190`, `M191`, `M221`, `z_rise`, `SET_GCODE_OFFSET`, `Z_OFFSET_APPLY_ENDSTOP`, `Z_OFFSET_APPLY_PROBE`, `WM_BED_SOAK`.
+
+The categories are listed in this order: RPI Calibration, AcePro, WM Factory Calibration, WM Ultra Tool Change, WM Ultra Filament, ZR Tools, WM Ultra Print, WM Ultra Tests, Timelapse.
 
 - A category is created only when a macro for it exists (no AcePro category on a printer without the ACE parts, no WM Ultra Tests category when no `TEST_*` macro is left), and an existing category with the same name is reused.
-- **Updating from 1.7.9 or older:** the offset macros were in Raspberry Pi. They are moved to Offset Calibration once, and only if you left them as the installer put them (still in Raspberry Pi, still blue). One you moved or recoloured stays where it is, and one you move back afterwards is not moved again.
+- **Updating from 1.9.x or older:** "WM Ultra Calibration" is renamed "WM Factory Calibration" (same macros). The Pi's calibration macros move from Raspberry Pi and Offset Calibration into RPI Calibration with their readable names, the unload window into WM Ultra Filament, Nozzle Change and Chamber Light into ZR Tools, `WM_BED_SOAK` is hidden, and the empty Offset Calibration and Raspberry Pi categories are removed. Each happens once, and only for an entry you left as the installer put it (same category, same colour, no name of your own). One you moved, recoloured or renamed stays where it is, Offset Calibration or Raspberry Pi stays while you keep a macro in it, and one you move back afterwards is not moved again.
 - **Your own choices are never changed.** A macro is sorted only while its Fluidd entry is still the default one. A macro you moved, recoloured, renamed or hid is left alone, and every macro is dealt with once: one you unhide or move back later is not touched again. Macros added by a later update are sorted the first time they are seen.
 - It needs Moonraker, and Klipper ready, because Klipper is what knows the macros. If Klipper is not running the installer says so and tells you to run `--fluidd-categories` later. It never fails the install.
 - The settings Fluidd had before are saved in `~/acepro-backup/fluidd-macros-before-<date>.json`. Uninstalling does not remove the categories (they are your Fluidd settings). Hard-refresh the browser to see the change.

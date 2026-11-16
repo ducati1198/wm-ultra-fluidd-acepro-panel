@@ -29,10 +29,10 @@ class Err(Exception):
     pass
 
 
-def run(macros, name, params=None, variables=None, state="standby", gvars=None):
+def run(macros, name, params=None, variables=None, state="standby", gvars=None, duration=0.0):
     env = jinja2.Environment("{%", "%}", "{", "}", extensions=["jinja2.ext.do"])
     env.globals["action_raise_error"] = lambda m: (_ for _ in ()).throw(Err(m))
-    printer = {"save_variables": {"variables": dict(variables or {})}, "print_stats": {"state": state}}
+    printer = {"save_variables": {"variables": dict(variables or {})}, "print_stats": {"state": state, "print_duration": duration}}
     for k, v in (gvars or {}).items():
         printer["gcode_macro " + k] = v
     out = env.from_string(macros[name]).render(params=params or {}, printer=printer)
@@ -70,19 +70,58 @@ o = run(stats, "WM_SET_TOOL_MAP", {"MAP": "0:2", "FILE": "b.gcode", "KEEP_EXISTI
 check("other file: map applied", any("box_modify_t0 VALUE=2" in l for l in o))
 
 print("Counters")
-g = {"_WM_STATS": {"last": -1}}
-o = run(stats, "_WM_STATS_POLL", variables={"current_extruder": 1}, gvars=g)
+G0 = {"last_dur": -1.0, "pend": 0.0, "pend_tool": -1}
+g = {"_WM_STATS": dict(G0, last=-1)}
+o = run(stats, "_WM_STATS_TICK", variables={"current_extruder": 1}, gvars=g)
 check("first reading only remembers", not any(l.startswith("SAVE_VARIABLE") for l in o) and any("VARIABLE=last VALUE=1" in l for l in o))
-g = {"_WM_STATS": {"last": 1}}
-o = run(stats, "_WM_STATS_POLL", variables={"current_extruder": 2, "wm_stat_changes": 4, "wm_stat_head2": 1}, gvars=g)
+g = {"_WM_STATS": dict(G0, last=1)}
+o = run(stats, "_WM_STATS_TICK", variables={"current_extruder": 2, "wm_stat_changes": 4, "wm_stat_head2": 1}, gvars=g)
 check("a change counts", "SAVE_VARIABLE VARIABLE=wm_stat_changes VALUE=5" in o and "SAVE_VARIABLE VARIABLE=wm_stat_head2 VALUE=2" in o)
-o = run(stats, "_WM_STATS_POLL", variables={"current_extruder": 1}, gvars=g)
+o = run(stats, "_WM_STATS_TICK", variables={"current_extruder": 1}, gvars=g)
 check("no change, no count", not any(l.startswith("SAVE_VARIABLE") for l in o))
-o = run(stats, "_WM_STATS_POLL", variables={"current_extruder": 99}, gvars=g)
+o = run(stats, "_WM_STATS_TICK", variables={"current_extruder": 99}, gvars=g)
 check("invalid value ignored", not any(l.startswith("SAVE_VARIABLE") for l in o))
-check("poll reschedules itself", any("UPDATE_DELAYED_GCODE ID=_WM_STATS_POLL" in l for l in run(stats, "_WM_STATS_POLL", variables={"current_extruder": 1}, gvars=g)))
+po = run(stats, "_WM_STATS_POLL", variables={"current_extruder": 1}, gvars=g)
+check("poll only calls _WM_STATS_TICK, then reschedules itself (B-040: values read when the macro runs)",
+      po == ["_WM_STATS_TICK", "UPDATE_DELAYED_GCODE ID=_WM_STATS_POLL DURATION=2"])
 o = run(stats, "WM_STATS_RESET")
-check("reset zeroes 5 values", len([l for l in o if "VALUE=0" in l]) == 5)
+check("reset zeroes the counters and the print times", len([l for l in o if l.startswith("SAVE_VARIABLE") and l.endswith("VALUE=0")]) == 9 and any("wm_stat_time3 VALUE=0" in l for l in o))
+
+print("Print time per toolhead")
+def tick(cur, state, dur, last_dur, pend, pend_tool, extra=None):
+    v = {"current_extruder": cur}; v.update(extra or {})
+    return run(stats, "_WM_STATS_TICK", variables=v, state=state, duration=dur,
+               gvars={"_WM_STATS": {"last": cur, "last_dur": last_dur, "pend": pend, "pend_tool": pend_tool}})
+o = tick(0, "printing", 12.0, -1.0, 0.0, -1)
+check("print start: nothing counted yet, the duration is remembered", not any(l.startswith("SAVE_VARIABLE") for l in o) and "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=last_dur VALUE=12.0" in o and "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=pend_tool VALUE=0" in o)
+o = tick(0, "printing", 14.0, 12.0, 30.0, 0)
+check("printing on T0: the 2 s are added to the unsaved time", "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=pend VALUE=32.0" in o and not any(l.startswith("SAVE_VARIABLE") for l in o))
+o = tick(0, "printing", 100.0, 98.0, 61.0, 0, {"wm_stat_time0": 500})
+check("a minute collected: saved to wm_stat_time0", "SAVE_VARIABLE VARIABLE=wm_stat_time0 VALUE=561" in o and "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=pend VALUE=2.0" in o)
+o = tick(2, "printing", 50.0, 48.0, 20.0, 0, {"wm_stat_time0": 7})
+check("tool change: the time of the old toolhead is saved, the new one starts", "SAVE_VARIABLE VARIABLE=wm_stat_time0 VALUE=27" in o and "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=pend_tool VALUE=2" in o)
+o = tick(1, "complete", 300.0, 298.0, 40.0, 1, {"wm_stat_time1": 100})
+check("print end: the rest is saved, no more counting", "SAVE_VARIABLE VARIABLE=wm_stat_time1 VALUE=140" in o and "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=last_dur VALUE=-1.0" in o and "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=pend_tool VALUE=-1" in o)
+o = tick(99, "printing", 30.0, 28.0, 0.0, -1)
+check("no toolhead on the carriage: nothing counted", not any(l.startswith("SAVE_VARIABLE") for l in o) and "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=pend VALUE=0.0" in o)
+o = tick(0, "paused", 40.0, 40.0, 10.0, 0)
+check("paused: print_duration stands still, nothing added", "SET_GCODE_VARIABLE MACRO=_WM_STATS VARIABLE=pend VALUE=10.0" in o)
+
+print("Feed assist (B-040)")
+ace = load("rpi_ace.cfg")
+A0 = {"mode": "idle", "manual": -2, "pstate": "printing", "assist": -1}
+o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 0}, state="printing", gvars={"_WM_ACE": dict(A0)})
+check("printing with T0 on the carriage: assist on for T0", "ACE_ENABLE_FEED_ASSIST T=0" in o)
+o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 99}, state="printing", gvars={"_WM_ACE": dict(A0, assist=0)})
+check("printing but the tool is parked (99): assist off, nothing switched on", "ACE_DISABLE_FEED_ASSIST T=0" in o and not any("ENABLE_FEED" in l and "DISABLE" not in l for l in o))
+o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 0}, state="standby", gvars={"_WM_ACE": dict(A0, assist=1)})
+check("print ended: assist off, the hand choice is cleared", "ACE_DISABLE_FEED_ASSIST T=1" in o and "SET_GCODE_VARIABLE MACRO=_WM_ACE VARIABLE=manual VALUE=-2" in o and not any(l.startswith("ACE_ENABLE") for l in o))
+o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 2}, state="standby", gvars={"_WM_ACE": dict(A0, pstate="standby", manual=3, assist=-1)})
+check("assist set by hand (ACE_WM_ASSIST T=3) wins while no print starts or ends", "ACE_ENABLE_FEED_ASSIST T=3" in o)
+o = run(ace, "_WM_ACE_ASSIST_SYNC", variables={"current_extruder": 0}, state="printing", gvars={"_WM_ACE": dict(A0, mode="load_fast")})
+check("no assist change while a load runs", not any("FEED_ASSIST" in l for l in o))
+w = ace["_wm_ace_watch"]
+check("the watcher only calls _WM_ACE_ASSIST_SYNC for feed assist (no assist command of its own)", "_WM_ACE_ASSIST_SYNC" in w and "ACE_ENABLE_FEED_ASSIST" not in w and "toolhead.extruder" not in w)
 
 print("Endless chain")
 o = run(endl, "WM_ENDLESS_CHAIN_SET", {"HEAD": "0", "CHAIN": "2,1"})
