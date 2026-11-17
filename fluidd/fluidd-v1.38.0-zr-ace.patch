@@ -1,7 +1,7 @@
 From 6d439780cc9af098d7ce636c32a36e0d936af37f Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/29] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/31] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1855,7 +1855,7 @@ index a01c43f..2ede1df 100644
 From 4fe1b3b8ba27ff6aa4c3308d022ee80a79d3813f Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/29] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/31] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1930,7 +1930,7 @@ index cc15c3d..4693634 100644
 From d91f76c19ed6f8f2f205343f1dc3735617d463c8 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/29] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/31] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2057,7 +2057,7 @@ index 4693634..2b78324 100644
 From d74560a460ef142b831d25c19ed131eb74a9cc2b Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/29] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/31] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2129,7 +2129,7 @@ index 2b78324..e1f06c0 100644
 From 561bb251fdd2d3396919938c8cf8459811c2044b Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/29] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/31] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2183,7 +2183,7 @@ index e1f06c0..99c90df 100644
 From 55ab14523a9675517b902190b70ae6860b879579 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/29] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/31] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -3084,7 +3084,7 @@ index 99c90df..d18abc1 100644
 From 360def375006dcac33667a0e201ddd2dbfbeb304 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/29] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/31] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3342,7 +3342,7 @@ index d18abc1..43ff04b 100644
 From 211e835c4563c703dd446b246cb3740d7f455fda Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/29] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/31] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3680,7 +3680,7 @@ index 7e3fcf6..fe9bf2d 100644
 From a4286617cc154eb6495829ac416c10e8405f2881 Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/29] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/31] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4054,7 +4054,7 @@ index 43ff04b..8692f6f 100644
 From 28404588848c0ffb5bafb048e5bbf65a86846d31 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/29] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/31] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/rpi_chamber_light.json)
 
 ---
@@ -4165,7 +4165,7 @@ index 5bebf42..9c9c17b 100644
 From 257290631e9c0ef1986cc45305cc5bd743103e9f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/29] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/31] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4206,7 +4206,7 @@ index fe9bf2d..2486f37 100644
 From 28b12651e7a415714a263d5fb1b1f69b631ac939 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:09:32 -0500
-Subject: [PATCH 12/29] feat(zr): Choose toolheads window gets List/Map, saved
+Subject: [PATCH 12/31] feat(zr): Choose toolheads window gets List/Map, saved
  mappings, auto-match, dry first and print as sliced
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4951,7 +4951,7 @@ index 0000000..6022c94
 From c979d390fbeb5eae607e1b6a6f6bbcb3d9958b9d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:22:23 -0500
-Subject: [PATCH 13/29] fix(zr): Choose toolheads window opens on every Print
+Subject: [PATCH 13/31] fix(zr): Choose toolheads window opens on every Print
  even when file metadata is not loaded yet
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5032,7 +5032,7 @@ index 2486f37..e21d215 100644
 From 6c372148265dc331c6c664c4fa94e309b1bd8044 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:42:06 -0500
-Subject: [PATCH 14/29] fix(zr): read OrcaSlicer metadata (empty
+Subject: [PATCH 14/31] fix(zr): read OrcaSlicer metadata (empty
  referenced_tools, JSON-text material list) in the Choose toolheads window
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5153,7 +5153,7 @@ index 24c2865..ebe2fce 100644
 From 8c489b4b62ed3953a41e4fc778337ca53fb659f6 Mon Sep 17 00:00:00 2001
 From: ducati1198 <noreply@github.com>
 Date: Thu, 12 Nov 2026 21:16:24 -0500
-Subject: [PATCH 15/29] feat(zr): Feed assist button in the tool window uses
+Subject: [PATCH 15/31] feat(zr): Feed assist button in the tool window uses
  ACE_WM_ASSIST (works during a pause)
 
 Signed-off-by: ducati1198 <noreply@github.com>
@@ -5196,7 +5196,7 @@ index 00b948f..7111b68 100644
 From a5f61c022fd9944b6bd5adac3e99759d9ee64283 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Fri, 13 Nov 2026 17:20:58 -0500
-Subject: [PATCH 16/29] Toolheads card: banner with Turn on when the ACE_Pro
+Subject: [PATCH 16/31] Toolheads card: banner with Turn on when the ACE_Pro
  switch is off
 
 ---
@@ -5263,7 +5263,7 @@ index 8692f6f..8ac9d96 100644
 From f63cff64f57896001c73a22a0f7824f92f5b0678 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Fri, 13 Nov 2026 23:03:02 -0500
-Subject: [PATCH 17/29] feat(zr): Auto load switch, Park and Select need only X
+Subject: [PATCH 17/31] feat(zr): Auto load switch, Park and Select need only X
  and Y, no Load/Unload with an ACE
 
 Park runs SET_GCODE_OFFSET X=0 Y=0 Z=0 and PARK_CURRENT_TOOL; Select needs only X and Y;
@@ -5497,7 +5497,7 @@ index 8ac9d96..f080b4d 100644
 From 00ea276cd6a46a359afb2693d787791c759def71 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sat, 14 Nov 2026 01:38:56 -0500
-Subject: [PATCH 18/29] feat(zr): more filament materials (PLA+, PLA-CF,
+Subject: [PATCH 18/31] feat(zr): more filament materials (PLA+, PLA-CF,
  PETG-CF, PA, PA-CF, PC, ABS-CF, PA-GF, PC-ABS, PP, BVOH)
 
 Added at the end of the material list so no existing index moves.
@@ -5567,7 +5567,7 @@ index ebe2fce..3b38608 100644
 From 892453d66db29cf44badac92136872f50926659c Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sat, 14 Nov 2026 01:51:07 -0500
-Subject: [PATCH 19/29] feat(zr): remove the Z offset button from the tool
+Subject: [PATCH 19/31] feat(zr): remove the Z offset button from the tool
  window
 
 The Z offset calibration is started from the touchscreen.
@@ -5606,7 +5606,7 @@ index 459afbd..7648d61 100644
 From 8fb88eaffd30ddf759629d7b4a24c3d1003ec90c Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:25:45 -0500
-Subject: [PATCH 20/29] feat(zr): bigger ACE sensors and dryer presets
+Subject: [PATCH 20/31] feat(zr): bigger ACE sensors and dryer presets
 
 Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_0188cJYRY7ZSqCguqTL3TYPE
@@ -5708,7 +5708,7 @@ index 06e56a0..6391cae 100644
 From 338ac4ee3155be4e301cc050cf9fb7cd9dd8548c Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:32:55 -0500
-Subject: [PATCH 21/29] feat(zr): edit chamber target and Off button
+Subject: [PATCH 21/31] feat(zr): edit chamber target and Off button
 
 Signed-off-by: Claude <noreply@anthropic.com>
 ---
@@ -5838,7 +5838,7 @@ index 6391cae..4973773 100644
 From 3f4a080612a150cb293b85cdf36b3569f79493ca Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:38:40 -0500
-Subject: [PATCH 22/29] feat(zr): same height for chamber and dry buttons
+Subject: [PATCH 22/31] feat(zr): same height for chamber and dry buttons
 
 Signed-off-by: Claude <noreply@anthropic.com>
 ---
@@ -5904,7 +5904,7 @@ index 4973773..be92ee7 100644
 From f4bcf3a5114d56801d28dbdff949abac6cf0abcc Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sun, 15 Nov 2026 03:08:32 -0500
-Subject: [PATCH 23/29] feat(zr): chamber light button uses the Moonraker power
+Subject: [PATCH 23/31] feat(zr): chamber light button uses the Moonraker power
  device chamber_light
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5998,7 +5998,7 @@ index be92ee7..e5fabfa 100644
 From f02cd1095471fcbd459f014582fe2685e3d4b684 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sun, 15 Nov 2026 20:18:07 -0500
-Subject: [PATCH 24/29] feat(zr): friendly sensor labels with the real name
+Subject: [PATCH 24/31] feat(zr): friendly sensor labels with the real name
  under each
 
 Signed-off-by: zr <x@x>
@@ -6084,7 +6084,7 @@ index 33ee7bd..a70e3e9 100644
 From 5348f79cf420618f5dadba66daebb5fc93f65521 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sun, 15 Nov 2026 20:18:11 -0500
-Subject: [PATCH 25/29] feat(zr): switches ACE Pro, Bed warp wait and Nozzle
+Subject: [PATCH 25/31] feat(zr): switches ACE Pro, Bed warp wait and Nozzle
  heat growth in the Toolheads card
 
 Signed-off-by: zr <x@x>
@@ -6229,7 +6229,7 @@ index f080b4d..29dde6d 100644
 From 470cdd698e6b1d867c2bbf78bc1badd6a9e3a450 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 01:11:45 -0500
-Subject: [PATCH 26/29] feat(zr): unload menu, sensor lights, board line
+Subject: [PATCH 26/31] feat(zr): unload menu, sensor lights, board line
 
 Toolheads card: Unload Menu button (WM_UNLOAD_MENU); Hub, Head and Dock lights for every toolhead (not only with an ACE); Tool lock and Lock motor home lights of the carriage; print time per toolhead next to the tool-change counts (wm_stat_time0-3 from rpi_stats.cfg); touchscreen board line (version, update available, CPU, free memory) read from config/wm_screen_status.json, which the board uploads every minute.
 
@@ -6534,7 +6534,7 @@ index 29dde6d..9558492 100644
 From 24d782495e1c8ffde52620828c4abafd4c36e61a Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 07:19:03 -0500
-Subject: [PATCH 27/29] feat(zr): endless spool section (sets of identical
+Subject: [PATCH 27/31] feat(zr): endless spool section (sets of identical
  toolheads), swap automatically switch, chain removed
 
 Signed-off-by: zr <x@x>
@@ -7186,7 +7186,7 @@ index 9558492..0a36d2f 100644
 From d9a68fde7c96599466139c5469cd59b48b3eafd0 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 13:41:06 -0500
-Subject: [PATCH 28/29] feat(zr): endless spool: swap on a tangle switch, Fixed
+Subject: [PATCH 28/31] feat(zr): endless spool: swap on a tangle switch, Fixed
  button, ACE spools, Tangle light
 
 Signed-off-by: zr <x@x>
@@ -7511,7 +7511,7 @@ index 0a36d2f..8fb5763 100644
 From 9ac87e82229ecd7c34219572db69efc4f1e82264 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 15:51:41 -0500
-Subject: [PATCH 29/29] feat(zr): pictures in a prompt window
+Subject: [PATCH 29/31] feat(zr): pictures in a prompt window
  (action:prompt_image), tool setter position pictures
 
 Signed-off-by: zr <x@x>
@@ -7735,6 +7735,424 @@ index c7747e0..6e81a4e 100644
  
  export interface PromptDialogItemText {
    type: 'text';
+-- 
+2.43.0
+
+
+From 9a152c21d24d6d63df9d430ad88720332922a6ea Mon Sep 17 00:00:00 2001
+From: zr <x@x>
+Date: Tue, 17 Nov 2026 01:45:24 -0500
+Subject: [PATCH 30/31] fix(zr): endless spool section in one column on a
+ narrow card (phone)
+
+The title and switches lay over the circle and the chips were pushed off
+the card on a phone. A container query (card width up to 600 px) puts the
+switches each on their own line, then the ACE spools, the circle and the
+chips under each other. Wide layout unchanged.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0188cJYRY7ZSqCguqTL3TYPE
+Signed-off-by: zr <x@x>
+---
+ src/components/widgets/zr/ZrToolheadsCard.vue | 82 +++++++++++++++++--
+ 1 file changed, 75 insertions(+), 7 deletions(-)
+
+diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
+index 4633a29..f3cb86e 100644
+--- a/src/components/widgets/zr/ZrToolheadsCard.vue
++++ b/src/components/widgets/zr/ZrToolheadsCard.vue
+@@ -514,10 +514,13 @@
+             :class="{ 'zr-endless-block--on': zrEndlessEnabled }"
+           >
+             <div class="zr-endless-head">
+-              <div class="d-flex align-center">
+-                <span class="text-body-2 mr-2">Endless spool</span>
+-                <v-spacer />
+-                <template v-if="zrEndlessEnabled">
++              <div class="d-flex align-center zr-endless-row1">
++                <span class="text-body-2 mr-2 zr-endless-title">Endless spool</span>
++                <v-spacer class="zr-endless-spacer" />
++                <div
++                  v-if="zrEndlessEnabled"
++                  class="d-flex align-center zr-endless-auto"
++                >
+                   <span
+                     class="text-caption secondary--text mr-2"
+                     title="On: when a toolhead runs out, an identical one (same material and colour) takes over by itself. Off: the print pauses and you confirm the swap here."
+@@ -531,12 +534,12 @@
+                     aria-label="Swap automatically"
+                     @change="setEndlessAuto"
+                   />
+-                </template>
++                </div>
+                 <v-switch
+                   :input-value="zrEndlessEnabled"
+                   dense
+                   hide-details
+-                  class="mt-0 pt-0"
++                  class="mt-0 pt-0 zr-endless-main"
+                   :disabled="!klippyReady"
+                   aria-label="Endless spool"
+                   @change="setEndless"
+@@ -546,7 +549,7 @@
+                 v-if="zrEndlessEnabled"
+                 class="d-flex align-center zr-endless-row2"
+               >
+-                <v-spacer />
++                <v-spacer class="zr-endless-spacer" />
+                 <span
+                   class="text-caption secondary--text mr-2"
+                   title="On: a tangle sensor that fires (a tangle, or a finished spool whose end is fixed to the spool) also starts a swap, and that toolhead is out of the line until Fixed, a reload or the end of the print. Off: a tangle only pauses the print."
+@@ -1347,6 +1350,7 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+ // the circle is centred in the whole block: the title and the switches lie over its top corners
+ .zr-endless-block {
+   position: relative;
++  container-type: inline-size; // the narrow layout below follows the width of the card, not of the screen
+ }
+ 
+ .zr-endless-block--on .zr-endless-head {
+@@ -1415,6 +1419,70 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+   color: #ffb300;
+ }
+ 
++// narrow card (a phone, or a narrow dashboard column): everything in one column, nothing lies over the circle.
++// Title and main switch on the first line; each option on its own line, label left, switch right; then the ACE
++// spools, the circle in the middle and the chips under it.
++@container (max-width: 600px) {
++  .zr-endless-block--on .zr-endless-head {
++    position: static;
++  }
++
++  .zr-endless-row1 {
++    flex-wrap: wrap;
++  }
++
++  .zr-endless-title {
++    flex: 1 1 auto;
++  }
++
++  .zr-endless-spacer {
++    display: none;
++  }
++
++  .zr-endless-main {
++    order: 1;
++  }
++
++  .zr-endless-auto {
++    order: 2;
++    flex-basis: 100%;
++    justify-content: space-between;
++    height: 30px;
++  }
++
++  .zr-endless-auto .v-input--switch {
++    margin-right: 0 !important;
++  }
++
++  .zr-endless-row2 {
++    justify-content: space-between;
++  }
++
++  .zr-endless {
++    grid-template-columns: 1fr;
++    justify-items: center;
++    row-gap: 10px;
++    min-height: 0;
++  }
++
++  .zr-endless-ace {
++    padding-top: 4px;
++    justify-self: stretch;
++  }
++
++  .zr-endless-chips {
++    padding-top: 0;
++    align-items: center;
++    justify-self: stretch;
++  }
++
++  .zr-endless-chip {
++    white-space: normal;
++    flex-wrap: wrap;
++    justify-content: center;
++  }
++}
++
+ .zr-slot {
+   width: 100%;
+   cursor: pointer;
+-- 
+2.43.0
+
+
+From 2600b4fe30f88d1ebf8a5323ac3bd11141ced7f9 Mon Sep 17 00:00:00 2001
+From: zr <x@x>
+Date: Tue, 17 Nov 2026 01:52:28 -0500
+Subject: [PATCH 31/31] fix(zr): toolhead tiles and chamber row on a phone
+
+Narrow tile (up to 120 px): Tangle / Head / Dock lights one under the other
+instead of overlapping the next tile, status READY without TOOLHEAD.
+Narrow card (up to 520 px): chamber with its field and buttons on a line of
+its own, air filter, light and doors on the next. Wide layout unchanged.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0188cJYRY7ZSqCguqTL3TYPE
+Signed-off-by: zr <x@x>
+---
+ src/components/widgets/zr/ZrToolheadsCard.vue | 215 +++++++++++-------
+ 1 file changed, 135 insertions(+), 80 deletions(-)
+
+diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
+index f3cb86e..b991b14 100644
+--- a/src/components/widgets/zr/ZrToolheadsCard.vue
++++ b/src/components/widgets/zr/ZrToolheadsCard.vue
+@@ -166,7 +166,12 @@
+                 class="text-overline ace-slot__status"
+                 :class="`${status(head).color}--text`"
+               >
+-                {{ status(head).text === 'READY' ? 'TOOLHEAD READY' : status(head).text }}
++                <template v-if="status(head).text === 'READY'">
++                  <span class="zr-narrow-hide">TOOLHEAD </span>READY
++                </template>
++                <template v-else>
++                  {{ status(head).text }}
++                </template>
+               </div>
+               <div
+                 v-if="zrHasAce"
+@@ -321,95 +326,97 @@
+ 
+         <v-divider class="my-2" />
+ 
+-        <div class="zr-bottom">
+-          <div class="zr-bottom-item">
+-            <span class="text-overline secondary--text">CHAMBER</span>
+-            <span class="text-body-2 font-weight-bold">{{ chamber ? `${chamber.actual}°C` : '—' }}</span>
+-            <span
+-              v-if="!chamber"
+-              class="text-caption secondary--text"
+-            >Target: off</span>
+-            <div
+-              v-else
+-              class="d-flex align-center zr-chamber-edit"
+-            >
+-              <v-text-field
+-                :value="chamberEditing ? chamberText : (chamber.target > 0 ? String(chamber.target) : '')"
+-                type="number"
+-                min="0"
+-                max="65"
+-                suffix="°C"
+-                placeholder="off"
+-                dense
+-                outlined
+-                hide-details
+-                class="zr-chamber-field mr-1"
+-                :disabled="!klippyReady"
+-                aria-label="Chamber target temperature"
+-                @focus="startChamberEdit"
+-                @input="chamberText = $event"
+-                @keyup.enter="applyChamber"
+-                @keyup.esc="chamberEditing = false"
+-                @blur="endChamberEdit"
+-              />
++        <div class="zr-bottom-wrap">
++          <div class="zr-bottom">
++            <div class="zr-bottom-item zr-bottom-item--chamber">
++              <span class="text-overline secondary--text">CHAMBER</span>
++              <span class="text-body-2 font-weight-bold">{{ chamber ? `${chamber.actual}°C` : '—' }}</span>
++              <span
++                v-if="!chamber"
++                class="text-caption secondary--text"
++              >Target: off</span>
++              <div
++                v-else
++                class="d-flex align-center zr-chamber-edit"
++              >
++                <v-text-field
++                  :value="chamberEditing ? chamberText : (chamber.target > 0 ? String(chamber.target) : '')"
++                  type="number"
++                  min="0"
++                  max="65"
++                  suffix="°C"
++                  placeholder="off"
++                  dense
++                  outlined
++                  hide-details
++                  class="zr-chamber-field mr-1"
++                  :disabled="!klippyReady"
++                  aria-label="Chamber target temperature"
++                  @focus="startChamberEdit"
++                  @input="chamberText = $event"
++                  @keyup.enter="applyChamber"
++                  @keyup.esc="chamberEditing = false"
++                  @blur="endChamberEdit"
++                />
++                <app-btn
++                  x-small
++                  color="primary"
++                  class="mr-1 zr-same-height"
++                  :disabled="!klippyReady"
++                  @click="applyChamber"
++                >
++                  Set
++                </app-btn>
++                <app-btn
++                  x-small
++                  class="zr-same-height"
++                  :color="chamber.target > 0 ? 'error' : undefined"
++                  :disabled="!klippyReady || chamber.target <= 0"
++                  @click="chamberOff"
++                >
++                  Off
++                </app-btn>
++              </div>
++            </div>
++            <div class="zr-bottom-item">
++              <span class="text-overline secondary--text">AIR FILTER</span>
+               <app-btn
++                v-if="hasAirFilter"
+                 x-small
+-                color="primary"
+-                class="mr-1 zr-same-height"
++                :color="airFilterOn ? 'success' : undefined"
++                :aria-pressed="airFilterOn ? 'true' : 'false'"
+                 :disabled="!klippyReady"
+-                @click="applyChamber"
++                @click="toggleAirFilter"
+               >
+-                Set
++                {{ airFilterOn ? 'ON' : 'OFF' }}
+               </app-btn>
++              <span
++                v-else
++                class="text-body-2 font-weight-bold"
++              >—</span>
++            </div>
++            <div
++              v-if="lightDevice"
++              class="zr-bottom-item"
++            >
++              <span class="text-overline secondary--text"><span class="zr-narrow-hide">CHAMBER </span>LIGHT</span>
+               <app-btn
+                 x-small
+-                class="zr-same-height"
+-                :color="chamber.target > 0 ? 'error' : undefined"
+-                :disabled="!klippyReady || chamber.target <= 0"
+-                @click="chamberOff"
++                :color="lightOn ? 'success' : undefined"
++                :aria-pressed="lightOn ? 'true' : 'false'"
++                :disabled="lightOn === null || lightBusy"
++                @click="toggleLight"
+               >
+-                Off
++                {{ lightOn === null ? '—' : (lightOn ? 'ON' : 'OFF') }}
+               </app-btn>
+             </div>
+-          </div>
+-          <div class="zr-bottom-item">
+-            <span class="text-overline secondary--text">AIR FILTER</span>
+-            <app-btn
+-              v-if="hasAirFilter"
+-              x-small
+-              :color="airFilterOn ? 'success' : undefined"
+-              :aria-pressed="airFilterOn ? 'true' : 'false'"
+-              :disabled="!klippyReady"
+-              @click="toggleAirFilter"
+-            >
+-              {{ airFilterOn ? 'ON' : 'OFF' }}
+-            </app-btn>
+-            <span
+-              v-else
+-              class="text-body-2 font-weight-bold"
+-            >—</span>
+-          </div>
+-          <div
+-            v-if="lightDevice"
+-            class="zr-bottom-item"
+-          >
+-            <span class="text-overline secondary--text">CHAMBER LIGHT</span>
+-            <app-btn
+-              x-small
+-              :color="lightOn ? 'success' : undefined"
+-              :aria-pressed="lightOn ? 'true' : 'false'"
+-              :disabled="lightOn === null || lightBusy"
+-              @click="toggleLight"
+-            >
+-              {{ lightOn === null ? '—' : (lightOn ? 'ON' : 'OFF') }}
+-            </app-btn>
+-          </div>
+-          <div class="zr-bottom-item">
+-            <span class="text-overline secondary--text">DOORS</span>
+-            <span
+-              class="text-body-2 font-weight-bold"
+-              :class="doorsText === 'OPEN' ? 'warning--text' : (doorsText === 'CLOSED' ? 'success--text' : '')"
+-            >{{ doorsText }}</span>
++            <div class="zr-bottom-item">
++              <span class="text-overline secondary--text">DOORS</span>
++              <span
++                class="text-body-2 font-weight-bold"
++                :class="doorsText === 'OPEN' ? 'warning--text' : (doorsText === 'CLOSED' ? 'success--text' : '')"
++              >{{ doorsText }}</span>
++            </div>
+           </div>
+         </div>
+ 
+@@ -1616,6 +1623,54 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+   gap: 2px;
+ }
+ 
++// a narrow card (phone): the chamber with its field and two buttons gets a line of its own, air filter, light and
++// doors share the line below
++.zr-bottom-wrap {
++  container-type: inline-size;
++}
++
++@container (max-width: 520px) {
++  .zr-bottom {
++    grid-template-columns: repeat(3, 1fr);
++    row-gap: 10px;
++  }
++
++  .zr-bottom .zr-narrow-hide {
++    display: none;
++  }
++
++  .zr-bottom-item--chamber {
++    grid-column: 1 / -1;
++    flex-direction: row;
++    flex-wrap: wrap;
++    justify-content: center;
++    column-gap: 10px;
++  }
++}
++
++// a narrow toolhead tile (phone, four tiles side by side): the Tangle / Head / Dock lights one under the other
++.zr-slot {
++  container-type: inline-size;
++}
++
++@container (max-width: 120px) {
++  .zr-dots--small {
++    flex-direction: column;
++    align-items: flex-start;
++    width: fit-content;
++    margin: 0 auto;
++    gap: 3px;
++  }
++
++  .zr-dots--small > span {
++    white-space: nowrap;
++  }
++
++  .zr-slot .zr-narrow-hide {
++    display: none;
++  }
++}
++
+ .zr-compact-select {
+   max-width: 96px;
+   font-size: 0.8rem;
 -- 
 2.43.0
 

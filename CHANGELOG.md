@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.14.0
+
+Fluidd Toolheads card on a phone, and the ACE unload with the shared tip forming. Tested on a ZR Ultra-S with an ACE Pro; the Fluidd changes were checked on an iPhone.
+
+- **Fluidd panel rebuilt** (new zip, patch 31 of 31 and checksum): the endless spool section is one column on a narrow card (labels and switches on their own lines, ACE spools, circle, chips under it); the toolhead tiles show the Tangle / Head / Dock lights one under the other and "READY" on a narrow tile; the chamber row (value, field, Set, Off) sits on its own line and "CHAMBER LIGHT" reads "LIGHT" on a card narrower than 520 px. Done with container queries, so it follows the card width (a narrow dashboard column on a computer gets it too). A wide card is unchanged.
+- **`config/rpi_ace.cfg`, `_WM_ACE_UNLOAD_RUN`:** when the macro `_WM_UNLOAD_TIP` exists (WM_Ultra_Vanilla_Klipper `zr_tools.cfg`) the ACE unload forms the tip with it at the wipe area, at the saved filament temperature of the tool. Without it the old moves are used, so this file still works alone.
+
 ## 1.13.0
 
 Pictures in a Fluidd window, and the tool setter position helper of WM_Ultra_Vanilla_Klipper 2.14.0 in the macro categories. Tested on a ZR Ultra-S.
