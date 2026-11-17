@@ -37,7 +37,7 @@ import urllib.parse
 import urllib.request
 
 # The Pi installer's tool offset and Z calibration macros (their own category up to 1.9.x, part of RPI Calibration since 1.10.0).
-OFFSET_MACROS = ["WM_FULL_OFFSET_CAL", "WM_OFFSETS_ACCURATE", "WM_OFFSETS_RAPID", "WM_OFFSETS_Z_HOT", "WM_NOZZLE_GROWTH_CAL",
+OFFSET_MACROS = ["WM_FULL_OFFSET_CAL", "WM_OFFSETS_ACCURATE", "WM_OFFSETS_RAPID", "WM_SETTER_PROBE_POSITION", "WM_OFFSETS_Z_HOT", "WM_NOZZLE_GROWTH_CAL",
                  "WM_NOZZLE_GROWTH", "WM_Z_TRIM", "WM_Z_TRIM_MENU", "WM_PROBE_CALIBRATE"]
 # Every calibration macro of the Pi installer (1.10.0): one category, "RPI Calibration".
 RPI_CAL_MACROS = OFFSET_MACROS + ["WM_FIRST_RUN_CAL", "WM_CAL_HELP", "WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_BED_PID",
@@ -78,7 +78,7 @@ HIDDEN = ["M104", "M106", "M107", "M109", "M141", "M190", "M191", "M221", "z_ris
 ALIASES = {
     "WM_FIRST_RUN_CAL": "First Run Calibration", "WM_CAL_HELP": "Calibration Help", "WM_BED_LEVELING": "Bed Leveling",
     "WM_SCREWS_CAL": "Bed Screws", "WM_BED_PID": "Bed PID", "WM_NOZZLE_TEMP_CAL": "Nozzle PID", "WM_VIBRATION_COMP": "Input Shaper",
-    "WM_FULL_OFFSET_CAL": "Full Offset Calibration", "WM_OFFSETS_RAPID": "Offsets Rapid", "WM_OFFSETS_ACCURATE": "Offsets Accurate",
+    "WM_FULL_OFFSET_CAL": "Full Offset Calibration", "WM_OFFSETS_RAPID": "Offsets Rapid", "WM_SETTER_PROBE_POSITION": "Tool Setter Position", "WM_OFFSETS_ACCURATE": "Offsets Accurate",
     "WM_OFFSETS_Z_HOT": "Z Offsets Hot", "WM_PROBE_CALIBRATE": "Probe Calibrate", "WM_NOZZLE_GROWTH_CAL": "Nozzle Growth Calibration",
     "WM_NOZZLE_GROWTH": "Nozzle Growth Value", "WM_Z_TRIM_MENU": "Z Trim Menu", "WM_Z_TRIM": "Z Trim", "WM_LIVE_Z_MENU": "Live Z Menu",
     "WM_LIVE_Z_ZERO": "Live Z Zero", "WM_BED_SOAK_MENU": "Bed Warp Wait", "WM_BED_WARP_MEASURE": "Measure Bed Warp",

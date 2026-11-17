@@ -454,6 +454,9 @@ The ACE has no card of its own. It lives inside the WonderMaker **Toolheads** ca
 - **Endless spool section:** the on/off switch, a **Swap automatically** and a **Swap on a tangle** switch, with an ACE the four ACE spools (filament or empty); while it is on, a circle with the four toolheads in their filament colours (a green arc joins the identical ones, an empty one is faded, the printing one has a white edge) and chips that say who takes over for whom ("T1 ⇄ T2 PLA identical", "T1 printing, next: T2", "T3 no spare", "T1 empty, refill"). A banner with a one-tap confirmation only when Swap automatically is off, or a message when no identical toolhead has filament.
 - **Switches under it (1.9.0):** **ACE Pro** (the ACE driver on or off, `SET_PIN PIN=ACE_Pro`), **Bed warp wait** (`WM_BED_SOAK ENABLE=`) and **Nozzle heat growth** (`SET_PIN PIN=Nozzle_Heat_Growth`, from WM_Ultra_Vanilla_Klipper's Z offset tools). Each one is shown only when its pin or macro exists on the printer. ACE Pro and Nozzle heat growth cannot be switched while a print runs.
 - **Friendly sensor names (1.9.0):** the Filament Sensors card shows T<n> head filament, T<n> hub filament, T<n> in dock, Tool lock and Lock motor home, with the real Klipper name in small letters under each.
+- **Pictures in a macro window (1.13.0):** a window opened by a macro can show pictures (`action:prompt_image name [name ...]`, files `img/wm/<name>.svg` inside this Fluidd). The tool setter position helper of WM_Ultra_Vanilla_Klipper 2.14.0 (`WM_SETTER_PROBE_POSITION`) uses it:
+
+  ![The three pictures of the tool setter position helper](docs/img/fluidd-window-pictures.png)
 - **Toolhead dialog → "ACE feeder · slot N":** Load from ACE, Unload to ACE, Feed assist on/off, manual Feed / Retract with length and speed, Stop motor.
 
 Everything ACE-related is **hidden** when Klipper has no ACE object (`ace_instance_0`). The endless-spool row is hidden when the `WM_ENDLESS_CONTINUE` macro does not exist. So you can install the panel before the ACE hardware.
@@ -670,7 +673,7 @@ At the end of an install or update (after the Klipper restart question) the inst
 
 | Category | Colour | What goes in |
 |---|---|---|
-| RPI Calibration | pink | every calibration macro of the Pi installer, with readable names: Extruder Setup, First Run Calibration, Bed Leveling, Bed Screws, Bed PID, Nozzle PID, Input Shaper, Full Offset Calibration, Offsets Rapid / Accurate, Z Offsets Hot, Probe Calibrate, Nozzle Growth, Z Trim, Z Trim Menu, Live Z Menu, Live Z Zero, Bed Warp Wait, Measure Bed Warp, Speed Test, Speed Check ... |
+| RPI Calibration | pink | every calibration macro of the Pi installer, with readable names: Extruder Setup, First Run Calibration, Bed Leveling, Bed Screws, Bed PID, Nozzle PID, Input Shaper, Full Offset Calibration, Offsets Rapid, Tool Setter Position / Accurate, Z Offsets Hot, Probe Calibrate, Nozzle Growth, Z Trim, Z Trim Menu, Live Z Menu, Live Z Zero, Bed Warp Wait, Measure Bed Warp, Speed Test, Speed Check ... |
 | AcePro | red | `ACE_*`, `WM_ENDLESS_*`, `WM_STATS_*`, `WM_SET_TOOL_MAP` |
 | WM Factory Calibration | yellow | WonderMaker's own calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
 | WM Ultra Tool Change | green | `T0`..`T3`, `LOCK`, `UNLOCK`, `PARK_CURRENT_TOOL` ... |

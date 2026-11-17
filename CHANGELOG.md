@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.13.0
+
+Pictures in a Fluidd window, and the tool setter position helper of WM_Ultra_Vanilla_Klipper 2.14.0 in the macro categories. Tested on a ZR Ultra-S.
+
+- **Fluidd panel rebuilt** (new zip, patch 29 of 29 and checksum): a macro window can show pictures. A macro sends `RESPOND TYPE=command MSG="action:prompt_image name [name ...]"` (4 names at most, small letters, digits and `-` only, never a path or an address) and Fluidd shows `img/wm/<name>.svg` from its own files at that place, side by side, one under the other on a narrow screen. The window is wider when it holds pictures. A Fluidd without this change ignores the line, and a picture that is missing is left out.
+- The three pictures of the tool setter position helper ship with it: `setter-height`, `setter-place`, `setter-compare`.
+- **Macro categories** (`scripts/wm_fluidd_categories.py`): `WM_SETTER_PROBE_POSITION` is in **RPI Calibration** as **Tool Setter Position**.
+
 ## 1.12.0
 
 Endless spool: a tangle can start a swap too, a spare needs filament at the ACE, and the feed assist comes back after an ACE reconnect. Tested on a ZR Ultra-S with an ACE Pro (a tangle swap with the Fixed button). Goes with WM_Ultra_Vanilla_Klipper 2.13.0 (its `hub.cfg` tells the endless spool which toolhead tangled).

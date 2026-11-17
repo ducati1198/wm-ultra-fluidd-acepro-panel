@@ -40,13 +40,14 @@ def cat_of(value, name):
     return None
 
 
-MACROS = ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP", "WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_OFFSETS_RAPID", "G29",
+MACROS = ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP", "WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_OFFSETS_RAPID", "WM_SETTER_PROBE_POSITION", "G29",
           "RAPID_MODE", "T0", "PARK_CURRENT_TOOL", "LOAD_FILAMENT", "WIPE_NOZZ", "ZR_LOAD", "START_PRINT", "TEST_XY",
           "TEST_STREAM_DELAY", "HYPERLAPSE", "M104", "z_rise", "_HIDDEN_HELPER", "SOMETHING_ELSE"]
 
 print("rules")
 v, h, r = wmfc.plan(MACROS, None, [], now_ms=1000)
 check("AcePro: ACE_*, WM_ENDLESS_*, WM_STATS_*, WM_SET_TOOL_MAP", all(cat_of(v, n) == "AcePro" for n in ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP"]))
+check("RPI Calibration: Tool Setter Position (WM_SETTER_PROBE_POSITION, 1.13.0) is there, pink, with its name", cat_of(v, "WM_SETTER_PROBE_POSITION") == "RPI Calibration" and [(m["color"], m["alias"]) for m in v["stored"] if m["name"] == "WM_SETTER_PROBE_POSITION"] == [("#e91e63", "Tool Setter Position")])
 check("RPI Calibration: the Pi's calibration macros, pink, with readable names", all(cat_of(v, n) == "RPI Calibration" for n in ["WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_OFFSETS_RAPID"])
       and [m["color"] for m in v["stored"] if m["name"] == "WM_OFFSETS_RAPID"] == ["#e91e63"] and next(m for m in v["stored"] if m["name"] == "WM_BED_LEVELING")["alias"] == "Bed Leveling")
 check("WonderMaker factory macros land in their categories",
@@ -61,7 +62,7 @@ check("macros starting with _ and unknown macros are left out", not any(m["name"
 check("categories are created in Fluidd's order, only the ones needed", [c["name"] for c in v["categories"]] == ["RPI Calibration", "AcePro", "WM Factory Calibration", "WM Ultra Tool Change", "WM Ultra Filament", "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"])
 check("new categories are expanded", v["expanded"] == [0, 0, 1, 2, 3, 4, 5, 6, 7, 8])
 check("only the macros that exist are used (a printer without an ACE gets no AcePro category)", "AcePro" not in [c["name"] for c in wmfc.plan(["WM_BED_LEVELING", "G29"], None, [], now_ms=5)[0]["categories"]])
-check("the report counts", r["categorized"] == 18 and r["hidden"] == 2 and r["kept"] == 0 and len(r["created"]) == 9)
+check("the report counts", r["categorized"] == 19 and r["hidden"] == 2 and r["kept"] == 0 and len(r["created"]) == 9)
 
 print("never touch what the user changed")
 mine = {"stored": [entry("G29", categoryId="77", color="#123456"), entry("WM_BED_LEVELING", alias="Level bed"), entry("ZR_LOAD", visible=False),
@@ -94,7 +95,7 @@ print("1.10.0 layout")
 ALLO = wmfc.RPI_CAL_MACROS + ["WM_CHAMBER_LIGHT", "WM_NOZZLE_CHANGE", "WM_UNLOAD_MENU", "WM_UNLOAD_STOP", "WM_EXTRUDER_SETUP", "ACE_WM_LOAD", "G29",
                               "SET_GCODE_OFFSET", "Z_OFFSET_APPLY_PROBE", "Z_OFFSET_APPLY_ENDSTOP", "WM_BED_SOAK"]
 vo, ho, ro = wmfc.plan(ALLO, None, [], now_ms=1000)
-check("all 24 Pi calibration macros land in RPI Calibration, Extruder Setup too", all(cat_of(vo, n) == "RPI Calibration" for n in wmfc.RPI_CAL_MACROS) and len(wmfc.RPI_CAL_MACROS) == 24 and cat_of(vo, "WM_EXTRUDER_SETUP") == "RPI Calibration")
+check("all 25 Pi calibration macros land in RPI Calibration, Extruder Setup too", all(cat_of(vo, n) == "RPI Calibration" for n in wmfc.RPI_CAL_MACROS) and len(wmfc.RPI_CAL_MACROS) == 25 and cat_of(vo, "WM_EXTRUDER_SETUP") == "RPI Calibration")
 check("readable names: Speed Test, Live Z Menu, Bed Warp Wait", [next(m for m in vo["stored"] if m["name"] == n)["alias"] for n in ["WM_AUTO_SPEED", "WM_LIVE_Z_MENU", "WM_BED_SOAK_MENU"]] == ["Speed Test", "Live Z Menu", "Bed Warp Wait"])
 check("Unload Menu and Unload Stop are in WM Ultra Filament", cat_of(vo, "WM_UNLOAD_MENU") == "WM Ultra Filament" and next(m for m in vo["stored"] if m["name"] == "WM_UNLOAD_MENU")["alias"] == "Unload Menu" and cat_of(vo, "WM_UNLOAD_STOP") == "WM Ultra Filament")
 check("Chamber Light and Nozzle Change are in ZR Tools, purple, with names", all(cat_of(vo, n) == "ZR Tools" and next(m for m in vo["stored"] if m["name"] == n)["color"] == "#9c27b0" for n in ["WM_CHAMBER_LIGHT", "WM_NOZZLE_CHANGE"]) and next(m for m in vo["stored"] if m["name"] == "WM_CHAMBER_LIGHT")["alias"] == "Chamber Light")
