@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.0
+
+The ACE unload parks the tool, and a load that hits the tool head in its fast part no longer makes the next load slow. Tested on a ZR Ultra-S with an ACE Pro.
+
+- **`config/rpi_ace.cfg`, `_wm_ace_tick` (F-118, B-068):** after an ACE unload (both finish branches) the tool is parked with `PARK_CURRENT_TOOL` when no print is running or paused. The ACE unload from the Load/Unload buttons of ZR Tools left the tool on the carriage before.
+- **`config/rpi_ace.cfg`, `_WM_ACE_HEAD` (F-123, B-071):** when the filament reached the tool head in the fast part, the saved tube length was set to 0 and the next load measured it again, slowly (20 mm/s). That slow measurement comes out too long (the ACE feeds less than its speed says: T2 measured 1518 mm, really about 1200), so the next fast part hit the tool head again and every load stayed slow. The saved length is now what the fast part really fed (time x speed x 0.9); only an estimate under 300 mm is set to 0. A load of T2 took 31 s instead of 77 s.
 ## 1.14.0
 
 Fluidd Toolheads card on a phone, and the ACE unload with the shared tip forming. Tested on a ZR Ultra-S with an ACE Pro; the Fluidd changes were checked on an iPhone.
