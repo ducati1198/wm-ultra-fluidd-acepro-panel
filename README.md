@@ -388,6 +388,8 @@ With Option A there is no `git pull`: to update, delete the old `wm-ultra-fluidd
 
 If the ACE does not show up on this board, check the free USB port first: the main board already uses one, so the ACE needs a second host port or a powered hub (`lsusb` shows what is connected).
 
+The installer needs `sudo` for a few steps (restarting services, the clock and apt on the factory screen board, freeing disk space). If the user that runs it is not in the `sudo` group, the installer adds it automatically and tells you (no question, the same as the load cell V2 installer); it takes effect at the next login. Nothing is changed when the user is already in the group.
+
 ### 3.3 Check `printer.cfg`
 
 The installer adds these for you (the two ACE lines only with an ACE, the endless line only if you chose it, the stats line always). They sit in one block near the end of the file, above the `#*# SAVE_CONFIG` block and after `[save_variables]`, not next to `[include zru-s.cfg]`. Check they are there:

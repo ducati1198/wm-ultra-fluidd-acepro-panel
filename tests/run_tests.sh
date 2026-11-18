@@ -218,6 +218,21 @@ check "factory board dry run changes nothing"       bash -c '! grep -q "timedate
 OUT="$(ACE_INSTALL_HOME="$HH" ACE_INSTALLER_TEST=1 bash "$INST" --fix-clock 2>&1)"
 check "--fix-clock elsewhere says nothing to fix"   bash -c 'echo "$0" | grep -q "nothing to fix"' "$OUT"
 echo
+echo "sudo group (item 35)"
+HS="$(new_home tsg)"
+OUT="$(printf '%b' "$A_ALL" | SUDO_USER=tester ACE_TEST_IN_SUDO_GROUP=0 ACE_INSTALL_HOME="$HS" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1)"
+check "user not in the sudo group: added automatically, no question" grep -q "usermod -aG sudo tester" "$HS/.sudo.log"
+check "the user is told it takes effect at the next login"       bash -c 'echo "$0" | grep -q "added to the sudo group"' "$OUT"
+HS2="$(new_home tsg2)"
+OUT="$(printf '%b' "$A_ALL" | SUDO_USER=tester ACE_TEST_IN_SUDO_GROUP=1 ACE_INSTALL_HOME="$HS2" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1)"
+check "user already in the sudo group: nothing is run"           bash -c '! grep -q "usermod" "$0/.sudo.log" 2>/dev/null' "$HS2"
+HS3="$(new_home tsg3)"
+OUT="$(printf '%b' "$A_ALL" | SUDO_USER=tester ACE_TEST_IN_SUDO_GROUP=0 ACE_INSTALL_HOME="$HS3" ACE_INSTALLER_TEST=1 bash "$INST" --dry-run 2>&1)"
+check "dry run only says it would add the user"                  bash -c 'echo "$1" | grep -q "would add tester to the sudo group" && ! grep -q "usermod" "$0/.sudo.log" 2>/dev/null' "$HS3" "$OUT"
+HS4="$(new_home tsg4)"
+OUT="$(printf '%b' "$A_ALL" | SUDO_USER=root ACE_TEST_IN_SUDO_GROUP=0 ACE_INSTALL_HOME="$HS4" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1)"
+check "running as root: no sudo group change"                    bash -c '! grep -q "usermod" "$0/.sudo.log" 2>/dev/null' "$HS4"
+echo
 echo "Free up disk space"
 FB="$ROOT/fsb"; FT="$ROOT/fst"; mkdir -p "$FB/.cache/pip" "$FB/printer_data/logs" "$FB/printer_data/gcodes" "$FT/tmp.AAA/orca_plugin" "$FT/tmp.keep"
 dd if=/dev/zero of="$FB/.cache/pip/x" bs=1M count=3 2>/dev/null; dd if=/dev/zero of="$FT/tmp.AAA/pad" bs=1M count=3 2>/dev/null

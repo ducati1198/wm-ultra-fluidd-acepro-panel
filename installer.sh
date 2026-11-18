@@ -626,6 +626,20 @@ on_factory_board() { # 0 = this is the original WonderMaker screen board (Debian
 }
 sudo_run() { if [ "$TESTING" = 1 ]; then echo "[test] sudo $*" >> "$INSTALL_HOME/.sudo.log"; return 0; fi; if [ "$(id -u)" = 0 ]; then "$@"; else sudo "$@"; fi; }
 
+ensure_sudo_group() { # item 35: like the load cell V2 installer, the installing user is put into the sudo group automatically (no question); it takes effect at the next login
+    local u="$INSTALL_USER" in_group=0
+    [ -n "$u" ] && [ "$u" != root ] || return 0
+    if [ "$TESTING" = 1 ]; then [ "${ACE_TEST_IN_SUDO_GROUP:-1}" = 1 ] && in_group=1
+    else
+        getent group sudo >/dev/null 2>&1 || return 0
+        id -nG "$u" 2>/dev/null | tr ' ' '\n' | grep -qx sudo && in_group=1
+    fi
+    [ "$in_group" = 1 ] && return 0
+    if [ "$DRY" = 1 ]; then echo -e "  ${DIM}would add $u to the sudo group${NC}"; return 0; fi
+    if sudo_run usermod -aG sudo "$u"; then print_success "$u was added to the sudo group (it takes effect at the next login)."
+    else warn_later "$u could not be added to the sudo group. Run:  sudo usermod -aG sudo $u"; fi
+}
+
 fix_factory_board() { # clock (NTP) + apt, asked once. Does nothing on a Raspberry Pi or any other machine.
     on_factory_board || return 0
     print_header "This is the factory screen board: date, time and apt"
@@ -687,6 +701,7 @@ do_install() {
     find_dirs
     migrate_old_names
     check_is_wondermaker
+    ensure_sudo_group
     fix_factory_board
     check_disk_space
     { [ -f "$CONFIG_DIR/rpi_ace.cfg" ] || [ -f "$(CONF_FILE)" ] || old_names_present; } && existing=1

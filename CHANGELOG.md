@@ -2,9 +2,10 @@
 
 ## 1.16.0
 
-All backups of this installer are in one folder, `~/ultra-backup`, sorted by type (item 36b). Tested with the installer test suite (178 passed) and on a Raspberry Pi.
+All backups of this installer are in one folder, `~/ultra-backup`, sorted by type (item 36b). Tested with the installer test suite (183 passed) and on a Raspberry Pi.
 
 - **`installer.sh`:** the undo folders (`wm-<date>`) and the saved original Fluidd are now in `~/ultra-backup/installer/acepro-panel` (was `~/acepro-backup`), the saved copies of the Fluidd web page in `~/ultra-backup/fluidd-page/<date>` (was `~/fluidd_backup_*`), the Fluidd macro lists in `~/ultra-backup/fluidd-macros/<date>`. New `migrate_backup_places` moves the old folders there once (install, update, undo, uninstall, repair, doctor, check), writes each move to `~/ultra-backup/INDEX.txt` and rewrites the Fluidd paths in the old undo manifests, so `--undo` keeps working. Nothing is deleted. The saved original Fluidd is still never deleted; the newest 5 undo folders and 5 Fluidd copies are kept.
+- **`installer.sh`: the user that runs the installer is put into the `sudo` group automatically (item 35).** New `ensure_sudo_group`, run at the start of every install and update. Same behaviour as the load cell V2 installer: when the user is not in the `sudo` group it is added (`usermod -aG sudo`), without a question; it takes effect at the next login. Nothing is done when the user is already in the group or when the installer runs as root; a dry run only says what it would do. New tests (5).
 - **Tests:** the backup tests use the new places; new tests for the move (undo folder, original Fluidd, Fluidd copy, macro list, manifest paths, second run, dry run).
 - The vanilla Klipper installer (the version that goes out with this one) protects `~/ultra-backup/installer/acepro-panel` from its size limits.
 
