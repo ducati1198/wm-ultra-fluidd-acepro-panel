@@ -58,7 +58,9 @@ DRY=0
 UNDO_ARG=""
 KLIPPER_DIR="${ACE_KLIPPER_DIR:-}"
 CONFIG_DIR="${ACE_CONFIG_DIR:-}"
-BACKUP_ROOT="$INSTALL_HOME/acepro-backup"
+ULTRA="$INSTALL_HOME/ultra-backup"                 # 1.16.0: every backup lives in one folder, sorted by type
+BACKUP_ROOT="$ULTRA/installer/acepro-panel"        # the undo folders (wm-<date>) and the original Fluidd
+OLD_BACKUP_ROOT="$INSTALL_HOME/acepro-backup"      # where they were before 1.16.0 (moved once by migrate_backup_places)
 MOONRAKER_URL="${ACE_MOONRAKER_URL:-http://127.0.0.1:7125}"
 KLIPPER_SERVICE="klipper"
 CONF_NAME="rpi-ultra-install.conf"
@@ -135,10 +137,62 @@ ask_yn() { # "Question" Y|N ["why"]
 }
 
 timestamp() { date +"%Y%m%d_%H%M%S"; }
+fluidd_copy_new() {   # fluidd_dir [suffix]: path for a NEW saved copy of Fluidd, in ~/ultra-backup/fluidd-page/<date>/
+    local d="$ULTRA/fluidd-page/$(date +%Y-%m-%d)"; mkdir -p "$d"
+    echo "$d/$(basename "$1")_backup_$(timestamp)${2:-}"
+}
+fluidd_copies() {   # fluidd_dir: every saved copy of Fluidd (the new place and the old one next to Fluidd), oldest first
+    { ls -1d "$ULTRA"/fluidd-page/*/"$(basename "$1")"_backup_* "$1"_backup_* 2>/dev/null || true; } | awk -F/ '{print $NF "\t" $0}' | sort | cut -f2-
+}
 prune_backups() {   # keeps the newest 5 saved copies of Fluidd and the newest 5 backup folders; older ones are deleted (the newest always stays, so --undo still works)
     local o
-    [ -n "${1:-}" ] && ls -1dt "$1"_backup_* 2>/dev/null | tail -n +6 | while read -r o; do rm -rf "$o"; done
+    [ -n "${1:-}" ] && fluidd_copies "$1" | head -n -5 | while read -r o; do rm -rf "$o"; done
+    [ -n "${1:-}" ] && find "$ULTRA/fluidd-page" -mindepth 1 -maxdepth 1 -type d -empty -delete 2>/dev/null
     ls -1dt "$BACKUP_ROOT"/wm-*/ 2>/dev/null | tail -n +6 | while read -r o; do rm -rf "$o"; done
+    return 0
+}
+backup_index() {   # one line in ~/ultra-backup/INDEX.txt, the same format as the installer's helper
+    mkdir -p "$ULTRA"; echo "$(date '+%Y-%m-%d %H:%M:%S')  $*" >> "$ULTRA/INDEX.txt"
+}
+migrate_backup_places() {   # 1.16.0: the old places (~/acepro-backup, ~/fluidd_backup_*) are moved once into ~/ultra-backup. Nothing is deleted.
+    local o f name day n=0 dst fl tl="~"
+    local -a copies=()
+    [ -d "$OLD_BACKUP_ROOT" ] || ls -d "$INSTALL_HOME"/fluidd_backup_* >/dev/null 2>&1 || return 0
+    if [ "$DRY" = 1 ]; then print_info "Dry run: the old backup folders (~/acepro-backup, ~/fluidd_backup_*) would be moved into ~/ultra-backup."; return 0; fi
+    mkdir -p "$BACKUP_ROOT"
+    if [ -d "$OLD_BACKUP_ROOT" ] && [ ! -L "$OLD_BACKUP_ROOT" ]; then
+        for f in "$OLD_BACKUP_ROOT"/* "$OLD_BACKUP_ROOT"/.[!.]*; do
+            [ -e "$f" ] || continue
+            name="$(basename "$f")"
+            case "$name" in
+                wm-*|original-fluidd|original-fluidd.info) dst="$BACKUP_ROOT/$name" ;;
+                *.json) day="$(date -r "$f" +%Y-%m-%d)"; mkdir -p "$ULTRA/fluidd-macros/$day"; dst="$ULTRA/fluidd-macros/$day/$name" ;;
+                *) day="$(date -r "$f" +%Y-%m-%d)"; mkdir -p "$ULTRA/other/$day"; dst="$ULTRA/other/$day/$name" ;;
+            esac
+            [ -e "$dst" ] && dst="$dst.from-acepro-backup"
+            mv "$f" "$dst" && { backup_index "moved ${f/#$INSTALL_HOME/$tl} -> ${dst/#$INSTALL_HOME/$tl}"; n=$((n+1)); }
+        done
+        rmdir "$OLD_BACKUP_ROOT" 2>/dev/null || true
+    fi
+    for fl in "$INSTALL_HOME"/fluidd_backup_*; do
+        [ -d "$fl" ] && [ ! -L "$fl" ] || continue
+        name="$(basename "$fl")"
+        day="$(echo "$name" | sed -n 's/.*_backup_\(20[0-9][0-9]\)\([01][0-9]\)\([0-3][0-9]\)_.*/\1-\2-\3/p')"
+        [ -n "$day" ] || day="$(date -r "$fl" +%Y-%m-%d)"
+        mkdir -p "$ULTRA/fluidd-page/$day"; dst="$ULTRA/fluidd-page/$day/$name"
+        [ -e "$dst" ] && dst="$dst.moved"
+        mv "$fl" "$dst" || continue
+        backup_index "moved ${fl/#$INSTALL_HOME/$tl} -> ${dst/#$INSTALL_HOME/$tl}"; n=$((n+1))
+        copies+=("$fl|$dst")
+    done
+    # the undo folders name the saved Fluidd copies in their manifest.txt: follow the move
+    for o in "${copies[@]}"; do
+        for f in "$BACKUP_ROOT"/wm-*/manifest.txt; do
+            [ -f "$f" ] && grep -qF -- "${o%%|*}" "$f" && sed -i "s|\([ ]\)${o%%|*}\$|\1${o##*|}|" "$f"
+        done
+    done
+    [ "$n" -gt 0 ] && print_success "Backups: $n old backup item(s) moved into ~/ultra-backup (the old places are listed in ~/ultra-backup/INDEX.txt)"
+    return 0
 }
 is_symlink() { [ -L "$1" ]; }
 CONF_FILE() { echo "$CONFIG_DIR/$CONF_NAME"; }
@@ -421,8 +475,8 @@ link_driver() {
     link_item "$REPO_DIR/extras/temperature_ace.py" "$x/temperature_ace.py" "ACE temperature sensor"
 }
 
-# The original Fluidd is saved once, for good, in $BACKUP_ROOT/original-fluidd. Nothing in this installer deletes it
-# (the pruning only touches fluidd_backup_* and wm-* folders), so --uninstall can always put it back.
+# The original Fluidd is saved once, for good, in $BACKUP_ROOT/original-fluidd (~/ultra-backup/installer/acepro-panel). Nothing in this installer
+# deletes it (the pruning only touches the saved Fluidd copies and wm-* folders), so --uninstall can always put it back.
 ORIGINAL_FLUIDD() { echo "$BACKUP_ROOT/original-fluidd"; }
 has_panel() { grep -rlq "ACE feeder" "$1/assets" 2>/dev/null; }
 save_original_fluidd() { # fluidd_dir
@@ -430,7 +484,7 @@ save_original_fluidd() { # fluidd_dir
     [ -d "$orig" ] && return 0
     if ! has_panel "$fd"; then src="$fd"
     else # already our panel (installed by an older version): the oldest saved copy that is still the stock Fluidd
-        for b in $(ls -1d "${fd}"_backup_* 2>/dev/null | sort); do has_panel "$b" || { src="$b"; break; }; done
+        for b in $(fluidd_copies "$fd"); do has_panel "$b" || { src="$b"; break; }; done
     fi
     if [ -z "$src" ]; then print_info "No untouched copy of the original Fluidd was found, so it could not be saved for good."; return 0; fi
     mkdir -p "$BACKUP_ROOT" && cp -a "$src" "$orig" && echo "saved $(date) from $src" > "$BACKUP_ROOT/original-fluidd.info" \
@@ -466,7 +520,7 @@ install_fluidd_panel() {
     fi
     [ -d "$fluidd_dir" ] || { warn_later "Fluidd folder not found: $fluidd_dir"; return 1; }
     save_original_fluidd "$fluidd_dir"
-    backup="${fluidd_dir}_backup_$(timestamp)"
+    backup="$(fluidd_copy_new "$fluidd_dir")"
     cp -a "$fluidd_dir" "$backup" && echo "FLUIDD $fluidd_dir $backup" >> "$BACKUP_DIR/manifest.txt"
     print_success "Backed up Fluidd → $backup"
     prune_backups "$fluidd_dir"
@@ -513,7 +567,7 @@ step_fluidd_categories() {   # SECONDS to wait for Klipper to be ready (the macr
     [ -f "$(fluidd_categories_py)" ] || { warn_later "scripts/wm_fluidd_categories.py is missing from this folder: the Fluidd macro categories were not set up. Run ./installer.sh --get-latest."; return 0; }
     print_header "Fluidd macro categories"
     why "Fluidd lists every macro in one long row. This puts WonderMaker's, the ACE Pro's and the Pi's macros into coloured categories. A macro you moved, recoloured, renamed or hid yourself is never changed."
-    mkdir -p "$BACKUP_ROOT"; bk="$BACKUP_ROOT/fluidd-macros-before-$(timestamp).json"
+    mkdir -p "$ULTRA/fluidd-macros/$(date +%Y-%m-%d)"; bk="$ULTRA/fluidd-macros/$(date +%Y-%m-%d)/fluidd-macros-before-$(timestamp).json"
     out="$(python3 -I "$(fluidd_categories_py)" apply --url "$MOONRAKER_URL" --wait "$wait" --backup "$bk" 2>&1)"; rc=$?
     case "$rc" in
         0) print_success "$out"; [ -f "$bk" ] && echo "  The macro settings Fluidd had before are saved in $bk" ;;
@@ -799,7 +853,7 @@ do_uninstall() {
     for f in ace temperature_ace.py virtual_pins.py; do remove_link "$x/$f" "$f"; done
     if [ "$restore_fl" = 1 ]; then
         progress_bar 3 4 "Step 4 of 4: original Fluidd"
-        local fb="${fl}_backup_$(timestamp)-uninstall" cj="$BACKUP_DIR/config.json.keep"
+        local fb; fb="$(fluidd_copy_new "$fl" -uninstall)"; local cj="$BACKUP_DIR/config.json.keep"
         cp -a "$fl" "$fb" && echo "FLUIDD $fl $fb" >> "$BACKUP_DIR/manifest.txt"
         [ -f "$fl/config.json" ] && cp -a "$fl/config.json" "$cj"
         rm -rf "$fl" && cp -a "$(ORIGINAL_FLUIDD)" "$fl" && { [ -f "$cj" ] && cp -a "$cj" "$fl/config.json"; rm -f "$cj"; } \
@@ -1280,6 +1334,7 @@ main() {
     [ $# -eq 0 ] && { [ -t 0 ] || [ "${ACE_MENU_TEST:-0}" = 1 ]; } && set -- --menu
     parse_args "$@"
     command -v python3 >/dev/null 2>&1 || die_with_fix "python3 is not installed" "sudo apt-get install -y python3"
+    case "$MODE" in install|update|undo|uninstall|repair|doctor|check) migrate_backup_places ;; esac   # 1.16.0
     local rc=0
     case "$MODE" in
         menu) menu_main ;;

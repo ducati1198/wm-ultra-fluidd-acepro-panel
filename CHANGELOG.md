@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.16.0
+
+All backups of this installer are in one folder, `~/ultra-backup`, sorted by type (item 36b). Tested with the installer test suite (178 passed) and on a Raspberry Pi.
+
+- **`installer.sh`:** the undo folders (`wm-<date>`) and the saved original Fluidd are now in `~/ultra-backup/installer/acepro-panel` (was `~/acepro-backup`), the saved copies of the Fluidd web page in `~/ultra-backup/fluidd-page/<date>` (was `~/fluidd_backup_*`), the Fluidd macro lists in `~/ultra-backup/fluidd-macros/<date>`. New `migrate_backup_places` moves the old folders there once (install, update, undo, uninstall, repair, doctor, check), writes each move to `~/ultra-backup/INDEX.txt` and rewrites the Fluidd paths in the old undo manifests, so `--undo` keeps working. Nothing is deleted. The saved original Fluidd is still never deleted; the newest 5 undo folders and 5 Fluidd copies are kept.
+- **Tests:** the backup tests use the new places; new tests for the move (undo folder, original Fluidd, Fluidd copy, macro list, manifest paths, second run, dry run).
+- The vanilla Klipper installer (the version that goes out with this one) protects `~/ultra-backup/installer/acepro-panel` from its size limits.
+
 ## 1.15.0
 
 The ACE unload parks the tool, and a load that hits the tool head in its fast part no longer makes the next load slow. Tested on a ZR Ultra-S with an ACE Pro.

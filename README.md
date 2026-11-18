@@ -79,7 +79,7 @@ Run these in `~/wm-ultra-fluidd-acepro-panel`.
 | **Check** for problems | `./installer.sh --check` | Changes nothing |
 | **Update** to the latest version | `./installer.sh` then **2 Update > 2 Update now** (or `git pull && ./installer.sh --update`) | Your tuned distances and speeds are kept |
 | **Repair** (driver links, include lines) | `./installer.sh --repair` | Your tuned values are kept |
-| **Back up** | automatic | Every install and update first saves the files it touches to `~/acepro-backup/wm-<date>` |
+| **Back up** | automatic | Every install and update first saves the files it touches to `~/ultra-backup/installer/acepro-panel/wm-<date>` |
 | **Undo** the last install or update | `./installer.sh --undo` | Puts back the files saved before it, including the old Fluidd |
 | **Uninstall** | `./installer.sh --uninstall` | Removes what was added and, if you agree, puts the original Fluidd back (saved first, so `--undo` brings it back). WonderMaker's files are never touched. |
 | **Preview** | `./installer.sh --dry-run` | Changes nothing |
@@ -311,7 +311,7 @@ The installer asks a few plain questions, shows exactly what it will change, and
 3. With an ACE: links the ACE driver (`extras/ace/`), `virtual_pins` and the ACE temperature sensor into Klipper's `extras` folder.
 4. Copies the config files into your config folder and adds the `[include …]` lines to `printer.cfg` in one block just above the SAVE_CONFIG block, after `[save_variables]` (the ACE driver reads `[save_variables]` while it loads, so the lines must come after it). `rpi_stats.cfg` (counters and the tool map) is always added. No WonderMaker file is edited.
 5. Installs the Fluidd panel if you chose it (your `config.json` is kept; the old folder is saved).
-6. Saves everything it touched in `~/acepro-backup/wm-<date>`.
+6. Saves everything it touched in `~/ultra-backup/installer/acepro-panel/wm-<date>`.
 7. Asks once whether to restart Klipper (default no, and only if Klipper is running).
 8. Prints your next steps.
 
@@ -384,7 +384,7 @@ cd wm-ultra-fluidd-acepro-panel
 chmod +x installer.sh && ./installer.sh
 ```
 
-With Option A there is no `git pull`: to update, delete the old `wm-ultra-fluidd-acepro-panel-main` folder, download again as above, and run `./installer.sh --update`. Your settings and backups are not in that folder (they are in `~/printer_data` and `~/acepro-backup`), so deleting it loses nothing.
+With Option A there is no `git pull`: to update, delete the old `wm-ultra-fluidd-acepro-panel-main` folder, download again as above, and run `./installer.sh --update`. Your settings and backups are not in that folder (they are in `~/printer_data` and `~/ultra-backup`), so deleting it loses nothing.
 
 If the ACE does not show up on this board, check the free USB port first: the main board already uses one, so the ACE needs a second host port or a powered hub (`lsusb` shows what is connected).
 
@@ -649,6 +649,10 @@ cd ~/wm-ultra-fluidd-acepro-panel && git pull
 
 `--update` keeps your tuned distances and speeds. Undo the last install or update with `./installer.sh --undo`. `--uninstall` removes the config files, the include lines and the driver links; WonderMaker's files are never touched. The Fluidd panel is put back by `--undo`.
 
+### Where the backups are (1.16.0)
+
+Every backup of this installer is in one folder, `~/ultra-backup`, sorted by type: the undo folders (`wm-<date>`) and the saved original Fluidd in `~/ultra-backup/installer/acepro-panel`, the saved copies of the Fluidd web page in `~/ultra-backup/fluidd-page/<date>`, and the Fluidd macro lists in `~/ultra-backup/fluidd-macros/<date>`. Nothing is written to your home folder any more. The first run of 1.16.0 moves the old folders (`~/acepro-backup`, `~/fluidd_backup_*`) there once; nothing is deleted, `--undo` still works, and `~/ultra-backup/INDEX.txt` lists where each one came from. The installer keeps the newest 5 undo folders and the newest 5 saved Fluidd copies, and never deletes the saved original Fluidd.
+
 ---
 
 ## 10. Troubleshooting
@@ -693,7 +697,7 @@ The categories are listed in this order: RPI Calibration, AcePro, WM Factory Cal
 - **Updating from 1.9.x or older:** "WM Ultra Calibration" is renamed "WM Factory Calibration" (same macros). The Pi's calibration macros move from Raspberry Pi and Offset Calibration into RPI Calibration with their readable names, the unload window into WM Ultra Filament, Nozzle Change and Chamber Light into ZR Tools, `WM_BED_SOAK` is hidden, and the empty Offset Calibration and Raspberry Pi categories are removed. Each happens once, and only for an entry you left as the installer put it (same category, same colour, no name of your own). One you moved, recoloured or renamed stays where it is, Offset Calibration or Raspberry Pi stays while you keep a macro in it, and one you move back afterwards is not moved again.
 - **Your own choices are never changed.** A macro is sorted only while its Fluidd entry is still the default one. A macro you moved, recoloured, renamed or hid is left alone, and every macro is dealt with once: one you unhide or move back later is not touched again. Macros added by a later update are sorted the first time they are seen.
 - It needs Moonraker, and Klipper ready, because Klipper is what knows the macros. If Klipper is not running the installer says so and tells you to run `--fluidd-categories` later. It never fails the install.
-- The settings Fluidd had before are saved in `~/acepro-backup/fluidd-macros-before-<date>.json`. Uninstalling does not remove the categories (they are your Fluidd settings). Hard-refresh the browser to see the change.
+- The settings Fluidd had before are saved in `~/ultra-backup/fluidd-macros/<date>/fluidd-macros-before-<time>.json`. Uninstalling does not remove the categories (they are your Fluidd settings). Hard-refresh the browser to see the change.
 
 ---
 

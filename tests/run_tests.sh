@@ -53,16 +53,19 @@ check "virtual_pins linked"                         test -L "$H/klipper/klippy/e
 check "temperature_ace linked"                      test -L "$H/klipper/klippy/extras/temperature_ace.py"
 check "Fluidd has the panel"                        grep -rlq "ACE feeder" "$H/fluidd/assets"
 check "Fluidd config.json kept"                     grep -q '"x":1' "$H/fluidd/config.json"
-check "Fluidd backup folder exists"                 test -n "$(ls -d "$H"/fluidd_backup_* 2>/dev/null)"
+check "Fluidd backup folder exists in ~/ultra-backup/fluidd-page" test -n "$(ls -d "$H"/ultra-backup/fluidd-page/*/fluidd_backup_* 2>/dev/null)"
+check "nothing was written to the old backup places" bash -c '! ls -d "$0"/acepro-backup "$0"/fluidd_backup_* >/dev/null 2>&1' "$H"
 HU="$(new_home tum)"; CU="$(cfg "$HU")"
 printf '[server]\nport: 7125\n\n[update_manager fluidd]\ntype: web\nchannel: stable\nrepo: fluidd-core/fluidd\npath: ~/fluidd\n\n[update_manager]\nenable_auto_refresh: True\n' > "$CU/moonraker.conf"
 inst "$HU" "$A_ALL"
 check "[update_manager fluidd] is removed from moonraker.conf" bash -c '! grep -q "update_manager fluidd" "$0" && grep -q "^\[update_manager\]" "$0" && grep -q "^\[server\]" "$0"' "$CU/moonraker.conf"
-check "moonraker.conf copy saved before the removal" bash -c 'grep -rl "update_manager fluidd" "$0"/acepro-backup 2>/dev/null | head -1 | grep -q .' "$HU"
-check "backup manifest exists"                      test -n "$(ls "$H"/acepro-backup/wm-*/manifest.txt 2>/dev/null)"
+check "moonraker.conf copy saved before the removal" bash -c 'grep -rl "update_manager fluidd" "$0"/ultra-backup/installer/acepro-panel 2>/dev/null | head -1 | grep -q .' "$HU"
+check "backup manifest exists"                      test -n "$(ls "$H"/ultra-backup/installer/acepro-panel/wm-*/manifest.txt 2>/dev/null)"
 for n in 1 2 3 4 5 6 7; do mkdir -p "$H/fluidd_backup_2020010$n" "$H/acepro-backup/wm-2020010${n}_000000"; touch -d "2020-01-0$n" "$H/fluidd_backup_2020010$n" "$H/acepro-backup/wm-2020010${n}_000000"; done
 inst "$H" "$A_ALL"
-check "old saved copies: only the newest 5 stay, the newest is kept" bash -c "[ \$(ls -d '$H'/fluidd_backup_* | wc -l) -le 5 ] && [ \$(ls -d '$H'/acepro-backup/wm-*/ | wc -l) -le 5 ] && [ -d '$H/acepro-backup/wm-20200107_000000' ] && [ ! -d '$H/acepro-backup/wm-20200101_000000' ]"
+check "old saved copies: only the newest 5 stay, the newest is kept" bash -c "[ \$(ls -d '$H'/ultra-backup/fluidd-page/*/fluidd_backup_* | wc -l) -le 5 ] && [ \$(ls -d '$H'/ultra-backup/installer/acepro-panel/wm-*/ | wc -l) -le 5 ] && [ -d '$H/ultra-backup/installer/acepro-panel/wm-20200107_000000' ] && [ ! -d '$H/ultra-backup/installer/acepro-panel/wm-20200101_000000' ]"
+check "the old places are empty after the move (nothing left in the home folder)" bash -c '! ls -d "$0"/acepro-backup "$0"/fluidd_backup_* >/dev/null 2>&1' "$H"
+check "the move is listed in ~/ultra-backup/INDEX.txt" grep -q 'moved ~/acepro-backup/wm-20200107_000000' "$H/ultra-backup/INDEX.txt"
 check "no WonderMaker file was edited"              grep -q '^\[gcode_macro _CHANGE_TOOL\]' "$C/zru-s.cfg"
 check "Klipper was not restarted"                   bash -c '! echo "$0" | grep -q "Klipper restarted\."' "$OUT"
 inst "$H" "" --check;  check "--check passes"       test "$RC" -eq 0
@@ -128,14 +131,14 @@ check "links removed"                               test ! -e "$H8/klipper/klipp
 check "uninstall put the original Fluidd back"      test -f "$H8/fluidd/assets/old.js"
 check "uninstall: panel gone from Fluidd"           bash -c '! grep -rq "ACE feeder" "$0"' "$H8/fluidd/assets"
 check "uninstall kept Fluidd config.json"           grep -q '"x":1' "$H8/fluidd/config.json"
-check "original Fluidd copy was saved for good"     test -f "$H8/acepro-backup/original-fluidd/assets/old.js"
+check "original Fluidd copy was saved for good"     test -f "$H8/ultra-backup/installer/acepro-panel/original-fluidd/assets/old.js"
 inst "$H8" 'y\n' --undo
 check "undo after uninstall brings cfgs back"       test -f "$C8/rpi_ace.cfg"
 check "undo after uninstall brings the panel back"  grep -rlq "ACE feeder" "$H8/fluidd/assets"
 for n in 1 2 3 4 5 6 7; do mkdir -p "$H8/fluidd_backup_2020010$n"; touch -d "2020-01-0$n" "$H8/fluidd_backup_2020010$n"; done
 inst "$H8" "$A_ALL"
-check "original Fluidd copy survives pruning"       test -f "$H8/acepro-backup/original-fluidd/assets/old.js"
-check "original Fluidd copy is not overwritten"     bash -c '! grep -rq "ACE feeder" "$0"' "$H8/acepro-backup/original-fluidd/assets"
+check "original Fluidd copy survives pruning"       test -f "$H8/ultra-backup/installer/acepro-panel/original-fluidd/assets/old.js"
+check "original Fluidd copy is not overwritten"     bash -c '! grep -rq "ACE feeder" "$0"' "$H8/ultra-backup/installer/acepro-panel/original-fluidd/assets"
 
 echo "9. Repair"
 H9="$(new_home t9)"; C9="$(cfg "$H9")"
@@ -362,7 +365,7 @@ check "printer.cfg includes only the rpi_ names" bash -c '! grep -qE "include wm
 check "no include line twice" test "$(grep -c 'include rpi_ace.cfg' "$CR/printer.cfg")" = 1
 check "SAVE_CONFIG block untouched" test "$(tail -1 "$CR/printer.cfg")" = "#*# control = pid"
 check "your changed value survives the rename (keeps 0)" grep -q '^variable_keeps: *0' "$CR/rpi_endless.cfg"
-check "a rename backup folder exists" test -n "$(ls -d "$HR"/acepro-backup/wm-*-rename 2>/dev/null)"
+check "a rename backup folder exists" test -n "$(ls -d "$HR"/ultra-backup/installer/acepro-panel/wm-*-rename 2>/dev/null)"
 inst "$HR" 'n\ny\n' --check
 check "--check is clean after the update" test "$RC" -eq 0
 inst "$HR" 'n\ny\n' --update
@@ -373,6 +376,24 @@ inst "$HR" 'n\ny\n' --update
 check "old and new both present: the old one is removed, the new one kept" bash -c 'test ! -e "$0/wm_stats.cfg" && test -f "$0/rpi_stats.cfg" && ! grep -q "# old copy" "$0/rpi_stats.cfg"' "$CR"
 # --undo of the rename gives the old names back
 inst "$HR" 'y\n' --undo
+echo "Backups in ~/ultra-backup (1.16.0)"
+HM="$(new_home mig)"; CM="$(cfg "$HM")"
+mkdir -p "$HM/acepro-backup/wm-20261110_101010/files" "$HM/acepro-backup/original-fluidd/assets" "$HM/fluidd_backup_20261110_101010/assets"
+echo orig > "$HM/acepro-backup/original-fluidd/assets/orig.js"; echo saved > "$HM/fluidd_backup_20261110_101010/assets/saved.js"
+echo '{"a":1}' > "$HM/acepro-backup/fluidd-macros-before-20261110_101010.json"
+printf 'FLUIDD %s/fluidd %s/fluidd_backup_20261110_101010\n' "$HM" "$HM" > "$HM/acepro-backup/wm-20261110_101010/manifest.txt"
+inst "$HM" 'n\n' --check
+check "migration: the undo folder and the original Fluidd are in ~/ultra-backup/installer/acepro-panel" test -f "$HM/ultra-backup/installer/acepro-panel/wm-20261110_101010/manifest.txt" -a -f "$HM/ultra-backup/installer/acepro-panel/original-fluidd/assets/orig.js"
+check "migration: the saved Fluidd copy is in ~/ultra-backup/fluidd-page/2026-11-10" test -f "$HM/ultra-backup/fluidd-page/2026-11-10/fluidd_backup_20261110_101010/assets/saved.js"
+check "migration: the macro list is in ~/ultra-backup/fluidd-macros" test -n "$(ls "$HM"/ultra-backup/fluidd-macros/*/fluidd-macros-before-20261110_101010.json 2>/dev/null)"
+check "migration: the manifest follows the moved Fluidd copy (so --undo still finds it)" grep -q "FLUIDD $HM/fluidd $HM/ultra-backup/fluidd-page/2026-11-10/fluidd_backup_20261110_101010\$" "$HM/ultra-backup/installer/acepro-panel/wm-20261110_101010/manifest.txt"
+check "migration: the old places are gone, nothing was deleted" bash -c '! ls -d "$0"/acepro-backup "$0"/fluidd_backup_* >/dev/null 2>&1' "$HM"
+inst "$HM" 'n\n' --check
+check "migration: a second run changes nothing" bash -c '[ "$(grep -c "moved ~/acepro-backup/wm-20261110" "$0"/ultra-backup/INDEX.txt)" = 1 ]' "$HM"
+HD="$(new_home migdry)"; mkdir -p "$HD/acepro-backup/wm-20261110_101010"; echo x > "$HD/acepro-backup/wm-20261110_101010/manifest.txt"
+inst "$HD" 'n\n' --check --dry-run
+check "migration: a dry run moves nothing" test -d "$HD/acepro-backup/wm-20261110_101010"
+
 echo
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]
