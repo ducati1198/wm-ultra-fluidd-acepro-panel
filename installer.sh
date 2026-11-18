@@ -1356,7 +1356,7 @@ main() {
         freespace) do_free_space ;;
         doctor) do_doctor ;;
         bundle) do_support_bundle ;;
-        fluiddcat) step_fluidd_categories 0 ;;
+        fluiddcat) step_fluidd_categories 60 ;;
         fixclock) on_factory_board && fix_factory_board || print_info "This is not the factory screen board, so there is nothing to fix." ;;
         whatsnew) do_check_updates ;;
         getlatest) do_get_latest ;;

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.16.1
+
+- **`--fluidd-categories` waits up to 60 s for Klipper to be ready** (it used to wait 0 s, so a run right after a start said "not done"). The sorter already creates Fluidd's macro settings when Fluidd was never opened.
+
 ## 1.16.0
 
 All backups of this installer are in one folder, `~/ultra-backup`, sorted by type (item 36b). Tested with the installer test suite (183 passed) and on a Raspberry Pi.
