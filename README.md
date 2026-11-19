@@ -129,7 +129,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | | |
 |---|---|
 | **Works without an ACE Pro** | Say no to the ACE question and you get the WonderMaker Toolheads panel and the endless-spool option only. Every ACE element stays hidden. Add the ACE later by running the installer again. |
-| **ACE Pro as feeder** | `ACE_WM_LOAD T=n` feeds slot n to the toolhead sensor. The first load of a tool runs slow all the way and measures the tube length (saved as `wm_ace_len_t0` … `wm_ace_len_t3`); later loads feed fast up to 60 mm before the tool head, then slow until the sensor sees the filament. WonderMaker's own insert routine then heats and loads the filament. |
+| **ACE Pro as feeder** | `ACE_WM_LOAD T=n` feeds slot n to the toolhead sensor. The first load of a tool feeds fast for the full tube minus the preload (1450 - 450 mm, minus the slow tail and a margin = 900 mm), then slow, and measures the tube length (saved as `wm_ace_len_t0` … `wm_ace_len_t3`); later loads feed fast up to 60 mm before the tool head, then slow until the sensor sees the filament. WonderMaker's own insert routine then heats and loads the filament. |
 | **Uses WonderMaker's own sensors** | Only the toolhead sensor `filament<N>` is read: it stops the feed. The hub sensors `path_N` are not filament sensors on this printer (they always read on), so nothing reads them. No new sensors needed. |
 | **Unload** | `ACE_WM_UNLOAD T=n` picks up the real toolhead n (not the one a print map points to), forms a tip with the extruder, then the ACE pulls the filament back until the toolhead sensor is clear and its slot is empty. The hub sensors `path_N` are not used for this: they always read on. |
 | **Auto-load** | Put a spool into an ACE slot and it loads to the matching toolhead (switch off with `ACE_WM_AUTO ENABLE=0` or the Auto Load switch in Fluidd). It waits until the ACE is quiet (no slot preloading or shifting for 5 s), loads the spools in the order you put them in, and tries a feed the ACE refuses again every 4 s, up to 10 times, with a console message each time. After an unload the slot is held for 5 s only (`unload_hold` in `rpi_ace.cfg`); a spool that is ready when those 5 s end is not loaded by itself, a window asks **Load T0** or **No**. |
@@ -428,10 +428,11 @@ Everything you may want to tune is at the top of `~/printer_data/config/rpi_ace.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `variable_hub_to_head_mm` | 2000 | The longest slow feed of one load (it stops earlier, when the toolhead sensor sees the filament). |
+| `variable_hub_to_head_mm` | 1200 | The longest slow feed of one load (it stops earlier, when the toolhead sensor sees the filament). |
 | `variable_slow_tail_mm` | 60 | The last part before the tool head is always fed slow. The fast part is the measured tube length minus this. |
-| `variable_max_total_mm` | 4000 | Absolute safety limit for one load. |
+| `variable_max_total_mm` | 3000 | Absolute safety limit for one load. |
 | `variable_fast_speed` / `slow_speed` | 60 / 20 mm/s | The fast part / the last part to the tool head. |
+| `variable_tube_full_mm` / `preload_mm` / `measure_margin_mm` | 1450 / 450 / 40 mm | The first load of a tool (tube not measured yet) feeds fast for tube_full_mm - preload_mm - slow_tail_mm - measure_margin_mm (900 mm), then slow to the tool head, and measures the tube. The preload is what the ACE already pulls in when a new spool is put in. Set the margin so large that the result is under 100 and the first load is all slow. |
 | `variable_retract_speed` | 50 mm/s | Unload. |
 | `variable_fast_timeout_s` / `slow_timeout_s` | 90 / 150 | A load that takes longer stops with an error (the measuring load feeds the whole tube slow: 1038 mm took 56 s). |
 
@@ -591,7 +592,7 @@ Written for the day the printer is running again. Do them in this order, empty b
 | Command | What it does |
 |---|---|
 | `ACE_WM_LOAD T=0..3` | Picks up the tool, goes to the wipe position (when the WonderMaker macros are installed), then feeds the slot to the hub and toolhead sensor. At the sensor the ACE stops, feed assist turns on, the extruder gear grabs the filament with a short push, WonderMaker's insert routine finishes the load, then feed assist turns off. |
-| `ACE_WM_UNLOAD T=0..3` | Picks up the tool, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back until its slot is empty. |
+| `ACE_WM_UNLOAD T=0..3` | Picks up the tool, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back until its slot is empty. When the ACE is busy (an unload or load is still finishing) the call waits in a queue and starts by itself when the ACE is free. |
 | `ACE_WM_RETRACT T=0..3` | Only the ACE part of an unload (after WonderMaker's `UNLOAD_FILAMENT`). |
 | `ACE_WM_STOP` | Stop any feed or retract started by these macros. |
 | `ACE_WM_AUTO ENABLE=1\|0` | Auto-load on spool insert. Loads wait for a quiet ACE and run in the order the spools were put in. |

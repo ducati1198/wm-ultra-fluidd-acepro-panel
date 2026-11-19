@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.16.3
+
+- **`config/rpi_ace.cfg`: shorter limits (F-154).** `max_total_mm` 4000 to 3000 and `hub_to_head_mm` 2000 to 1200 (the real distance after the preload is about 1000 mm, so a failed head sensor now stops the slow feed after 60 s instead of pushing 2000 mm). `tube_full_mm` says it is measured from the ACE back filament port.
+- **`config/rpi_ace.cfg`: `ACE_WM_UNLOAD` called while the ACE is busy waits instead of failing (F-153).** Unload T0 then T1 four seconds later gave "ACE busy (unload_hub)" and T1 was not unloaded. Now the second tool goes into a queue (`unload_queue`) and starts by itself when the ACE is free (checked every 2 s, dropped after 10 minutes or when a print starts). While an unload is picking up its tool the ACE also counts as busy (`unloading_since`, at most 10 minutes). New `delayed_gcode _wm_ace_unload_next`.
+- **`config/rpi_ace.cfg`: the first load of a tool starts fast (F-152).** Before, the first load of each tool fed slow (20 mm/s) all the way to measure the tube (about 48 s for 930 mm). Now it feeds fast for the full tube length minus the preload (new variables `tube_full_mm` 1450, `preload_mm` 450 and `measure_margin_mm` 40: 1450 - 450 - 60 slow tail - 40 = 900 mm; the measured tubes were 930 and 942 mm), then slow to the tool head, and measures the tube (the fast part counts 90 percent, because the ACE feeds a bit less than the speed says). New variable `measuring` (runtime state). Later loads are unchanged (fast for the saved length minus 60 mm).
+
 ## 1.16.2
 
 - **`config/rpi_ace.cfg`: the nozzle heats at the wipe position (F-150).** `_WM_ACE_GRAB` heats a head that is on the carriage through `_WM_GO_WIPE_HEAT`, and `ACE_WM_LOAD` moves the head to the wipe position (`_WM_GO_WIPE`) before the filament starts to feed. Both keep the old behaviour when the helper macros are missing.
