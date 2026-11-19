@@ -18,7 +18,7 @@ Rules that keep the user's own choices safe:
     whose colour is still one the installer writes (or none) gets its category's colour; a colour you picked stays.
   * 1.10.0 layout: WonderMaker's own calibration macros are in "WM Factory Calibration" (the category "WM Ultra
     Calibration" is renamed once, keeping its macros). Every calibration macro of the Pi installer is in "RPI Calibration"
-    with a readable name (Speed Test, Live Z Menu ...); "Offset Calibration" is emptied into it and removed when empty.
+    (1.16.2: shown with the real macro name, no alias any more); "Offset Calibration" is emptied into it and removed when empty.
     The unload window (Unload Menu, Unload Stop) is in "WM Ultra Filament", Nozzle Change and Chamber Light in "ZR Tools";
     "Raspberry Pi" is removed when empty. SET_GCODE_OFFSET, Z_OFFSET_APPLY_ENDSTOP,
     Z_OFFSET_APPLY_PROBE and WM_BED_SOAK are hidden (buttons and switches call them). Each of these moves happens once
@@ -41,7 +41,7 @@ OFFSET_MACROS = ["WM_FULL_OFFSET_CAL", "WM_OFFSETS_ACCURATE", "WM_OFFSETS_RAPID"
                  "WM_NOZZLE_GROWTH", "WM_Z_TRIM", "WM_Z_TRIM_MENU", "WM_PROBE_CALIBRATE"]
 # Every calibration macro of the Pi installer (1.10.0): one category, "RPI Calibration".
 RPI_CAL_MACROS = OFFSET_MACROS + ["WM_FIRST_RUN_CAL", "WM_CAL_HELP", "WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_BED_PID",
-                                  "WM_NOZZLE_TEMP_CAL", "WM_VIBRATION_COMP", "WM_LIVE_Z_MENU", "WM_LIVE_Z_ZERO", "WM_BED_SOAK_MENU",
+                                  "WM_NOZZLE_FULL_PID", "WM_VIBRATION_COMP", "WM_LIVE_Z_MENU", "WM_LIVE_Z_ZERO", "WM_BED_SOAK_MENU",
                                   "WM_BED_WARP_MEASURE", "WM_BED_WARP_STOP", "WM_AUTO_SPEED", "WM_AUTO_SPEED_VALIDATE",
                                   "WM_EXTRUDER_SETUP"]
 UNLOAD_MACROS = ["WM_UNLOAD_MENU", "WM_UNLOAD_STOP"]
@@ -74,8 +74,10 @@ CATEGORY_ORDER = ["Raspberry Pi", "RPI Calibration", "Offset Calibration", "AceP
 # Helper macros nobody presses by hand: hidden the first time they are seen.
 HIDDEN = ["M104", "M106", "M107", "M109", "M141", "M190", "M191", "M221", "z_rise",
           "SET_GCODE_OFFSET", "Z_OFFSET_APPLY_ENDSTOP", "Z_OFFSET_APPLY_PROBE", "WM_BED_SOAK"]
-# Readable names shown by Fluidd instead of the macro name (the macro name itself does not change).
-ALIASES = {
+# 1.16.2: no aliases are written any more, Fluidd shows the real macro names. These are the aliases that 1.10.0 to 1.16.1 wrote:
+# they are cleared once, and only while the entry still holds exactly this alias (one you typed yourself stays).
+ALIASES = {}
+OLD_ALIASES = {
     "WM_FIRST_RUN_CAL": "First Run Calibration", "WM_CAL_HELP": "Calibration Help", "WM_BED_LEVELING": "Bed Leveling",
     "WM_SCREWS_CAL": "Bed Screws", "WM_BED_PID": "Bed PID", "WM_NOZZLE_TEMP_CAL": "Nozzle PID", "WM_VIBRATION_COMP": "Input Shaper",
     "WM_FULL_OFFSET_CAL": "Full Offset Calibration", "WM_OFFSETS_RAPID": "Offsets Rapid", "WM_SETTER_PROBE_POSITION": "Tool Setter Position", "WM_OFFSETS_ACCURATE": "Offsets Accurate",
@@ -223,6 +225,16 @@ def plan(macros, fluidd_value, handled, now_ms=None):
                 entry["color"] = r[1]
                 entry["alias"] = ALIASES.get(name, "")
             report["moved"] += 1
+    # 1.16.2: the readable names written by 1.10.0 to 1.16.1 are cleared once (Fluidd then shows the real macro name)
+    for name, old_alias in OLD_ALIASES.items():
+        mark = "noalias:" + name
+        entry = by_name.get(name.lower())
+        if mark.lower() in done or mark in new_handled or entry is None or name not in macros:
+            continue
+        new_handled.append(mark)
+        if entry.get("alias") == old_alias:
+            entry["alias"] = ""
+            report["unaliased"] = report.get("unaliased", 0) + 1
     # one colour per category: a macro in one of our categories gets that category's colour, unless you gave it your own
     ours = {c.lower(): col for c, col, _, _ in CATEGORIES}
     installer_colours = {col.lower() for col in ours.values()} | {c.lower() for c in OLD_COLOURS} | {""}
@@ -248,7 +260,7 @@ def plan(macros, fluidd_value, handled, now_ms=None):
         value["expanded"] = [e - 1 if e > pos else e for e in expanded if e != pos]
         expanded = value["expanded"]
         report.setdefault("removed", []).append(cname)
-    report["changed"] = bool(created or report["categorized"] or report["hidden"] or report["moved"] or report.get("renamed") or report.get("recoloured")
+    report["changed"] = bool(created or report["categorized"] or report["hidden"] or report["moved"] or report.get("renamed") or report.get("recoloured") or report.get("unaliased")
                              or report.get("removed") or len(new_handled) != len(handled))
     return value, new_handled, report
 

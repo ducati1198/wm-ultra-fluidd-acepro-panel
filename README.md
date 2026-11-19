@@ -590,7 +590,7 @@ Written for the day the printer is running again. Do them in this order, empty b
 
 | Command | What it does |
 |---|---|
-| `ACE_WM_LOAD T=0..3` | Feed slot to hub and toolhead sensor. At the sensor the ACE stops, feed assist turns on, the extruder gear grabs the filament with a short push, WonderMaker's insert routine finishes the load, then feed assist turns off. |
+| `ACE_WM_LOAD T=0..3` | Picks up the tool, goes to the wipe position (when the WonderMaker macros are installed), then feeds the slot to the hub and toolhead sensor. At the sensor the ACE stops, feed assist turns on, the extruder gear grabs the filament with a short push, WonderMaker's insert routine finishes the load, then feed assist turns off. |
 | `ACE_WM_UNLOAD T=0..3` | Picks up the tool, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back until its slot is empty. |
 | `ACE_WM_RETRACT T=0..3` | Only the ACE part of an unload (after WonderMaker's `UNLOAD_FILAMENT`). |
 | `ACE_WM_STOP` | Stop any feed or retract started by these macros. |
@@ -679,7 +679,7 @@ At the end of an install or update (after the Klipper restart question) the inst
 
 | Category | Colour | What goes in |
 |---|---|---|
-| RPI Calibration | pink | every calibration macro of the Pi installer, with readable names: Extruder Setup, First Run Calibration, Bed Leveling, Bed Screws, Bed PID, Nozzle PID, Input Shaper, Full Offset Calibration, Offsets Rapid, Tool Setter Position / Accurate, Z Offsets Hot, Probe Calibrate, Nozzle Growth, Z Trim, Z Trim Menu, Live Z Menu, Live Z Zero, Bed Warp Wait, Measure Bed Warp, Speed Test, Speed Check ... |
+| RPI Calibration | pink | every calibration macro of the Pi installer (real macro names): Extruder Setup, First Run Calibration, Bed Leveling, Bed Screws, Bed PID, Nozzle PID, Input Shaper, Full Offset Calibration, Offsets Rapid, Tool Setter Position / Accurate, Z Offsets Hot, Probe Calibrate, Nozzle Growth, Z Trim, Z Trim Menu, Live Z Menu, Live Z Zero, Bed Warp Wait, Measure Bed Warp, Speed Test, Speed Check ... |
 | AcePro | red | `ACE_*`, `WM_ENDLESS_*`, `WM_STATS_*`, `WM_SET_TOOL_MAP` |
 | WM Factory Calibration | yellow | WonderMaker's own calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
 | WM Ultra Tool Change | green | `T0`..`T3`, `LOCK`, `UNLOCK`, `PARK_CURRENT_TOOL` ... |
@@ -696,7 +696,7 @@ Hidden (nobody presses them by hand; buttons and switches call them): `M104`, `M
 The categories are listed in this order: RPI Calibration, AcePro, WM Factory Calibration, WM Ultra Tool Change, WM Ultra Filament, ZR Tools, WM Ultra Print, WM Ultra Tests, Timelapse.
 
 - A category is created only when a macro for it exists (no AcePro category on a printer without the ACE parts, no WM Ultra Tests category when no `TEST_*` macro is left), and an existing category with the same name is reused.
-- **Updating from 1.9.x or older:** "WM Ultra Calibration" is renamed "WM Factory Calibration" (same macros). The Pi's calibration macros move from Raspberry Pi and Offset Calibration into RPI Calibration with their readable names, the unload window into WM Ultra Filament, Nozzle Change and Chamber Light into ZR Tools, `WM_BED_SOAK` is hidden, and the empty Offset Calibration and Raspberry Pi categories are removed. Each happens once, and only for an entry you left as the installer put it (same category, same colour, no name of your own). One you moved, recoloured or renamed stays where it is, Offset Calibration or Raspberry Pi stays while you keep a macro in it, and one you move back afterwards is not moved again.
+- **Updating from 1.9.x or older:** "WM Ultra Calibration" is renamed "WM Factory Calibration" (same macros). The Pi's calibration macros move from Raspberry Pi and Offset Calibration into RPI Calibration (shown with the real macro names since 1.16.2), the unload window into WM Ultra Filament, Nozzle Change and Chamber Light into ZR Tools, `WM_BED_SOAK` is hidden, and the empty Offset Calibration and Raspberry Pi categories are removed. Each happens once, and only for an entry you left as the installer put it (same category, same colour, no name of your own). One you moved, recoloured or renamed stays where it is, Offset Calibration or Raspberry Pi stays while you keep a macro in it, and one you move back afterwards is not moved again.
 - **Your own choices are never changed.** A macro is sorted only while its Fluidd entry is still the default one. A macro you moved, recoloured, renamed or hid is left alone, and every macro is dealt with once: one you unhide or move back later is not touched again. Macros added by a later update are sorted the first time they are seen.
 - It needs Moonraker, and Klipper ready, because Klipper is what knows the macros (run on its own, `--fluidd-categories` waits up to 60 s for Klipper). Fluidd does not have to be opened first: when it never was, the macro settings are created here. If Klipper is not running the installer says so and tells you to run `--fluidd-categories` later. It never fails the install.
 - The settings Fluidd had before are saved in `~/ultra-backup/fluidd-macros/<date>/fluidd-macros-before-<time>.json`. Uninstalling does not remove the categories (they are your Fluidd settings). Hard-refresh the browser to see the change.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.16.2
+
+- **`config/rpi_ace.cfg`: the nozzle heats at the wipe position (F-150).** `_WM_ACE_GRAB` heats a head that is on the carriage through `_WM_GO_WIPE_HEAT`, and `ACE_WM_LOAD` moves the head to the wipe position (`_WM_GO_WIPE`) before the filament starts to feed. Both keep the old behaviour when the helper macros are missing.
+- **Fluidd shows the real macro names.** The sorter no longer writes readable names (aliases), so a button is called what the macro is called (`WM_FIRST_RUN_CAL`, not "First Run Calibration"). The 29 aliases written by 1.10.0 to 1.16.1 are cleared once, and only while the entry still holds exactly that name; a name you typed yourself stays. Reload Fluidd to see it. Tests: 5 new checks.
+- **`config/rpi_endless.cfg`: the 6 variables that had no comment now have one** (F-146, comments only).
+- **The Fluidd sorter knows the new name `WM_NOZZLE_FULL_PID`** (was `WM_NOZZLE_TEMP_CAL`, F-147): it goes into RPI Calibration.
+
 ## 1.16.1
 
 - **`--fluidd-categories` waits up to 60 s for Klipper to be ready** (it used to wait 0 s, so a run right after a start said "not done"). The sorter already creates Fluidd's macro settings when Fluidd was never opened.
