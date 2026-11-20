@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.17.0
+
+- **Fluidd build (32 patches): purge window, Resume tool and Load menu buttons.** The Fluidd zip and patch are regenerated. They call the secondary macros by their hidden names, so the endless spool, stats reset, load/unload stop and Z trim buttons keep working after the rename below.
+- **Macro renames (F-167).** The secondary macros now start with an underscore and no longer clutter the macro list: `_WM_ENDLESS_SET`, `_WM_ENDLESS_FIXED`, `_WM_ENDLESS_PLAN`, `_WM_ENDLESS_CONTINUE`, `_WM_STATS_RESET`, `_WM_LOAD_STOP`, `_WM_UNLOAD_STOP`, `_ACE_WM_RETRACT`, `_ACE_WM_ASSIST`. README and Fluidd sorter (`FILAMENT_MENUS`) follow.
+- **Tool numbers are shown as T1 to T4 (Toolhead 1 to 4)** in every message of `rpi_ace.cfg` and `rpi_endless.cfg`; the macro parameters still use 0 to 3.
+- **`config/rpi_ace.cfg`:** `_ACE_WM_RETRACT` starts the watcher before the retract (F-183), `_ACE_WM_ASSIST` for the Feed assist button, the purge location is set before feeding (F-164), a load sets `_WM_LOAD loaded` (F-166).
+- **Tests:** 32 checks (was 31).
+
 ## 1.16.3
 
 - **`config/rpi_ace.cfg`: shorter limits (F-154).** `max_total_mm` 4000 to 3000 and `hub_to_head_mm` 2000 to 1200 (the real distance after the preload is about 1000 mm, so a failed head sensor now stops the slow feed after 60 s instead of pushing 2000 mm). `tube_full_mm` says it is measured from the ACE back filament port.

@@ -1,7 +1,7 @@
-From 6d439780cc9af098d7ce636c32a36e0d936af37f Mon Sep 17 00:00:00 2001
+From 1c008657ab6be87c66cbc64350a7b74683f98b9d Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/31] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/32] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1852,10 +1852,10 @@ index a01c43f..2ede1df 100644
 2.43.0
 
 
-From 4fe1b3b8ba27ff6aa4c3308d022ee80a79d3813f Mon Sep 17 00:00:00 2001
+From 5d37331f9929ed8a9d4151086a6ec4d817542cfb Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/31] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/32] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1927,10 +1927,10 @@ index cc15c3d..4693634 100644
 2.43.0
 
 
-From d91f76c19ed6f8f2f205343f1dc3735617d463c8 Mon Sep 17 00:00:00 2001
+From a2305379bd2f9fae272e4769eaaac842890ad7d3 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/31] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/32] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2054,10 +2054,10 @@ index 4693634..2b78324 100644
 2.43.0
 
 
-From d74560a460ef142b831d25c19ed131eb74a9cc2b Mon Sep 17 00:00:00 2001
+From 1c4b7baee28b7412f78d1e97b32a79c3d87d4a93 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/31] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/32] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2126,10 +2126,10 @@ index 2b78324..e1f06c0 100644
 2.43.0
 
 
-From 561bb251fdd2d3396919938c8cf8459811c2044b Mon Sep 17 00:00:00 2001
+From 0d88685b0df01780be78aedb07b341dbb0c159dc Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/31] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/32] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2180,10 +2180,10 @@ index e1f06c0..99c90df 100644
 2.43.0
 
 
-From 55ab14523a9675517b902190b70ae6860b879579 Mon Sep 17 00:00:00 2001
+From 07d696c73f51df0ce4e770b32bdb6443c0e8fe19 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/31] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/32] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -3081,10 +3081,10 @@ index 99c90df..d18abc1 100644
 2.43.0
 
 
-From 360def375006dcac33667a0e201ddd2dbfbeb304 Mon Sep 17 00:00:00 2001
+From 9bc0af1bde3136b7e332ca45f185fb2280bd87dc Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/31] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/32] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3339,10 +3339,10 @@ index d18abc1..43ff04b 100644
 2.43.0
 
 
-From 211e835c4563c703dd446b246cb3740d7f455fda Mon Sep 17 00:00:00 2001
+From e127f3da5508ac72b21fad7d768a73ce6d1f70ac Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/31] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/32] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3677,10 +3677,10 @@ index 7e3fcf6..fe9bf2d 100644
 2.43.0
 
 
-From a4286617cc154eb6495829ac416c10e8405f2881 Mon Sep 17 00:00:00 2001
+From 92f552228db6582ec3478c124cb22a5e75acc1af Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/31] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/32] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4051,10 +4051,10 @@ index 43ff04b..8692f6f 100644
 2.43.0
 
 
-From 28404588848c0ffb5bafb048e5bbf65a86846d31 Mon Sep 17 00:00:00 2001
+From d1a4331bfb04281285bc639b0b66d34cd58553d8 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/31] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/32] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/rpi_chamber_light.json)
 
 ---
@@ -4162,10 +4162,10 @@ index 5bebf42..9c9c17b 100644
 2.43.0
 
 
-From 257290631e9c0ef1986cc45305cc5bd743103e9f Mon Sep 17 00:00:00 2001
+From 85bf229af388d09c6a2e02a8b0ab3cfd0ba62211 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/31] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/32] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4203,10 +4203,10 @@ index fe9bf2d..2486f37 100644
 2.43.0
 
 
-From 28b12651e7a415714a263d5fb1b1f69b631ac939 Mon Sep 17 00:00:00 2001
+From d2f318cdffbcbdad679adfe19e7fa17477a1503e Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:09:32 -0500
-Subject: [PATCH 12/31] feat(zr): Choose toolheads window gets List/Map, saved
+Subject: [PATCH 12/32] feat(zr): Choose toolheads window gets List/Map, saved
  mappings, auto-match, dry first and print as sliced
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4948,10 +4948,10 @@ index 0000000..6022c94
 2.43.0
 
 
-From c979d390fbeb5eae607e1b6a6f6bbcb3d9958b9d Mon Sep 17 00:00:00 2001
+From 7cff461b5cb861995e01f8a9b3016ca3e3677d50 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:22:23 -0500
-Subject: [PATCH 13/31] fix(zr): Choose toolheads window opens on every Print
+Subject: [PATCH 13/32] fix(zr): Choose toolheads window opens on every Print
  even when file metadata is not loaded yet
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5029,10 +5029,10 @@ index 2486f37..e21d215 100644
 2.43.0
 
 
-From 6c372148265dc331c6c664c4fa94e309b1bd8044 Mon Sep 17 00:00:00 2001
+From 6a03d07e9532e3b4c266f70eece1cf6513c5a9f3 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:42:06 -0500
-Subject: [PATCH 14/31] fix(zr): read OrcaSlicer metadata (empty
+Subject: [PATCH 14/32] fix(zr): read OrcaSlicer metadata (empty
  referenced_tools, JSON-text material list) in the Choose toolheads window
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5150,10 +5150,10 @@ index 24c2865..ebe2fce 100644
 2.43.0
 
 
-From 8c489b4b62ed3953a41e4fc778337ca53fb659f6 Mon Sep 17 00:00:00 2001
+From 3c55f1a3d0916326d88079452956af3b1cab513c Mon Sep 17 00:00:00 2001
 From: ducati1198 <noreply@github.com>
 Date: Thu, 12 Nov 2026 21:16:24 -0500
-Subject: [PATCH 15/31] feat(zr): Feed assist button in the tool window uses
+Subject: [PATCH 15/32] feat(zr): Feed assist button in the tool window uses
  ACE_WM_ASSIST (works during a pause)
 
 Signed-off-by: ducati1198 <noreply@github.com>
@@ -5193,10 +5193,10 @@ index 00b948f..7111b68 100644
 2.43.0
 
 
-From a5f61c022fd9944b6bd5adac3e99759d9ee64283 Mon Sep 17 00:00:00 2001
+From 39342b23aa8c70555de7175f160ac4f0afcd687d Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Fri, 13 Nov 2026 17:20:58 -0500
-Subject: [PATCH 16/31] Toolheads card: banner with Turn on when the ACE_Pro
+Subject: [PATCH 16/32] Toolheads card: banner with Turn on when the ACE_Pro
  switch is off
 
 ---
@@ -5260,10 +5260,10 @@ index 8692f6f..8ac9d96 100644
 2.43.0
 
 
-From f63cff64f57896001c73a22a0f7824f92f5b0678 Mon Sep 17 00:00:00 2001
+From 4a16be4127dda95b7187db1a3873622bb1a6ce0c Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Fri, 13 Nov 2026 23:03:02 -0500
-Subject: [PATCH 17/31] feat(zr): Auto load switch, Park and Select need only X
+Subject: [PATCH 17/32] feat(zr): Auto load switch, Park and Select need only X
  and Y, no Load/Unload with an ACE
 
 Park runs SET_GCODE_OFFSET X=0 Y=0 Z=0 and PARK_CURRENT_TOOL; Select needs only X and Y;
@@ -5494,10 +5494,10 @@ index 8ac9d96..f080b4d 100644
 2.43.0
 
 
-From 00ea276cd6a46a359afb2693d787791c759def71 Mon Sep 17 00:00:00 2001
+From 63d7d1ba07233c66095121fbffa7168853ad4ea8 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sat, 14 Nov 2026 01:38:56 -0500
-Subject: [PATCH 18/31] feat(zr): more filament materials (PLA+, PLA-CF,
+Subject: [PATCH 18/32] feat(zr): more filament materials (PLA+, PLA-CF,
  PETG-CF, PA, PA-CF, PC, ABS-CF, PA-GF, PC-ABS, PP, BVOH)
 
 Added at the end of the material list so no existing index moves.
@@ -5564,10 +5564,10 @@ index ebe2fce..3b38608 100644
 2.43.0
 
 
-From 892453d66db29cf44badac92136872f50926659c Mon Sep 17 00:00:00 2001
+From b29c23dabce6f4034a995b62ba50f03d54ffcc50 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sat, 14 Nov 2026 01:51:07 -0500
-Subject: [PATCH 19/31] feat(zr): remove the Z offset button from the tool
+Subject: [PATCH 19/32] feat(zr): remove the Z offset button from the tool
  window
 
 The Z offset calibration is started from the touchscreen.
@@ -5603,10 +5603,10 @@ index 459afbd..7648d61 100644
 2.43.0
 
 
-From 8fb88eaffd30ddf759629d7b4a24c3d1003ec90c Mon Sep 17 00:00:00 2001
+From c93fc63bd5bb90ba2cc290c0ce97cad15520722a Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:25:45 -0500
-Subject: [PATCH 20/31] feat(zr): bigger ACE sensors and dryer presets
+Subject: [PATCH 20/32] feat(zr): bigger ACE sensors and dryer presets
 
 Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_0188cJYRY7ZSqCguqTL3TYPE
@@ -5705,10 +5705,10 @@ index 06e56a0..6391cae 100644
 2.43.0
 
 
-From 338ac4ee3155be4e301cc050cf9fb7cd9dd8548c Mon Sep 17 00:00:00 2001
+From 05450992660ba5f11f4c1770fecb6786a55bd7cd Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:32:55 -0500
-Subject: [PATCH 21/31] feat(zr): edit chamber target and Off button
+Subject: [PATCH 21/32] feat(zr): edit chamber target and Off button
 
 Signed-off-by: Claude <noreply@anthropic.com>
 ---
@@ -5835,10 +5835,10 @@ index 6391cae..4973773 100644
 2.43.0
 
 
-From 3f4a080612a150cb293b85cdf36b3569f79493ca Mon Sep 17 00:00:00 2001
+From 9e51e4486896d4569d1c0cf43a1dd54a9d39800f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:38:40 -0500
-Subject: [PATCH 22/31] feat(zr): same height for chamber and dry buttons
+Subject: [PATCH 22/32] feat(zr): same height for chamber and dry buttons
 
 Signed-off-by: Claude <noreply@anthropic.com>
 ---
@@ -5901,10 +5901,10 @@ index 4973773..be92ee7 100644
 2.43.0
 
 
-From f4bcf3a5114d56801d28dbdff949abac6cf0abcc Mon Sep 17 00:00:00 2001
+From 0c1a1b4d4f28fb8d696c56551e253bb6c47ee8a4 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sun, 15 Nov 2026 03:08:32 -0500
-Subject: [PATCH 23/31] feat(zr): chamber light button uses the Moonraker power
+Subject: [PATCH 23/32] feat(zr): chamber light button uses the Moonraker power
  device chamber_light
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5995,10 +5995,10 @@ index be92ee7..e5fabfa 100644
 2.43.0
 
 
-From f02cd1095471fcbd459f014582fe2685e3d4b684 Mon Sep 17 00:00:00 2001
+From ea1297ea9ca89e8daaadb5cde3f58380fc0bf0e6 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sun, 15 Nov 2026 20:18:07 -0500
-Subject: [PATCH 24/31] feat(zr): friendly sensor labels with the real name
+Subject: [PATCH 24/32] feat(zr): friendly sensor labels with the real name
  under each
 
 Signed-off-by: zr <x@x>
@@ -6081,10 +6081,10 @@ index 33ee7bd..a70e3e9 100644
 2.43.0
 
 
-From 5348f79cf420618f5dadba66daebb5fc93f65521 Mon Sep 17 00:00:00 2001
+From ac09a3c3685f360f268ccbdc445086789411e103 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sun, 15 Nov 2026 20:18:11 -0500
-Subject: [PATCH 25/31] feat(zr): switches ACE Pro, Bed warp wait and Nozzle
+Subject: [PATCH 25/32] feat(zr): switches ACE Pro, Bed warp wait and Nozzle
  heat growth in the Toolheads card
 
 Signed-off-by: zr <x@x>
@@ -6226,10 +6226,10 @@ index f080b4d..29dde6d 100644
 2.43.0
 
 
-From 470cdd698e6b1d867c2bbf78bc1badd6a9e3a450 Mon Sep 17 00:00:00 2001
+From 1dd55d797739b272ff2a12ba53aeecbbda755ac6 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 01:11:45 -0500
-Subject: [PATCH 26/31] feat(zr): unload menu, sensor lights, board line
+Subject: [PATCH 26/32] feat(zr): unload menu, sensor lights, board line
 
 Toolheads card: Unload Menu button (WM_UNLOAD_MENU); Hub, Head and Dock lights for every toolhead (not only with an ACE); Tool lock and Lock motor home lights of the carriage; print time per toolhead next to the tool-change counts (wm_stat_time0-3 from rpi_stats.cfg); touchscreen board line (version, update available, CPU, free memory) read from config/wm_screen_status.json, which the board uploads every minute.
 
@@ -6531,10 +6531,10 @@ index 29dde6d..9558492 100644
 2.43.0
 
 
-From 24d782495e1c8ffde52620828c4abafd4c36e61a Mon Sep 17 00:00:00 2001
+From f2373ad017fb8f7330cda2a60c10841cf137bbea Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 07:19:03 -0500
-Subject: [PATCH 27/31] feat(zr): endless spool section (sets of identical
+Subject: [PATCH 27/32] feat(zr): endless spool section (sets of identical
  toolheads), swap automatically switch, chain removed
 
 Signed-off-by: zr <x@x>
@@ -7183,10 +7183,10 @@ index 9558492..0a36d2f 100644
 2.43.0
 
 
-From d9a68fde7c96599466139c5469cd59b48b3eafd0 Mon Sep 17 00:00:00 2001
+From a8ac3664205d93cdc7bfa54475b74ce1b603eaae Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 13:41:06 -0500
-Subject: [PATCH 28/31] feat(zr): endless spool: swap on a tangle switch, Fixed
+Subject: [PATCH 28/32] feat(zr): endless spool: swap on a tangle switch, Fixed
  button, ACE spools, Tangle light
 
 Signed-off-by: zr <x@x>
@@ -7508,10 +7508,10 @@ index 0a36d2f..8fb5763 100644
 2.43.0
 
 
-From 9ac87e82229ecd7c34219572db69efc4f1e82264 Mon Sep 17 00:00:00 2001
+From 50c8008e32f09be8dadddebd7c48470de6024440 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 15:51:41 -0500
-Subject: [PATCH 29/31] feat(zr): pictures in a prompt window
+Subject: [PATCH 29/32] feat(zr): pictures in a prompt window
  (action:prompt_image), tool setter position pictures
 
 Signed-off-by: zr <x@x>
@@ -7739,10 +7739,10 @@ index c7747e0..6e81a4e 100644
 2.43.0
 
 
-From 9a152c21d24d6d63df9d430ad88720332922a6ea Mon Sep 17 00:00:00 2001
+From 5ac1c5ff586d873d40e85e73dff750d16445b9ce Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 17 Nov 2026 01:45:24 -0500
-Subject: [PATCH 30/31] fix(zr): endless spool section in one column on a
+Subject: [PATCH 30/32] fix(zr): endless spool section in one column on a
  narrow card (phone)
 
 The title and switches lay over the circle and the chips were pushed off
@@ -7886,10 +7886,10 @@ index 4633a29..f3cb86e 100644
 2.43.0
 
 
-From 2600b4fe30f88d1ebf8a5323ac3bd11141ced7f9 Mon Sep 17 00:00:00 2001
+From 2ff37cb27f186b38306aaaa92b5f5cdaa822582a Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 17 Nov 2026 01:52:28 -0500
-Subject: [PATCH 31/31] fix(zr): toolhead tiles and chamber row on a phone
+Subject: [PATCH 31/32] fix(zr): toolhead tiles and chamber row on a phone
 
 Narrow tile (up to 120 px): Tangle / Head / Dock lights one under the other
 instead of overlapping the next tile, status READY without TOOLHEAD.
@@ -8153,6 +8153,539 @@ index f3cb86e..b991b14 100644
  .zr-compact-select {
    max-width: 96px;
    font-size: 0.8rem;
+-- 
+2.43.0
+
+
+From 5e1cc7565de7d58dc9bf12d36c54cfdaa6c02860 Mon Sep 17 00:00:00 2001
+From: zr <x@x>
+Date: Fri, 20 Nov 2026 04:18:36 -0500
+Subject: [PATCH 32/32] feat(zr): purge window, Resume tool and Load menu
+ buttons, secondary macros called by their hidden names
+
+Signed-off-by: zr <x@x>
+---
+ .../common/ActionCommandPromptDialog.vue      |  14 +-
+ src/components/widgets/zr/ZrPurgeDialog.vue   | 204 ++++++++++++++++++
+ src/components/widgets/zr/ZrToolDialog.vue    |   6 +-
+ src/components/widgets/zr/ZrToolheadsCard.vue |  98 +++++++--
+ src/components/widgets/zr/zrMixin.ts          |  15 +-
+ 5 files changed, 316 insertions(+), 21 deletions(-)
+ create mode 100644 src/components/widgets/zr/ZrPurgeDialog.vue
+
+diff --git a/src/components/common/ActionCommandPromptDialog.vue b/src/components/common/ActionCommandPromptDialog.vue
+index e8ddd4d..b0a6adc 100644
+--- a/src/components/common/ActionCommandPromptDialog.vue
++++ b/src/components/common/ActionCommandPromptDialog.vue
+@@ -2,7 +2,7 @@
+   <app-dialog
+     v-model="open"
+     :title="dialog.title"
+-    :max-width="hasImage ? 980 : 450"
++    :max-width="hasImage ? 980 : 640"
+     :no-actions="dialog.footerButtons.length === 0"
+   >
+     <v-card-text>
+@@ -118,6 +118,18 @@ export default class ActionCommandPromptDialog extends Mixins(StateMixin) {
+ 
+     .v-btn {
+       flex: 1 1 0;
++      min-width: 0;
++      height: auto !important;
++      min-height: 36px;
++      padding-top: 6px;
++      padding-bottom: 6px;
++    }
++
++    // a long button text wraps to a second line instead of being cut off
++    :deep(.v-btn__content) {
++      white-space: normal;
++      text-align: center;
++      line-height: 1.25;
+     }
+   }
+ 
+diff --git a/src/components/widgets/zr/ZrPurgeDialog.vue b/src/components/widgets/zr/ZrPurgeDialog.vue
+new file mode 100644
+index 0000000..6949ef7
+--- /dev/null
++++ b/src/components/widgets/zr/ZrPurgeDialog.vue
+@@ -0,0 +1,204 @@
++<template>
++  <app-dialog
++    v-model="open"
++    title="Purge filament"
++    max-width="520"
++    :save-button-disabled="blocked"
++    save-button-text="Start purge"
++    cancel-button-text="Cancel (wipe, cool, park)"
++    @save="start"
++    @cancel="finish"
++  >
++    <v-card-text class="pt-4">
++      <div
++        v-if="blocked"
++        class="text-caption warning--text mb-3"
++      >
++        {{ blockedText }}
++      </div>
++
++      <div class="zr-purge-row">
++        <span class="zr-purge-label">Toolhead</span>
++        <div class="zr-purge-chips">
++          <app-btn
++            v-for="i in heads"
++            :key="`t${i}`"
++            small
++            :color="tool === i ? 'primary' : undefined"
++            @click="tool = i"
++          >
++            {{ i + 1 }} (T{{ i }})
++          </app-btn>
++        </div>
++      </div>
++
++      <div class="zr-purge-row">
++        <span class="zr-purge-label">Temperature</span>
++        <div class="zr-purge-chips">
++          <app-btn
++            small
++            :color="temp === 0 ? 'primary' : undefined"
++            @click="temp = 0"
++          >
++            Filament
++          </app-btn>
++          <app-btn
++            v-for="t in temps"
++            :key="`c${t}`"
++            small
++            :color="temp === t ? 'primary' : undefined"
++            @click="temp = t"
++          >
++            {{ t }}°C
++          </app-btn>
++        </div>
++      </div>
++
++      <div class="zr-purge-row">
++        <span class="zr-purge-label">Speed</span>
++        <div class="zr-purge-chips">
++          <app-btn
++            v-for="s in speeds"
++            :key="`s${s}`"
++            small
++            :color="speed === s ? 'primary' : undefined"
++            @click="speed = s"
++          >
++            {{ s }} mm/s
++          </app-btn>
++        </div>
++      </div>
++
++      <div class="zr-purge-row">
++        <span class="zr-purge-label">Amount</span>
++        <div class="zr-purge-chips">
++          <app-btn
++            v-for="l in lengths"
++            :key="`l${l}`"
++            small
++            :color="length === l ? 'primary' : undefined"
++            @click="length = l"
++          >
++            {{ l }} mm
++          </app-btn>
++        </div>
++      </div>
++
++      <div class="text-caption secondary--text mt-2">
++        Filament = the temperature saved for toolhead {{ tool + 1 }} ({{ ownTemp }}°C).
++        {{ zrHasAce ? 'The ACE feed assist is switched for you. ' : '' }}The toolhead heats at the purge location (X -13, Y 60) and pushes the filament.
++        You can purge again. Cancel wipes the nozzle, cools it with the part fan at 100% and parks the toolhead.
++      </div>
++      <div
++        v-if="purged"
++        class="text-caption success--text mt-1"
++      >
++        Toolhead {{ purgedTool + 1 }} is hot at the purge location.
++      </div>
++    </v-card-text>
++  </app-dialog>
++</template>
++
++<script lang="ts">
++import { Component, Mixins, VModel, Watch } from 'vue-property-decorator'
++import { EventBus } from '@/eventBus'
++import ZrMixin from './zrMixin'
++
++@Component({})
++export default class ZrPurgeDialog extends Mixins(ZrMixin) {
++  @VModel({ type: Boolean })
++  open?: boolean
++
++  readonly heads = [0, 1, 2, 3]
++  readonly temps = [200, 220, 240, 260]
++  readonly speeds = [2, 5, 10, 20]
++  readonly lengths = [10, 20, 50, 100]
++
++  tool = 0
++  temp = 0 // 0 = the temperature saved for the filament
++  speed = 5
++  length = 20
++  purged = false
++  seenOpen = false
++  purgedTool = 0
++
++  created () {
++    // the touchscreen page may be open already (open = 1): no change arrives for our own 1, so count it as seen now
++    this.seenOpen = this.sharedOpen === 1
++    // tell the printer this window is open: closing it here or on the touchscreen closes the other one too
++    this.zrSend('SET_GCODE_VARIABLE MACRO=_WM_PURGE_SEL VARIABLE=open VALUE=1')
++  }
++
++  get sharedOpen () {
++    const v = this.zrPrinter['gcode_macro _WM_PURGE_SEL']?.open
++    return v == null ? null : Number(v)
++  }
++
++  @Watch('sharedOpen')
++  onSharedOpen (v: number | null) {
++    if (v === 1) this.seenOpen = true
++    // closed (and wiped, cooled, parked) from the touchscreen or the prompt window: close this one too
++    if (v === 0 && this.seenOpen) {
++      this.purged = false
++      this.open = false
++    }
++  }
++
++  get ownTemp () {
++    return this.zrSavedTemp(this.tool) || 210
++  }
++
++  get blocked () {
++    return !this.klippyReady || this.zrBusy
++  }
++
++  get blockedText () {
++    return this.zrBusy ? 'Purging is not possible while a print runs or is paused.' : 'The printer is not ready.'
++  }
++
++  start () {
++    // FINISH=2: the toolhead stays hot at the purge location, so more can be purged; Cancel finishes it (_WM_PURGE_DONE)
++    this.zrSend(`_WM_PURGE T=${this.tool} S=${this.temp} SPEED=${this.speed} LEN=${this.length} FINISH=2`)
++    EventBus.$emit(`Purging toolhead ${this.tool + 1}: ${this.length} mm at ${this.speed} mm/s`, { timeout: 4000 })
++    this.purged = true
++    this.purgedTool = this.tool
++  }
++
++  finish () {
++    // always: _WM_PURGE_DONE closes the purge window on the touchscreen too, and wipes, cools and parks when a tool is hot
++    this.zrSend('_WM_PURGE_DONE')
++    if (this.purged) {
++      EventBus.$emit('Wiping, cooling and parking the toolhead', { timeout: 4000 })
++    }
++    this.purged = false
++    this.open = false
++  }
++}
++</script>
++
++<style lang="scss" scoped>
++.zr-purge-row {
++  display: flex;
++  align-items: center;
++  gap: 12px;
++  margin-bottom: 12px;
++}
++
++.zr-purge-label {
++  flex: 0 0 112px;
++  font-size: 0.875rem;
++  opacity: 0.8;
++}
++
++.zr-purge-chips {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 6px;
++  flex: 1 1 auto;
++}
++
++.zr-purge-chips > * {
++  flex: 1 1 0;
++  min-width: 56px;
++}
++</style>
+diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
+index e5ab9e0..80433eb 100644
+--- a/src/components/widgets/zr/ZrToolDialog.vue
++++ b/src/components/widgets/zr/ZrToolDialog.vue
+@@ -101,7 +101,7 @@
+             :color="feedAssistOn ? 'orange' : undefined"
+             :disabled="aceBlocked"
+             title="Stays as you set it until the next print starts or ends, also while the print is paused"
+-            @click="run(`ACE_WM_ASSIST T=${index} STATE=${feedAssistOn ? 'off' : 'on'}`, feedAssistOn ? 'Feed assist off' : 'Feed assist on')"
++            @click="run(`_ACE_WM_ASSIST T=${index} STATE=${feedAssistOn ? 'off' : 'on'}`, feedAssistOn ? 'Feed assist off' : 'Feed assist on')"
+           >
+             {{ feedAssistOn ? 'Feed assist off' : 'Feed assist on' }}
+           </app-btn>
+@@ -326,8 +326,8 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+ 
+     // with an ACE the ACE feeder section has its own Load / Unload (ACE_WM_LOAD / ACE_WM_UNLOAD): these two are only for printers without one
+     if (!this.zrHasAce) {
+-      const loadMacro = this.zrHasMacro('ZR_LOAD') ? 'ZR_LOAD' : 'LOAD_FILAMENT'
+-      const unloadMacro = this.zrHasMacro('ZR_UNLOAD') ? 'ZR_UNLOAD' : 'UNLOAD_FILAMENT'
++      const loadMacro = this.zrHasMacro('_ZR_LOAD') ? '_ZR_LOAD' : 'LOAD_FILAMENT'
++      const unloadMacro = this.zrHasMacro('_ZR_UNLOAD') ? '_ZR_UNLOAD' : 'UNLOAD_FILAMENT'
+       list.push({
+         label: 'Load',
+         color: 'success',
+diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
+index b991b14..a005650 100644
+--- a/src/components/widgets/zr/ZrToolheadsCard.vue
++++ b/src/components/widgets/zr/ZrToolheadsCard.vue
+@@ -262,7 +262,7 @@
+                 color="primary"
+                 :disabled="!klippyReady"
+                 title="Press when the spool of this toolhead is free or replaced: it may take over again"
+-                @click="zrSend(`WM_ENDLESS_FIXED T=${head.index}`)"
++                @click="zrSend(`_WM_ENDLESS_FIXED T=${head.index}`)"
+               >
+                 Fixed
+               </app-btn>
+@@ -304,14 +304,15 @@
+         </div>
+ 
+         <div
+-          v-if="zrHasMacro('WM_UNLOAD_MENU')"
+-          class="d-flex justify-center mt-2"
++          v-if="zrHasMacro('WM_UNLOAD_MENU') || zrHasMacro('_WM_PURGE') || zrHasMacro('WM_LOAD_MENU') || zrHasMacro('WM_RESUME_TOOL')"
++          class="d-flex justify-center flex-wrap mt-2"
+         >
+           <app-btn
++            v-if="zrHasMacro('WM_UNLOAD_MENU')"
+             color="primary"
+             class="zr-unload-btn"
+-            :disabled="!klippyReady || zrBusy"
+-            :title="zrBusy ? 'Unloading is not possible while a print runs or is paused' : 'Window to unload one toolhead or all of them (WM_UNLOAD_MENU)'"
++            :disabled="!klippyReady || zrPrinting"
++            :title="zrPrinting ? 'Unloading is not possible while a print runs. Pause it first' : 'Window to unload one toolhead or all of them (WM_UNLOAD_MENU). Works while the print is paused'"
+             @click="zrSend('WM_UNLOAD_MENU')"
+           >
+             <v-icon
+@@ -322,6 +323,54 @@
+             </v-icon>
+             Unload Menu
+           </app-btn>
++          <app-btn
++            v-if="zrHasMacro('WM_LOAD_MENU')"
++            color="primary"
++            class="zr-unload-btn ml-2"
++            :disabled="!klippyReady || zrPrinting"
++            :title="zrPrinting ? 'Loading is not possible while a print runs. Pause it first' : 'Window to load one or more toolheads (WM_LOAD_MENU). Works while the print is paused'"
++            @click="zrSend('WM_LOAD_MENU')"
++          >
++            <v-icon
++              left
++              small
++            >
++              $loadFilament
++            </v-icon>
++            Load Menu
++          </app-btn>
++          <app-btn
++            v-if="zrHasMacro('WM_RESUME_TOOL')"
++            color="success"
++            class="zr-unload-btn ml-2"
++            :disabled="!klippyReady || !zrPaused"
++            :title="zrPaused ? 'Choose the tool that continues the paused print, its temperature and purge (WM_RESUME_TOOL)' : 'Only while the print is paused'"
++            @click="zrSend('WM_RESUME_TOOL')"
++          >
++            <v-icon
++              left
++              small
++            >
++              $resume
++            </v-icon>
++            Resume tool
++          </app-btn>
++          <app-btn
++            v-if="zrHasMacro('_WM_PURGE')"
++            color="warning"
++            class="zr-unload-btn ml-2"
++            :disabled="!klippyReady || zrBusy"
++            :title="zrBusy ? 'Purging is not possible while a print runs or is paused' : 'Window to purge filament: toolhead, temperature, speed and amount'"
++            @click="purgeDialog = true"
++          >
++            <v-icon
++              left
++              small
++            >
++              $extrude
++            </v-icon>
++            Purge
++          </app-btn>
+         </div>
+ 
+         <v-divider class="my-2" />
+@@ -820,6 +869,11 @@
+       </app-btn>
+     </div>
+ 
++    <zr-purge-dialog
++      v-if="purgeDialog"
++      v-model="purgeDialog"
++    />
++
+     <zr-tool-dialog
+       v-if="toolDialog.open"
+       v-model="toolDialog.open"
+@@ -859,6 +913,7 @@ import { SocketActions } from '@/api/socketActions'
+ import { EventBus } from '@/eventBus'
+ import ZrMixin, { zrShared, type ZrHead } from './zrMixin'
+ import ZrToolDialog from './ZrToolDialog.vue'
++import ZrPurgeDialog from './ZrPurgeDialog.vue'
+ import { zrToolChangeStage, type ZrToolChange } from './zr'
+ 
+ // gcode_button Door_button1/2 report PRESSED when the door switch is closed.
+@@ -894,10 +949,11 @@ function versionOlder (a: string, b: string): boolean {
+ }
+ 
+ @Component({
+-  components: { ZrToolDialog }
++  components: { ZrToolDialog, ZrPurgeDialog }
+ })
+ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+   toolDialog = { open: false, index: 0 }
++  purgeDialog = false
+   confirmRestartScreen = false
+   pollTimer: number | null = null
+   confirmEndless = false
+@@ -943,6 +999,20 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+     return this.zrHeads.map(h => h.docked)
+   }
+ 
++  // WM_PURGE_MENU (macro list) sets _WM_PURGE_SEL.show = 1: open the same purge window as the PURGE button and answer with 0
++  // (if no panel answers within 2 s, the macro shows the prompt window instead)
++  get purgeShow () {
++    const v = this.zrPrinter['gcode_macro _WM_PURGE_SEL']?.show
++    return v == null ? 0 : Number(v)
++  }
++
++  @Watch('purgeShow')
++  onPurgeShow (v: number) {
++    if (v !== 1) return
++    this.purgeDialog = true
++    this.zrSend('SET_GCODE_VARIABLE MACRO=_WM_PURGE_SEL VARIABLE=show VALUE=0')
++  }
++
+   @Watch('zrChanging')
+   onChanging (changing: boolean) {
+     if (this.toolChangeTimer != null) { window.clearTimeout(this.toolChangeTimer); this.toolChangeTimer = null }
+@@ -967,7 +1037,7 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+ 
+   async resetStats () {
+     const ok = await this.$confirm('Set the tool-change counters back to 0?', { title: 'Reset counters', color: 'card-heading', icon: '$error' })
+-    if (ok) this.zrSend('WM_STATS_RESET')
++    if (ok) this.zrSend('_WM_STATS_RESET')
+   }
+ 
+   get syncChip () {
+@@ -1016,19 +1086,19 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+     setTimeout(() => { this.chamberEditing = false }, 250)
+   }
+ 
+-  /** Sets the chamber target with the printer's own ZR_CHAMBER macro (0 to 65 °C, 0 = off). */
++  /** Sets the chamber target with the printer's own _ZR_CHAMBER macro (0 to 65 °C, 0 = off). */
+   applyChamber () {
+     const n = Math.round(Number(this.chamberText))
+     if (!this.chamberEditing || this.chamberText === '' || !Number.isFinite(n) || n < 0 || n > 65) {
+       this.chamberEditing = false
+       return
+     }
+-    this.zrSend(`ZR_CHAMBER S=${n}`)
++    this.zrSend(`_ZR_CHAMBER S=${n}`)
+     this.chamberEditing = false
+   }
+ 
+   chamberOff () {
+-    this.zrSend('ZR_CHAMBER S=0')
++    this.zrSend('_ZR_CHAMBER S=0')
+     this.chamberEditing = false
+   }
+ 
+@@ -1171,21 +1241,21 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+   }
+ 
+   setEndless (value: boolean | null) {
+-    this.zrSend(`WM_ENDLESS_SET ENABLE=${value ? 1 : 0}`)
++    this.zrSend(`_WM_ENDLESS_SET ENABLE=${value ? 1 : 0}`)
+   }
+ 
+   setEndlessAuto (value: boolean | null) {
+-    this.zrSend(`WM_ENDLESS_SET AUTO=${value ? 1 : 0}`)
++    this.zrSend(`_WM_ENDLESS_SET AUTO=${value ? 1 : 0}`)
+   }
+ 
+   setEndlessTangle (value: boolean | null) {
+-    this.zrSend(`WM_ENDLESS_SET TANGLE=${value ? 1 : 0}`)
++    this.zrSend(`_WM_ENDLESS_SET TANGLE=${value ? 1 : 0}`)
+   }
+ 
+   runEndless () {
+     const offer = this.endlessOffer
+     this.confirmEndless = false
+-    if (offer && offer.to != null) this.zrSend(`WM_ENDLESS_CONTINUE FROM=${offer.from} TO=${offer.to}`)
++    if (offer && offer.to != null) this.zrSend(`_WM_ENDLESS_CONTINUE FROM=${offer.from} TO=${offer.to}`)
+   }
+ 
+   presetActive (preset: { temp: number, hours: number }) {
+diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
+index 8fb5763..f8ef57c 100644
+--- a/src/components/widgets/zr/zrMixin.ts
++++ b/src/components/widgets/zr/zrMixin.ts
+@@ -61,7 +61,7 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+ 
+   // ---- Endless spool (macros in wm_endless.cfg); the switch is stored on the printer as save_variable wm_endless
+   get zrEndlessAvailable (): boolean {
+-    return this.zrPrinter['gcode_macro WM_ENDLESS_CONTINUE'] != null
++    return this.zrPrinter['gcode_macro _WM_ENDLESS_CONTINUE'] != null
+   }
+ 
+   get zrEndlessEnabled (): boolean {
+@@ -119,7 +119,7 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+ 
+   // ---- Counters (wm_stats.cfg)
+   get zrStatsAvailable (): boolean {
+-    return this.zrPrinter['gcode_macro WM_STATS_RESET'] != null
++    return this.zrPrinter['gcode_macro _WM_STATS_RESET'] != null
+   }
+ 
+   get zrStats (): { changes: number, heads: number[], seconds: number[], hasTime: boolean } {
+@@ -201,7 +201,7 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+   }
+ 
+   zrAutoLoadSet (on: boolean | null): void {
+-    this.zrSend(`ACE_WM_AUTO ENABLE=${on ? 1 : 0}`)
++    this.zrSend(`_ACE_WM_AUTO ENABLE=${on ? 1 : 0}`)
+   }
+ 
+   get zrAce (): Record<string, any> {
+@@ -271,6 +271,15 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+     return s == null ? null : s.filament_detected === true
+   }
+ 
++  /** F-166: load, unload and Resume tool are allowed while the print is paused, not while it prints. */
++  get zrPrinting (): boolean {
++    return this.zrPrintState === 'printing'
++  }
++
++  get zrPaused (): boolean {
++    return this.zrPrintState === 'paused'
++  }
++
+   get zrBusy (): boolean {
+     return ['printing', 'paused'].includes(this.zrPrintState)
+   }
 -- 
 2.43.0
 

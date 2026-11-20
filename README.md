@@ -462,7 +462,7 @@ The ACE has no card of its own. It lives inside the WonderMaker **Toolheads** ca
   ![The three pictures of the tool setter position helper](docs/img/fluidd-window-pictures.png)
 - **Toolhead dialog → "ACE feeder · slot N":** Load from ACE, Unload to ACE, Feed assist on/off, manual Feed / Retract with length and speed, Stop motor.
 
-Everything ACE-related is **hidden** when Klipper has no ACE object (`ace_instance_0`). The endless-spool row is hidden when the `WM_ENDLESS_CONTINUE` macro does not exist. So you can install the panel before the ACE hardware.
+Everything ACE-related is **hidden** when Klipper has no ACE object (`ace_instance_0`). The endless-spool row is hidden when the `_WM_ENDLESS_CONTINUE` macro does not exist. So you can install the panel before the ACE hardware.
 
 ### Choose toolheads (filament mapping)
 
@@ -498,7 +498,7 @@ A toolhead counts as a match when its colour is the closest of WonderMaker's pal
 ### Tool-change bar, counters and the OrcaSlicer plugin
 
 - **Tool-change bar.** While WonderMaker changes tools the card shows what it is doing (lifting Z, putting the old head back, locking the new one). It reads WonderMaker's own `changing_tool` flag and the dock sensors; no WonderMaker macro is changed or wrapped. The percentages are rough steps, not a measurement.
-- **Counters.** `rpi_stats.cfg` watches WonderMaker's `current_extruder` every 2 seconds and counts every change: in total and per toolhead (`wm_stat_changes`, `wm_stat_head0`…`3`). **Reset** (or `WM_STATS_RESET`) sets them to 0. Purged filament is not counted, because that would mean wrapping WonderMaker's purge macros.
+- **Counters.** `rpi_stats.cfg` watches WonderMaker's `current_extruder` every 2 seconds and counts every change: in total and per toolhead (`wm_stat_changes`, `wm_stat_head0`…`3`). **Reset** (or `_WM_STATS_RESET`) sets them to 0. Purged filament is not counted, because that would mean wrapping WonderMaker's purge macros.
 - **OrcaSlicer plugin.** Choose the toolhead per filament inside Orca. Install steps are in the next section.
 
 ### Install the OrcaSlicer plugin (optional, works without an ACE Pro)
@@ -593,16 +593,16 @@ Written for the day the printer is running again. Do them in this order, empty b
 |---|---|
 | `ACE_WM_LOAD T=0..3` | Picks up the tool, goes to the wipe position (when the WonderMaker macros are installed), then feeds the slot to the hub and toolhead sensor. At the sensor the ACE stops, feed assist turns on, the extruder gear grabs the filament with a short push, WonderMaker's insert routine finishes the load, then feed assist turns off. |
 | `ACE_WM_UNLOAD T=0..3` | Picks up the tool, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back until its slot is empty. When the ACE is busy (an unload or load is still finishing) the call waits in a queue and starts by itself when the ACE is free. |
-| `ACE_WM_RETRACT T=0..3` | Only the ACE part of an unload (after WonderMaker's `UNLOAD_FILAMENT`). |
+| `_ACE_WM_RETRACT T=0..3` | Only the ACE part of an unload (after WonderMaker's `UNLOAD_FILAMENT`). |
 | `ACE_WM_STOP` | Stop any feed or retract started by these macros. |
 | `ACE_WM_AUTO ENABLE=1\|0` | Auto-load on spool insert. Loads wait for a quiet ACE and run in the order the spools were put in. |
 | `ACE_WM_DRY_START TEMP=55 DURATION=360` | Start drying (max 65 °C). |
 | `ACE_WM_DRY_STOP` | Stop drying. |
-| `WM_ENDLESS_SET ENABLE=1\|0 AUTO=1\|0 TANGLE=1\|0` | Endless spool on / off, Swap automatically on / off, Swap on a tangle on / off (the three Fluidd switches do the same; all are saved). |
-| `WM_ENDLESS_FIXED T=0` | After a tangle swap: the spool of this toolhead is free or replaced, it may take over again (the Fixed button does the same). |
-| `WM_ENDLESS_PLAN` | Shows the sets of identical toolheads and who takes over for whom; moves nothing. |
+| `_WM_ENDLESS_SET ENABLE=1\|0 AUTO=1\|0 TANGLE=1\|0` | Endless spool on / off, Swap automatically on / off, Swap on a tangle on / off (the three Fluidd switches do the same; all are saved). |
+| `_WM_ENDLESS_FIXED T=0` | After a tangle swap: the spool of this toolhead is free or replaced, it may take over again (the Fixed button does the same). |
+| `_WM_ENDLESS_PLAN` | Shows the sets of identical toolheads and who takes over for whom; moves nothing. |
 | `WM_SET_TOOL_MAP MAP=0:2,1:3 [FILE=] [KEEP_EXISTING=1]` | Print tool → toolhead for the next print (written by the OrcaSlicer plugin; Fluidd's choice wins for the same file with `KEEP_EXISTING=1`). |
-| `WM_STATS_RESET` | Tool-change counters back to 0. |
+| `_WM_STATS_RESET` | Tool-change counters back to 0. |
 | `ACE_FEED T= LENGTH= SPEED=` / `ACE_RETRACT …` | Manual moves (driver commands). |
 | `ACE_ENABLE_FEED_ASSIST T=` / `ACE_DISABLE_FEED_ASSIST T=` | Feed assist on / off for one slot. |
 
@@ -619,9 +619,9 @@ How it works:
 1. A toolhead runs out → WonderMaker pauses the print (its normal behaviour): the toolhead's own filament sensor, after 2.5 s. The four sensors at the hub are **tangle sensors**: they fire when the filament is pulled tight (a tangle, or a finished spool whose end is fixed to the spool) and pause the print at once.
 2. Every 3 s the printer looks (`_WM_ENDLESS_TICK`): is the print paused, and is the toolhead on the carriage empty, or did its tangle sensor fire (switch **Swap on a tangle**, on by default)? Then it takes the **next toolhead in number order that has the same material and colour and is ready**: filament in the toolhead, not set aside after a tangle, and with an ACE Pro connected also filament in its ACE slot. After the last toolhead it starts again from the first. Material and colour are the ones you set in the toolhead dialog. This runs on the printer, so no browser has to be open.
 3. With **Swap automatically** on (the default) the swap starts by itself. With it off, the card offers the toolhead and you tap **Swap & continue**. No identical toolhead with filament: one message, and the print stays paused until you load filament and resume.
-4. The swap (`WM_ENDLESS_CONTINUE FROM= TO=`): tool change with WonderMaker's `_CHANGE_TOOL` straight from the park position (the empty, cold nozzle never goes back to the part); the temperature of the empty toolhead and the print's tool mapping go to the spare; WonderMaker's `RESUME` heats it, purges and wipes once at the wipe area and returns to the print; a last step moves the nozzle by the difference between the offsets of the two toolheads, so it stands exactly where the other one stopped (X, Y and Z).
+4. The swap (`_WM_ENDLESS_CONTINUE FROM= TO=`): tool change with WonderMaker's `_CHANGE_TOOL` straight from the park position (the empty, cold nozzle never goes back to the part); the temperature of the empty toolhead and the print's tool mapping go to the spare; WonderMaker's `RESUME` heats it, purges and wipes once at the wipe area and returns to the print; a last step moves the nozzle by the difference between the offsets of the two toolheads, so it stands exactly where the other one stopped (X, Y and Z).
 5. Every later tool command of the print for the empty toolhead takes the spare. When the spare runs out too, the next one in the set takes over. A refilled toolhead is back in the line. When the print ends or is cancelled, the tool mapping is back to normal (WM_Ultra_Vanilla_Klipper 2.12.0 or newer resets its saved copy too).
-6. **After a tangle swap** the toolhead that tangled is out of the line, so the printer does not swap back to it and tangle again. A window opens (Fluidd and touchscreen) and the card shows "TANGLE OR SPOOL END" with a **Fixed** button under that toolhead. It is back in the line when you press Fixed (`WM_ENDLESS_FIXED T=n`), when you reload its filament, or when the print ends.
+6. **After a tangle swap** the toolhead that tangled is out of the line, so the printer does not swap back to it and tangle again. A window opens (Fluidd and touchscreen) and the card shows "TANGLE OR SPOOL END" with a **Fixed** button under that toolhead. It is back in the line when you press Fixed (`_WM_ENDLESS_FIXED T=n`), when you reload its filament, or when the print ends.
 7. If anything is not as expected, it stops with a message and the print stays paused.
 
 **Sets.** Every group of toolheads with the same material and colour is a set: two, three or all four toolheads, or two sets of two (for example toolheads 1 + 2 red PLA and 3 + 4 blue PETG). A set swaps only inside itself.
@@ -635,7 +635,7 @@ How it works:
 <em>With Swap automatically off: the offer and the one-tap confirmation (demo data, pictures from an older version).</em>
 </div>
 
-`WM_ENDLESS_PLAN` prints the sets and moves nothing. Turn it on with the Fluidd switch or `WM_ENDLESS_SET ENABLE=1`.
+`_WM_ENDLESS_PLAN` prints the sets and moves nothing. Turn it on with the Fluidd switch or `_WM_ENDLESS_SET ENABLE=1`.
 
 **Tested** on a ZR Ultra-S with an ACE Pro (2026-11-16): 10 swaps in one print of a four-tool cube, every toolhead taking over at least twice, the nozzle height after each swap within 0.02 mm of the layer; and a tangle swap with the window and the Fixed button. Not tested: a printer without an ACE, a real runout at a toolhead sensor (the runouts were faked), and the feed assist coming back after an ACE reconnect. **First use:** still a cheap print with you at the printer.
 
@@ -666,7 +666,7 @@ Every backup of this installer is in one folder, `~/ultra-backup`, sorted by typ
 | `--check`: "linked driver is too old" | Update this repository (`git pull`), then run `--repair`. |
 | `--check`: broken link | The repository was moved. Run `--repair` from its new place. |
 | Klipper: "Unknown config object 'save_variables'" | You installed version 0.2.0, which put the include lines above `[save_variables]`. `git pull` and `./installer.sh --update` (or `--repair`) moves them. |
-| Console: "Unknown command WM_SET_TOOL_MAP" (or `WM_STATS_RESET`) | `rpi_stats.cfg` is not installed: `git pull`, `./installer.sh --update`, restart Klipper. |
+| Console: "Unknown command WM_SET_TOOL_MAP" (or `_WM_STATS_RESET`) | `rpi_stats.cfg` is not installed: `git pull`, `./installer.sh --update`, restart Klipper. |
 | Klipper: "Unknown config object temperature_ace" or virtual pins | The links in `klippy/extras` are missing: `--repair`. |
 | Klipper: T0..T3 behave differently | `register_tool_commands: False` is missing in `rpi_ace_driver.cfg` (`--check` reports it). |
 | No ACE parts in the Fluidd card | The ACE is not reported yet: restart Klipper, check the USB cable and the ACE power, hard-refresh the browser. |
@@ -684,7 +684,7 @@ At the end of an install or update (after the Klipper restart question) the inst
 | AcePro | red | `ACE_*`, `WM_ENDLESS_*`, `WM_STATS_*`, `WM_SET_TOOL_MAP` |
 | WM Factory Calibration | yellow | WonderMaker's own calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
 | WM Ultra Tool Change | green | `T0`..`T3`, `LOCK`, `UNLOCK`, `PARK_CURRENT_TOOL` ... |
-| WM Ultra Filament | orange | `LOAD_FILAMENT`, `UNLOAD_FILAMENT`, `WIPE_NOZZLE` ..., and Unload Menu / Unload Stop (`WM_UNLOAD_MENU`, `WM_UNLOAD_STOP`) |
+| WM Ultra Filament | orange | `LOAD_FILAMENT`, `UNLOAD_FILAMENT`, `WIPE_NOZZLE` ..., and Unload Menu / Unload Stop (`WM_UNLOAD_MENU`, `_WM_UNLOAD_STOP`) |
 | ZR Tools | purple | `ZR_*`, and the Pi installer's Nozzle Change and Chamber Light |
 | WM Ultra Print | grey | `START_PRINT`, `PRINT_END`, `PAUSE`, `RESUME` ... |
 | WM Ultra Tests | dark grey | `TEST_*` |

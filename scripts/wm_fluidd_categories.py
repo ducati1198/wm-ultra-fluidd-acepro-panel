@@ -45,6 +45,8 @@ RPI_CAL_MACROS = OFFSET_MACROS + ["WM_FIRST_RUN_CAL", "WM_CAL_HELP", "WM_BED_LEV
                                   "WM_BED_WARP_MEASURE", "WM_BED_WARP_STOP", "WM_AUTO_SPEED", "WM_AUTO_SPEED_VALIDATE",
                                   "WM_EXTRUDER_SETUP"]
 UNLOAD_MACROS = ["WM_UNLOAD_MENU", "WM_UNLOAD_STOP"]
+# Windows opened from the Toolheads card and the touchscreen (1.17.0): purge, load, resume with another tool. Same category as the unload window.
+FILAMENT_MENUS = ["WM_PURGE_MENU", "WM_LOAD_MENU", "WM_RESUME_TOOL"]
 # The Pi installer's printer tools that are not calibration: with WonderMaker's ZR tools (1.10.0; there is no
 # "Raspberry Pi" category any more). A WM_ macro that is in none of these lists stays uncategorized.
 ZR_PI_MACROS = ["WM_NOZZLE_CHANGE", "WM_CHAMBER_LIGHT"]
@@ -59,7 +61,7 @@ CATEGORIES = [
     ("RPI Calibration", "#e91e63", RPI_CAL_MACROS, []),
     ("WM Ultra Filament", "#ff9800",
      ["LOAD_FILAMENT", "UNLOAD_FILAMENT", "EXTRUDE_FILAMENT", "RETRACT_FILAMENT", "filament_insert", "filament_insert_gcode",
-      "POP", "E_axis_move", "RESET_FLOW_EXTRUDER", "WIPE_NOZZLE", "WIPE_NOZZ"] + UNLOAD_MACROS, []),
+      "POP", "E_axis_move", "RESET_FLOW_EXTRUDER", "WIPE_NOZZLE", "WIPE_NOZZ"] + UNLOAD_MACROS + FILAMENT_MENUS, []),
     ("WM Factory Calibration", "#ffeb3b", FACTORY_CAL, []),
     ("WM Ultra Tool Change", "#4caf50",
      ["T0", "T1", "T2", "T3", "LOCK", "UNLOCK", "UNLOCK_TOOL_FINISH", "PARK_CURRENT_TOOL", "PARK_CURRENT_TOOL_RETRY", "Z_HOMING"], []),
