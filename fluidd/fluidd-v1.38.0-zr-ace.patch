@@ -1,7 +1,7 @@
-From 1c008657ab6be87c66cbc64350a7b74683f98b9d Mon Sep 17 00:00:00 2001
+From 5545af05aafeec3c97fcd7d7e987cc60856d4a95 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/32] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/33] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1852,10 +1852,10 @@ index a01c43f..2ede1df 100644
 2.43.0
 
 
-From 5d37331f9929ed8a9d4151086a6ec4d817542cfb Mon Sep 17 00:00:00 2001
+From 63a7a025b9655aa0cf558b64993cfecb7e1b1930 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/32] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/33] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1927,10 +1927,10 @@ index cc15c3d..4693634 100644
 2.43.0
 
 
-From a2305379bd2f9fae272e4769eaaac842890ad7d3 Mon Sep 17 00:00:00 2001
+From 2e6ea7e204d6a521903543a5e0d3fce693dcd2f2 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/32] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/33] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2054,10 +2054,10 @@ index 4693634..2b78324 100644
 2.43.0
 
 
-From 1c4b7baee28b7412f78d1e97b32a79c3d87d4a93 Mon Sep 17 00:00:00 2001
+From 2a8fca020579de4d4d70b34d6b714fb6ad11dc0d Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/32] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/33] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2126,10 +2126,10 @@ index 2b78324..e1f06c0 100644
 2.43.0
 
 
-From 0d88685b0df01780be78aedb07b341dbb0c159dc Mon Sep 17 00:00:00 2001
+From 39505e5eab24812784e1a3ad745ba95787502a1a Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/32] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/33] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2180,10 +2180,10 @@ index e1f06c0..99c90df 100644
 2.43.0
 
 
-From 07d696c73f51df0ce4e770b32bdb6443c0e8fe19 Mon Sep 17 00:00:00 2001
+From d888489e8e95757b82579446063a0c4601747bd8 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/32] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/33] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -3081,10 +3081,10 @@ index 99c90df..d18abc1 100644
 2.43.0
 
 
-From 9bc0af1bde3136b7e332ca45f185fb2280bd87dc Mon Sep 17 00:00:00 2001
+From a454008f81159880129fc3180ae325d347bce939 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/32] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/33] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3339,10 +3339,10 @@ index d18abc1..43ff04b 100644
 2.43.0
 
 
-From e127f3da5508ac72b21fad7d768a73ce6d1f70ac Mon Sep 17 00:00:00 2001
+From d60fa990f7f229a0040a6df08db840a926bcf0b2 Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/32] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/33] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3677,10 +3677,10 @@ index 7e3fcf6..fe9bf2d 100644
 2.43.0
 
 
-From 92f552228db6582ec3478c124cb22a5e75acc1af Mon Sep 17 00:00:00 2001
+From 8ff2652c15ba953fb526455d4db95763b4c83f9d Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/32] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/33] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4051,10 +4051,10 @@ index 43ff04b..8692f6f 100644
 2.43.0
 
 
-From d1a4331bfb04281285bc639b0b66d34cd58553d8 Mon Sep 17 00:00:00 2001
+From c3cd32b29046ead5fdb614c9f0e5f7c5a455fb69 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/32] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/33] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/rpi_chamber_light.json)
 
 ---
@@ -4162,10 +4162,10 @@ index 5bebf42..9c9c17b 100644
 2.43.0
 
 
-From 85bf229af388d09c6a2e02a8b0ab3cfd0ba62211 Mon Sep 17 00:00:00 2001
+From 39d8cd60ea24f65c29b4fc8e8643ae47ec86f24d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/32] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/33] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4203,10 +4203,10 @@ index fe9bf2d..2486f37 100644
 2.43.0
 
 
-From d2f318cdffbcbdad679adfe19e7fa17477a1503e Mon Sep 17 00:00:00 2001
+From e5b7c8d33d845951d88e8835d1b4426ae6c7bde3 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:09:32 -0500
-Subject: [PATCH 12/32] feat(zr): Choose toolheads window gets List/Map, saved
+Subject: [PATCH 12/33] feat(zr): Choose toolheads window gets List/Map, saved
  mappings, auto-match, dry first and print as sliced
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4948,10 +4948,10 @@ index 0000000..6022c94
 2.43.0
 
 
-From 7cff461b5cb861995e01f8a9b3016ca3e3677d50 Mon Sep 17 00:00:00 2001
+From 9aa48927dc3e7b4eccc8340f4367705be5a378c6 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:22:23 -0500
-Subject: [PATCH 13/32] fix(zr): Choose toolheads window opens on every Print
+Subject: [PATCH 13/33] fix(zr): Choose toolheads window opens on every Print
  even when file metadata is not loaded yet
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5029,10 +5029,10 @@ index 2486f37..e21d215 100644
 2.43.0
 
 
-From 6a03d07e9532e3b4c266f70eece1cf6513c5a9f3 Mon Sep 17 00:00:00 2001
+From f7a3a82e512ce9019ad4495909d86f635115bb8a Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:42:06 -0500
-Subject: [PATCH 14/32] fix(zr): read OrcaSlicer metadata (empty
+Subject: [PATCH 14/33] fix(zr): read OrcaSlicer metadata (empty
  referenced_tools, JSON-text material list) in the Choose toolheads window
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5150,10 +5150,10 @@ index 24c2865..ebe2fce 100644
 2.43.0
 
 
-From 3c55f1a3d0916326d88079452956af3b1cab513c Mon Sep 17 00:00:00 2001
+From 908e251e9c278a8f23f3736a892651acf43bd976 Mon Sep 17 00:00:00 2001
 From: ducati1198 <noreply@github.com>
 Date: Thu, 12 Nov 2026 21:16:24 -0500
-Subject: [PATCH 15/32] feat(zr): Feed assist button in the tool window uses
+Subject: [PATCH 15/33] feat(zr): Feed assist button in the tool window uses
  ACE_WM_ASSIST (works during a pause)
 
 Signed-off-by: ducati1198 <noreply@github.com>
@@ -5193,10 +5193,10 @@ index 00b948f..7111b68 100644
 2.43.0
 
 
-From 39342b23aa8c70555de7175f160ac4f0afcd687d Mon Sep 17 00:00:00 2001
+From dd4e85ff8f3f253a3c25876438f9c30715d07b2b Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Fri, 13 Nov 2026 17:20:58 -0500
-Subject: [PATCH 16/32] Toolheads card: banner with Turn on when the ACE_Pro
+Subject: [PATCH 16/33] Toolheads card: banner with Turn on when the ACE_Pro
  switch is off
 
 ---
@@ -5260,10 +5260,10 @@ index 8692f6f..8ac9d96 100644
 2.43.0
 
 
-From 4a16be4127dda95b7187db1a3873622bb1a6ce0c Mon Sep 17 00:00:00 2001
+From 115303d50df76a46f549da193ec35e18574b8278 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Fri, 13 Nov 2026 23:03:02 -0500
-Subject: [PATCH 17/32] feat(zr): Auto load switch, Park and Select need only X
+Subject: [PATCH 17/33] feat(zr): Auto load switch, Park and Select need only X
  and Y, no Load/Unload with an ACE
 
 Park runs SET_GCODE_OFFSET X=0 Y=0 Z=0 and PARK_CURRENT_TOOL; Select needs only X and Y;
@@ -5494,10 +5494,10 @@ index 8ac9d96..f080b4d 100644
 2.43.0
 
 
-From 63d7d1ba07233c66095121fbffa7168853ad4ea8 Mon Sep 17 00:00:00 2001
+From 0974cc46ed09628ed46c0668cd53b7082ccc2e75 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sat, 14 Nov 2026 01:38:56 -0500
-Subject: [PATCH 18/32] feat(zr): more filament materials (PLA+, PLA-CF,
+Subject: [PATCH 18/33] feat(zr): more filament materials (PLA+, PLA-CF,
  PETG-CF, PA, PA-CF, PC, ABS-CF, PA-GF, PC-ABS, PP, BVOH)
 
 Added at the end of the material list so no existing index moves.
@@ -5564,10 +5564,10 @@ index ebe2fce..3b38608 100644
 2.43.0
 
 
-From b29c23dabce6f4034a995b62ba50f03d54ffcc50 Mon Sep 17 00:00:00 2001
+From 8056f8e942a165448d9ad6b7a80ccb29323f914e Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sat, 14 Nov 2026 01:51:07 -0500
-Subject: [PATCH 19/32] feat(zr): remove the Z offset button from the tool
+Subject: [PATCH 19/33] feat(zr): remove the Z offset button from the tool
  window
 
 The Z offset calibration is started from the touchscreen.
@@ -5603,10 +5603,10 @@ index 459afbd..7648d61 100644
 2.43.0
 
 
-From c93fc63bd5bb90ba2cc290c0ce97cad15520722a Mon Sep 17 00:00:00 2001
+From b70b945b6d481b13eb1179c46b318a19139f8a93 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:25:45 -0500
-Subject: [PATCH 20/32] feat(zr): bigger ACE sensors and dryer presets
+Subject: [PATCH 20/33] feat(zr): bigger ACE sensors and dryer presets
 
 Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_0188cJYRY7ZSqCguqTL3TYPE
@@ -5705,10 +5705,10 @@ index 06e56a0..6391cae 100644
 2.43.0
 
 
-From 05450992660ba5f11f4c1770fecb6786a55bd7cd Mon Sep 17 00:00:00 2001
+From 9738d9c04a58d9d3ce4943211499466cc597f938 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:32:55 -0500
-Subject: [PATCH 21/32] feat(zr): edit chamber target and Off button
+Subject: [PATCH 21/33] feat(zr): edit chamber target and Off button
 
 Signed-off-by: Claude <noreply@anthropic.com>
 ---
@@ -5835,10 +5835,10 @@ index 6391cae..4973773 100644
 2.43.0
 
 
-From 9e51e4486896d4569d1c0cf43a1dd54a9d39800f Mon Sep 17 00:00:00 2001
+From 00da2f6fe43a259b824a0272971d21a20e02e74a Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:38:40 -0500
-Subject: [PATCH 22/32] feat(zr): same height for chamber and dry buttons
+Subject: [PATCH 22/33] feat(zr): same height for chamber and dry buttons
 
 Signed-off-by: Claude <noreply@anthropic.com>
 ---
@@ -5901,10 +5901,10 @@ index 4973773..be92ee7 100644
 2.43.0
 
 
-From 0c1a1b4d4f28fb8d696c56551e253bb6c47ee8a4 Mon Sep 17 00:00:00 2001
+From d5683234f9d80434ca75ded3b1a502de9bcf6cf3 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sun, 15 Nov 2026 03:08:32 -0500
-Subject: [PATCH 23/32] feat(zr): chamber light button uses the Moonraker power
+Subject: [PATCH 23/33] feat(zr): chamber light button uses the Moonraker power
  device chamber_light
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5995,10 +5995,10 @@ index be92ee7..e5fabfa 100644
 2.43.0
 
 
-From ea1297ea9ca89e8daaadb5cde3f58380fc0bf0e6 Mon Sep 17 00:00:00 2001
+From a40ee60916390546ca6047364c7042657cb1c7e7 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sun, 15 Nov 2026 20:18:07 -0500
-Subject: [PATCH 24/32] feat(zr): friendly sensor labels with the real name
+Subject: [PATCH 24/33] feat(zr): friendly sensor labels with the real name
  under each
 
 Signed-off-by: zr <x@x>
@@ -6081,10 +6081,10 @@ index 33ee7bd..a70e3e9 100644
 2.43.0
 
 
-From ac09a3c3685f360f268ccbdc445086789411e103 Mon Sep 17 00:00:00 2001
+From 93cca1c89cdeb274581d31795f20cb4ea4fd1eb9 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sun, 15 Nov 2026 20:18:11 -0500
-Subject: [PATCH 25/32] feat(zr): switches ACE Pro, Bed warp wait and Nozzle
+Subject: [PATCH 25/33] feat(zr): switches ACE Pro, Bed warp wait and Nozzle
  heat growth in the Toolheads card
 
 Signed-off-by: zr <x@x>
@@ -6226,10 +6226,10 @@ index f080b4d..29dde6d 100644
 2.43.0
 
 
-From 1dd55d797739b272ff2a12ba53aeecbbda755ac6 Mon Sep 17 00:00:00 2001
+From 5a1487fc0a07fa04ff4a439ed2db19486350f2a1 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 01:11:45 -0500
-Subject: [PATCH 26/32] feat(zr): unload menu, sensor lights, board line
+Subject: [PATCH 26/33] feat(zr): unload menu, sensor lights, board line
 
 Toolheads card: Unload Menu button (WM_UNLOAD_MENU); Hub, Head and Dock lights for every toolhead (not only with an ACE); Tool lock and Lock motor home lights of the carriage; print time per toolhead next to the tool-change counts (wm_stat_time0-3 from rpi_stats.cfg); touchscreen board line (version, update available, CPU, free memory) read from config/wm_screen_status.json, which the board uploads every minute.
 
@@ -6531,10 +6531,10 @@ index 29dde6d..9558492 100644
 2.43.0
 
 
-From f2373ad017fb8f7330cda2a60c10841cf137bbea Mon Sep 17 00:00:00 2001
+From 7b8f6807b16571528d9325c9e8641bae1b7d98af Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 07:19:03 -0500
-Subject: [PATCH 27/32] feat(zr): endless spool section (sets of identical
+Subject: [PATCH 27/33] feat(zr): endless spool section (sets of identical
  toolheads), swap automatically switch, chain removed
 
 Signed-off-by: zr <x@x>
@@ -7183,10 +7183,10 @@ index 9558492..0a36d2f 100644
 2.43.0
 
 
-From a8ac3664205d93cdc7bfa54475b74ce1b603eaae Mon Sep 17 00:00:00 2001
+From 2bb503b7953105febfce302a0b8a20f52e257ec0 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 13:41:06 -0500
-Subject: [PATCH 28/32] feat(zr): endless spool: swap on a tangle switch, Fixed
+Subject: [PATCH 28/33] feat(zr): endless spool: swap on a tangle switch, Fixed
  button, ACE spools, Tangle light
 
 Signed-off-by: zr <x@x>
@@ -7508,10 +7508,10 @@ index 0a36d2f..8fb5763 100644
 2.43.0
 
 
-From 50c8008e32f09be8dadddebd7c48470de6024440 Mon Sep 17 00:00:00 2001
+From 013a24679730be4353b59c27cb173d162b2f660a Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 15:51:41 -0500
-Subject: [PATCH 29/32] feat(zr): pictures in a prompt window
+Subject: [PATCH 29/33] feat(zr): pictures in a prompt window
  (action:prompt_image), tool setter position pictures
 
 Signed-off-by: zr <x@x>
@@ -7739,10 +7739,10 @@ index c7747e0..6e81a4e 100644
 2.43.0
 
 
-From 5ac1c5ff586d873d40e85e73dff750d16445b9ce Mon Sep 17 00:00:00 2001
+From 4d801bced753b8a2b85f53274885e3cfa8aaeca6 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 17 Nov 2026 01:45:24 -0500
-Subject: [PATCH 30/32] fix(zr): endless spool section in one column on a
+Subject: [PATCH 30/33] fix(zr): endless spool section in one column on a
  narrow card (phone)
 
 The title and switches lay over the circle and the chips were pushed off
@@ -7886,10 +7886,10 @@ index 4633a29..f3cb86e 100644
 2.43.0
 
 
-From 2ff37cb27f186b38306aaaa92b5f5cdaa822582a Mon Sep 17 00:00:00 2001
+From c13f7352d2a5cf06c5147454a47ae2cc65ad5e69 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 17 Nov 2026 01:52:28 -0500
-Subject: [PATCH 31/32] fix(zr): toolhead tiles and chamber row on a phone
+Subject: [PATCH 31/33] fix(zr): toolhead tiles and chamber row on a phone
 
 Narrow tile (up to 120 px): Tangle / Head / Dock lights one under the other
 instead of overlapping the next tile, status READY without TOOLHEAD.
@@ -8157,10 +8157,10 @@ index f3cb86e..b991b14 100644
 2.43.0
 
 
-From 5e1cc7565de7d58dc9bf12d36c54cfdaa6c02860 Mon Sep 17 00:00:00 2001
+From c3e983a87dd04b075a40dc40e642c7efa35e0a24 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Fri, 20 Nov 2026 04:18:36 -0500
-Subject: [PATCH 32/32] feat(zr): purge window, Resume tool and Load menu
+Subject: [PATCH 32/33] feat(zr): purge window, Resume tool and Load menu
  buttons, secondary macros called by their hidden names
 
 Signed-off-by: zr <x@x>
@@ -8686,6 +8686,1013 @@ index 8fb5763..f8ef57c 100644
    get zrBusy (): boolean {
      return ['printing', 'paused'].includes(this.zrPrintState)
    }
+-- 
+2.43.0
+
+
+From 40ba0f9162a071d4023054949fa2efdd62f5d9cf Mon Sep 17 00:00:00 2001
+From: zr <x@x>
+Date: Sat, 21 Nov 2026 15:16:20 -0500
+Subject: [PATCH 33/33] feat(zr): More colours lists, Color Picker, White and
+ extra swatches; black is named Black (F-198 to F-201, F-207)
+
+Signed-off-by: zr <x@x>
+---
+ src/components/widgets/zr/ZrToolDialog.vue | 345 +++++++++++++++-
+ src/components/widgets/zr/zr.ts            |  15 +
+ src/components/widgets/zr/zrColors.ts      | 452 +++++++++++++++++++++
+ src/components/widgets/zr/zrMixin.ts       |  22 +-
+ 4 files changed, 810 insertions(+), 24 deletions(-)
+ create mode 100644 src/components/widgets/zr/zrColors.ts
+
+diff --git a/src/components/widgets/zr/ZrToolDialog.vue b/src/components/widgets/zr/ZrToolDialog.vue
+index 80433eb..6e59c45 100644
+--- a/src/components/widgets/zr/ZrToolDialog.vue
++++ b/src/components/widgets/zr/ZrToolDialog.vue
+@@ -37,11 +37,26 @@
+       <div class="d-flex align-center mb-3">
+         <span
+           class="zr-dlg-swatch mr-3"
+-          :style="{ background: swatchCss(color) }"
++          :style="{ background: rgbHex }"
+         />
+-        <span>{{ colorName }}</span>
++        <span class="zr-name">{{ colorName }}</span>
+         <v-spacer />
+-        <span class="text-caption secondary--text">Touchscreen colours</span>
++        <v-text-field
++          v-model="hexText"
++          class="zr-hex"
++          dense
++          outlined
++          hide-details
++          prefix="#"
++          maxlength="6"
++          label="Hex"
++          spellcheck="false"
++          :error="!hexValid"
++          @input="onHexInput"
++        />
++      </div>
++      <div class="text-caption secondary--text mb-2">
++        Touchscreen colours
+       </div>
+       <div class="zr-palette">
+         <button
+@@ -49,15 +64,100 @@
+           :key="i"
+           type="button"
+           class="zr-palette-btn"
+-          :class="{ 'zr-palette-btn--selected': color === i }"
++          :class="{ 'zr-palette-btn--selected': rgbHex === p.hex.toUpperCase() }"
+           :style="{ background: p.css || p.hex }"
+           :title="p.name"
+           :aria-label="p.name"
+-          :aria-pressed="color === i ? 'true' : 'false'"
+-          @click="color = i"
++          :aria-pressed="rgbHex === p.hex.toUpperCase() ? 'true' : 'false'"
++          @click="pickPalette(i)"
+         />
+       </div>
+ 
++      <div class="zr-more-row mt-3">
++        <v-btn
++          small
++          depressed
++          color="primary"
++          class="zr-more-btn"
++          @click="toggleHsv"
++        >
++          {{ hsvOpen ? 'Hide picker' : 'Color Picker' }}
++        </v-btn>
++        <v-btn
++          small
++          depressed
++          color="primary"
++          class="zr-more-btn"
++          @click="moreColours = !moreColours"
++        >
++          {{ moreColours ? 'Fewer colours' : 'More colours' }}
++        </v-btn>
++      </div>
++      <div
++        v-if="hsvOpen"
++        class="zr-hsv mt-3"
++      >
++        <div
++          ref="svArea"
++          class="zr-sv"
++          :style="{ backgroundColor: hueCss }"
++          @pointerdown="onSvDown"
++          @pointermove="onSvMove"
++        >
++          <span
++            class="zr-sv-dot"
++            :style="{ left: `${hsv[1]}%`, top: `${100 - hsv[2]}%` }"
++          />
++        </div>
++        <div class="zr-hue-row mt-3">
++          <span
++            class="zr-dlg-swatch zr-dlg-swatch--big"
++            :style="{ background: rgbHex }"
++          />
++          <input
++            type="range"
++            class="zr-hsv-range"
++            min="0"
++            max="360"
++            step="1"
++            :value="hsv[0]"
++            :style="{ background: hueGradient }"
++            aria-label="Hue"
++            @input="onHue"
++          >
++        </div>
++      </div>
++      <div v-if="moreColours">
++        <v-btn-toggle
++          v-model="listIndex"
++          mandatory
++          dense
++          class="mt-2 zr-lists"
++        >
++          <v-btn
++            v-for="list in colorLists"
++            :key="list.name"
++            small
++          >
++            {{ list.name }} ({{ list.items.length }})
++          </v-btn>
++        </v-btn-toggle>
++        <div class="zr-palette zr-palette--more mt-2">
++          <button
++            v-for="c in colorLists[listIndex].items"
++            :key="c.name"
++            type="button"
++            class="zr-palette-btn"
++            :class="{ 'zr-palette-btn--selected': rgbHex === c.hex }"
++            :style="{ background: c.hex }"
++            :title="`${c.name} ${c.hex}`"
++            :aria-label="c.name"
++            :aria-pressed="rgbHex === c.hex ? 'true' : 'false'"
++            @click="pickHex(c.hex)"
++          />
++        </div>
++      </div>
++
+       <v-divider class="my-4" />
+ 
+       <template v-if="zrHasAce">
+@@ -215,10 +315,11 @@
+ </template>
+ 
+ <script lang="ts">
+-import { Component, Mixins, Prop, VModel } from 'vue-property-decorator'
++import { Component, Mixins, Prop, VModel, Watch } from 'vue-property-decorator'
+ import { EventBus } from '@/eventBus'
+ import ZrMixin, { zrShared } from './zrMixin'
+-import { ZR_MATERIALS, ZR_PALETTE, zrColorName, zrSwatchCss } from './zr'
++import { ZR_MATERIALS, ZR_PALETTE, nearestPaletteIndex, zrNamedColour, zrRgbToHex } from './zr'
++import { ZR_COLOR_LISTS } from './zrColors'
+ 
+ interface ZrAction { label: string, color?: string, outlined?: boolean, disabled: boolean, hint?: string, run: () => void, home?: string[] }
+ 
+@@ -232,6 +333,13 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+ 
+   material = 0
+   color = 0
++  rgb = 0
++  moreColours = false
++  hsvOpen = false
++  hsv: number[] = [0, 0, 0]
++  hexText = ''
++  hexValid = true
++  listIndex = 0
+   temp = 210
+   saving = false
+   moveLength = 50
+@@ -241,6 +349,8 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+     const slot = zrShared.slots[this.index]
+     this.material = slot.material ?? 0
+     this.color = slot.color ?? 0
++    this.rgb = this.zrExactRgb(this.index) ?? parseInt(ZR_PALETTE[this.color].hex.slice(1), 16)
++    this.hexText = zrRgbToHex(this.rgb).slice(1)
+     this.temp = this.zrSavedTemp(this.index)
+   }
+ 
+@@ -252,12 +362,111 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+     return ZR_MATERIALS.map((m, value) => ({ text: m.name, value }))
+   }
+ 
++  get colorLists () {
++    return ZR_COLOR_LISTS
++  }
++
++  get rgbHex () {
++    return zrRgbToHex(this.rgb)
++  }
++
+   get colorName () {
+-    return zrColorName(this.color)
++    return zrNamedColour(this.rgbHex)
++  }
++
++  get hueCss () {
++    return zrRgbToHex(this.hsvToRgb(this.hsv[0], 1, 1))
++  }
++
++  get hueGradient () {
++    return 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)'
++  }
++
++  hsvToRgb (h: number, s: number, v: number): number {
++    const f = (n: number) => {
++      const k = (n + h / 60) % 6
++      return v - v * s * Math.max(0, Math.min(k, 4 - k, 1))
++    }
++    return (Math.round(f(5) * 255) << 16) | (Math.round(f(3) * 255) << 8) | Math.round(f(1) * 255)
++  }
++
++  rgbToHsv (rgb: number): number[] {
++    const r = ((rgb >> 16) & 255) / 255
++    const g = ((rgb >> 8) & 255) / 255
++    const b = (rgb & 255) / 255
++    const max = Math.max(r, g, b)
++    const d = max - Math.min(r, g, b)
++    let h = 0
++    if (d) {
++      if (max === r) h = ((g - b) / d + 6) % 6
++      else if (max === g) h = (b - r) / d + 2
++      else h = (r - g) / d + 4
++    }
++    return [h * 60, max ? (d / max) * 100 : 0, max * 100]
++  }
++
++  toggleHsv () {
++    this.hsvOpen = !this.hsvOpen
++    if (this.hsvOpen) this.hsv = this.rgbToHsv(this.rgb)
++  }
++
++  applyHsv (hsv: number[]) {
++    this.hsv = hsv
++    this.rgb = this.hsvToRgb(hsv[0], hsv[1] / 100, hsv[2] / 100)
++    this.color = nearestPaletteIndex(zrRgbToHex(this.rgb))
+   }
+ 
+-  swatchCss (i: number) {
+-    return zrSwatchCss(i)
++  onHue (e: Event) {
++    this.applyHsv([Number((e.target as HTMLInputElement).value), this.hsv[1], this.hsv[2]])
++  }
++
++  svPick (e: PointerEvent) {
++    const el = this.$refs.svArea as HTMLElement
++    const r = el.getBoundingClientRect()
++    const x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width))
++    const y = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height))
++    this.applyHsv([this.hsv[0], x * 100, (1 - y) * 100])
++  }
++
++  onSvDown (e: PointerEvent) {
++    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
++    this.svPick(e)
++  }
++
++  onSvMove (e: PointerEvent) {
++    if (e.buttons) this.svPick(e)
++  }
++
++  /** Typed hex code: applied as soon as it is a full 6-digit colour. */
++  onHexInput (v: string) {
++    const t = (v || '').trim().replace(/^#/, '')
++    this.hexValid = t === '' || /^[0-9a-f]{0,6}$/i.test(t)
++    if (/^[0-9a-f]{6}$/i.test(t)) {
++      this.hexValid = true
++      this.rgb = parseInt(t, 16)
++      this.color = nearestPaletteIndex(zrRgbToHex(this.rgb))
++      if (this.hsvOpen) this.hsv = this.rgbToHsv(this.rgb)
++    }
++  }
++
++  @Watch('rgb')
++  onRgbChanged (v: number) {
++    const hex = zrRgbToHex(v).slice(1)
++    if (this.hexText.toUpperCase() !== hex) this.hexText = hex
++    this.hexValid = true
++    if (this.hsvOpen && Math.round(this.hsvToRgb(this.hsv[0], this.hsv[1] / 100, this.hsv[2] / 100)) !== v) this.hsv = this.rgbToHsv(v)
++  }
++
++  /** A touchscreen swatch: its own colour. */
++  pickPalette (i: number) {
++    this.color = i
++    this.rgb = parseInt(ZR_PALETTE[i].hex.slice(1), 16)
++  }
++
++  /** Any colour of the Orca lists: the exact colour is saved for the printer, tmt1.ini (factory touchscreen) gets the nearest swatch. */
++  pickHex (hex: string) {
++    this.rgb = parseInt(hex.slice(1), 16)
++    this.color = nearestPaletteIndex(hex)
+   }
+ 
+   onMaterialChange (value: number) {
+@@ -398,8 +607,8 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+   async save () {
+     this.saving = true
+     try {
+-      await this.zrSaveSlot(this.index, this.color, this.material, this.temp)
+-      EventBus.$emit(`Toolhead ${this.index + 1}: ${zrColorName(this.color)} ${ZR_MATERIALS[this.material].name}, ${this.temp}°C saved`, { type: 'success', timeout: 4000 })
++      await this.zrSaveSlot(this.index, this.color, this.material, this.temp, this.rgb)
++      EventBus.$emit(`Toolhead ${this.index + 1}: ${this.colorName} ${ZR_MATERIALS[this.material].name}, ${this.temp}°C saved`, { type: 'success', timeout: 4000 })
+       this.open = false
+     } catch {
+       EventBus.$emit('Could not save to the printer (tmt1.ini)', { type: 'error', timeout: 8000 })
+@@ -412,22 +621,110 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+ 
+ <style lang="scss" scoped>
+ .zr-dlg-swatch {
+-  width: 28px;
+-  height: 28px;
++  width: 48px;
++  height: 48px;
++  flex: 0 0 48px;
+   border-radius: 50%;
+   border: 1px solid rgba(255, 255, 255, 0.3);
+   display: inline-block;
+ }
+ 
++.zr-name {
++  font-size: 1rem;
++}
++
++.zr-hex {
++  max-width: 140px;
++  flex: 0 0 140px;
++}
++
++.zr-more-row {
++  display: flex;
++  justify-content: flex-end;
++  gap: 8px;
++}
++
++.zr-more-btn {
++  min-width: 130px !important;
++  color: #fff !important;
++  font-weight: 600;
++  letter-spacing: 0.04em;
++}
++
++.zr-sv {
++  position: relative;
++  height: 170px;
++  border-radius: 6px;
++  cursor: crosshair;
++  touch-action: none;
++  background-image: linear-gradient(to top, #000, rgba(0, 0, 0, 0)), linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
++}
++
++.zr-sv-dot {
++  position: absolute;
++  width: 20px;
++  height: 20px;
++  margin: -10px 0 0 -10px;
++  border-radius: 50%;
++  border: 2px solid #fff;
++  box-shadow: 0 0 0 1px #000;
++  pointer-events: none;
++}
++
++.zr-dlg-swatch--big {
++  width: 56px;
++  height: 56px;
++  flex: 0 0 56px;
++}
++
++.zr-hue-row {
++  display: flex;
++  align-items: center;
++  gap: 14px;
++}
++
++.zr-hsv-range {
++  flex: 1;
++  height: 22px;
++  border-radius: 11px;
++  appearance: none;
++  -webkit-appearance: none;
++  border: 1px solid rgba(255, 255, 255, 0.35);
++  outline: none;
++
++  &::-webkit-slider-thumb {
++    -webkit-appearance: none;
++    width: 26px;
++    height: 26px;
++    border-radius: 50%;
++    background: #fff;
++    border: 3px solid var(--v-primary-base);
++    cursor: pointer;
++  }
++
++  &::-moz-range-thumb {
++    width: 22px;
++    height: 22px;
++    border-radius: 50%;
++    background: #fff;
++    border: 3px solid var(--v-primary-base);
++    cursor: pointer;
++  }
++}
++
+ .zr-palette {
+   display: grid;
+-  grid-template-columns: repeat(7, 1fr);
+-  gap: 6px;
++  grid-template-columns: repeat(7, minmax(0, 1fr));
++  gap: 8px;
++  justify-items: center;
++  align-items: center;
+ }
+ 
+ .zr-palette-btn {
++  width: 100%;
++  max-width: 44px;
+   aspect-ratio: 1;
+-  min-height: 36px;
++  padding: 0;
+   border-radius: 50%;
+   border: 1px solid rgba(255, 255, 255, 0.3);
+   cursor: pointer;
+@@ -438,6 +735,18 @@ export default class ZrToolDialog extends Mixins(ZrMixin) {
+   }
+ }
+ 
++.zr-palette--more {
++  max-height: 210px;
++  overflow-y: auto;
++  padding: 4px 10px 4px 4px;
++  scrollbar-gutter: stable;
++}
++
++.zr-lists {
++  flex-wrap: wrap;
++  height: auto;
++}
++
+ .zr-palette-btn--selected {
+   border: 3px solid var(--v-primary-base);
+ }
+diff --git a/src/components/widgets/zr/zr.ts b/src/components/widgets/zr/zr.ts
+index cf22267..8f60bfc 100644
+--- a/src/components/widgets/zr/zr.ts
++++ b/src/components/widgets/zr/zr.ts
+@@ -1,6 +1,8 @@
+ // WonderMaker ZR Ultra-S helpers for the Toolheads card.
+ // Colour and material indices follow the printer touchscreen (tmt1.ini [slot]).
+ 
++import { ZR_COLOR_LISTS } from './zrColors'
++
+ export const ZR_HEADS = 4
+ 
+ export interface ZrPaletteEntry { name: string, hex: string, css?: string }
+@@ -314,3 +316,16 @@ export const zrToolChangeStage = (change: ZrToolChange, now: Array<boolean | nul
+   if (change.from >= 0 && flipped(change.from)) return { pct: 45, text: `Putting ${from} back` }
+   return { pct: 10, text: `Changing to ${to}: lifting Z and moving to the dock` }
+ }
++
++/** "#RRGGBB" text of a 0xRRGGBB number. */
++export const zrRgbToHex = (n: number): string => `#${(n & 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0')}`
++
++/** Name of a colour: exact match in the OrcaSlicer colour lists, else the nearest touchscreen swatch. */
++export const zrNamedColour = (hex: string): string => {
++  const h = hex.toUpperCase()
++  for (const list of ZR_COLOR_LISTS) {
++    const found = list.items.find(i => i.hex === h)
++    if (found) return found.name
++  }
++  return ZR_PALETTE[nearestPaletteIndex(h)].name
++}
+diff --git a/src/components/widgets/zr/zrColors.ts b/src/components/widgets/zr/zrColors.ts
+new file mode 100644
+index 0000000..87a3d88
+--- /dev/null
++++ b/src/components/widgets/zr/zrColors.ts
+@@ -0,0 +1,452 @@
++// Filament colour lists of OrcaSlicer's colour picker (names and values from Orca's palettes.js).
++// Used by the "More colours" section of the toolhead dialog. The 21 touchscreen swatches (ZR_PALETTE) stay the quick choices.
++
++export interface ZrColorItem { name: string, hex: string }
++export interface ZrColorList { name: string, items: ZrColorItem[] }
++
++export const ZR_COLOR_LISTS: ZrColorList[] = [
++  {
++    name: 'Orca',
++    items: [
++      { name: 'Coral fire', hex: '#ED1C24' },
++      { name: 'Sea anemone', hex: '#C41E3A' },
++      { name: 'Deep abyss', hex: '#800000' },
++      { name: 'Lobster red', hex: '#B22222' },
++      { name: 'Sandy clay', hex: '#A0522D' },
++      { name: 'Driftwood', hex: '#8B4513' },
++      { name: 'Sea buckthorn', hex: '#D2691E' },
++      { name: 'Sunset reef', hex: '#F26722' },
++      { name: 'Tiger coral', hex: '#FF8C00' },
++      { name: 'Pink coral', hex: '#FA8173' },
++      { name: 'Seashell glow', hex: '#FFA07A' },
++      { name: 'Sand', hex: '#F4E2C1' },
++      { name: 'Golden kelp', hex: '#FFD700' },
++      { name: 'Sunlit dune', hex: '#F7B763' },
++      { name: 'Amber nautilus', hex: '#FFAA33' },
++      { name: 'Sea lemon', hex: '#FFEB31' },
++      { name: 'Pale starfish', hex: '#D4ED91' },
++      { name: 'Spring tide', hex: '#00FF7F' },
++      { name: 'Lime algae', hex: '#32CD32' },
++      { name: 'Sea grass', hex: '#A4C41E' },
++      { name: 'Neon plankton', hex: '#7CFC00' },
++      { name: 'Kelp forest', hex: '#228B22' },
++      { name: 'Emerald wave', hex: '#008000' },
++      { name: 'Whale shadow', hex: '#345B2F' },
++      { name: 'Sea turtle', hex: '#2E8B57' },
++      { name: 'Lagoon', hex: '#00C1AE' },
++      { name: 'Tropical current', hex: '#20B2AA' },
++      { name: 'Midnight trench', hex: '#115877' },
++      { name: 'Dark kelp', hex: '#008B8B' },
++      { name: 'Crystal surf', hex: '#00FFFF' },
++      { name: 'Turquoise bay', hex: '#40E0D0' },
++      { name: 'Sky over reef', hex: '#2EBDEF' },
++      { name: 'Shallow sky', hex: '#87CEEB' },
++      { name: 'Electric blue', hex: '#1E90FF' },
++      { name: 'Dolphin', hex: '#4169E1' },
++      { name: 'Ocean depths', hex: '#0000CD' },
++      { name: 'Whale', hex: '#191970' },
++      { name: 'Indigo abyss', hex: '#4B0082' },
++      { name: 'Sea urchin', hex: '#7841CE' },
++      { name: 'Lavender coral', hex: '#9370DB' },
++      { name: 'Violet tide', hex: '#800080' },
++      { name: 'Deep sea orchid', hex: '#8B008B' },
++      { name: 'Neon jelly', hex: '#FF00FF' },
++      { name: 'Fuchsia coral', hex: '#ED1E79' },
++      { name: 'Pink jellyfish', hex: '#FF69B4' },
++      { name: 'White', hex: '#FFFFFF' },
++      { name: 'Seashell white', hex: '#D3D3D3' },
++      { name: 'Pebble gray', hex: '#808080' },
++      { name: 'Storm cloud', hex: '#696969' },
++      { name: 'Black', hex: '#000000' }
++    ]
++  },
++  {
++    name: 'Basic',
++    items: [
++      { name: 'Red', hex: '#FF0000' },
++      { name: 'Orange', hex: '#FF8000' },
++      { name: 'Yellow', hex: '#FFFF00' },
++      { name: 'Lime', hex: '#80FF00' },
++      { name: 'Green', hex: '#00FF00' },
++      { name: 'Cyan', hex: '#00FFFF' },
++      { name: 'Blue', hex: '#0000FF' },
++      { name: 'Purple', hex: '#8000FF' },
++      { name: 'Magenta', hex: '#FF00FF' },
++      { name: 'Pink', hex: '#FF8080' },
++      { name: 'Brown', hex: '#804000' },
++      { name: 'Black', hex: '#000000' },
++      { name: 'Black 90%', hex: '#191919' },
++      { name: 'Black 80%', hex: '#333333' },
++      { name: 'Black 70%', hex: '#4C4C4C' },
++      { name: 'Black 60%', hex: '#666666' },
++      { name: 'Black 50%', hex: '#808080' },
++      { name: 'Black 40%', hex: '#999999' },
++      { name: 'Black 30%', hex: '#B3B3B3' },
++      { name: 'Black 20%', hex: '#CCCCCC' },
++      { name: 'Black 10%', hex: '#E6E6E6' },
++      { name: 'White', hex: '#FFFFFF' }
++    ]
++  },
++  {
++    name: 'Web',
++    items: [
++      { name: 'Red', hex: '#FF0000' },
++      { name: 'Crimson', hex: '#DC143C' },
++      { name: 'Orange red', hex: '#FF4500' },
++      { name: 'Tomato', hex: '#FF6347' },
++      { name: 'Orange', hex: '#FFA500' },
++      { name: 'Dark orange', hex: '#FF8C00' },
++      { name: 'Gold', hex: '#FFD700' },
++      { name: 'Burly wood', hex: '#DEB887' },
++      { name: 'Bisque', hex: '#FFE4C4' },
++      { name: 'Misty rose', hex: '#FFE4E1' },
++      { name: 'Yellow', hex: '#FFFF00' },
++      { name: 'Light yellow', hex: '#FFFFE0' },
++      { name: 'Lemon chiffon', hex: '#FFFACD' },
++      { name: 'Beige', hex: '#F5F5DC' },
++      { name: 'Light golden rod yellow', hex: '#FAFAD2' },
++      { name: 'Pale golden rod', hex: '#EEE8AA' },
++      { name: 'Khaki', hex: '#F0E68C' },
++      { name: 'Dark khaki', hex: '#BDB76B' },
++      { name: 'Peach puff', hex: '#FFDAB9' },
++      { name: 'Moccasin', hex: '#FFE4B5' },
++      { name: 'Papaya whip', hex: '#FFEFD5' },
++      { name: 'Blanched almond', hex: '#FFEBCD' },
++      { name: 'Antique white', hex: '#FAEBD7' },
++      { name: 'Navajo white', hex: '#FFDEAD' },
++      { name: 'Wheat', hex: '#F5DEB3' },
++      { name: 'Golden rod', hex: '#DAA520' },
++      { name: 'Chocolate', hex: '#D2691E' },
++      { name: 'Peru', hex: '#CD853F' },
++      { name: 'Fire brick', hex: '#B22222' },
++      { name: 'Sienna', hex: '#A0522D' },
++      { name: 'Saddle brown', hex: '#8B4513' },
++      { name: 'Brown', hex: '#A52A2A' },
++      { name: 'Rosy brown', hex: '#BC8F8F' },
++      { name: 'Salmon', hex: '#FA8072' },
++      { name: 'Light salmon', hex: '#FFA07A' },
++      { name: 'Dark salmon', hex: '#E9967A' },
++      { name: 'Sandy brown', hex: '#F4A460' },
++      { name: 'Coral', hex: '#FF7F50' },
++      { name: 'Light coral', hex: '#F08080' },
++      { name: 'Indian red', hex: '#CD5C5C' },
++      { name: 'Dark red', hex: '#8B0000' },
++      { name: 'Maroon', hex: '#800000' },
++      { name: 'Green yellow', hex: '#ADFF2F' },
++      { name: 'Yellow green', hex: '#9ACD32' },
++      { name: 'Chartreuse', hex: '#7FFF00' },
++      { name: 'Lawn green', hex: '#7CFC00' },
++      { name: 'Lime green', hex: '#32CD32' },
++      { name: 'Spring green', hex: '#00FF7F' },
++      { name: 'Medium spring green', hex: '#00FA9A' },
++      { name: 'Lime', hex: '#00FF00' },
++      { name: 'Green', hex: '#008000' },
++      { name: 'Forest green', hex: '#228B22' },
++      { name: 'Dark green', hex: '#006400' },
++      { name: 'Olive drab', hex: '#6B8E23' },
++      { name: 'Olive', hex: '#808000' },
++      { name: 'Dark olive green', hex: '#556B2F' },
++      { name: 'Pale green', hex: '#98FB98' },
++      { name: 'Light green', hex: '#90EE90' },
++      { name: 'Medium sea green', hex: '#3CB371' },
++      { name: 'Sea green', hex: '#2E8B57' },
++      { name: 'Dark sea green', hex: '#8FBC8F' },
++      { name: 'Cadet blue', hex: '#5F9EA0' },
++      { name: 'Medium aqua marine', hex: '#66CDAA' },
++      { name: 'Turquoise', hex: '#40E0D0' },
++      { name: 'Medium turquoise', hex: '#48D1CC' },
++      { name: 'Dark turquoise', hex: '#00CED1' },
++      { name: 'Pale turquoise', hex: '#AFEEEE' },
++      { name: 'Aqua', hex: '#00FFFF' },
++      { name: 'Cyan', hex: '#00FFFF' },
++      { name: 'Light cyan', hex: '#E0FFFF' },
++      { name: 'Mint cream', hex: '#F5FFFA' },
++      { name: 'Honey dew', hex: '#F0FFF0' },
++      { name: 'Aquamarine', hex: '#7FFFD4' },
++      { name: 'Light sea green', hex: '#20B2AA' },
++      { name: 'Dark cyan', hex: '#008B8B' },
++      { name: 'Teal', hex: '#008080' },
++      { name: 'Dark slate gray', hex: '#2F4F4F' },
++      { name: 'Light slate gray', hex: '#778899' },
++      { name: 'Slate gray', hex: '#708090' },
++      { name: 'Deep sky blue', hex: '#00BFFF' },
++      { name: 'Dodger Blue', hex: '#1E90FF' },
++      { name: 'Sky blue', hex: '#87CEEB' },
++      { name: 'Light sky blue', hex: '#87CEFA' },
++      { name: 'Light blue', hex: '#ADD8E6' },
++      { name: 'Powder blue', hex: '#B0E0E6' },
++      { name: 'Light steel blue', hex: '#B0C4DE' },
++      { name: 'Steel blue', hex: '#4682B4' },
++      { name: 'Cornflower blue', hex: '#6495ED' },
++      { name: 'Royal blue', hex: '#4169E1' },
++      { name: 'Blue', hex: '#0000FF' },
++      { name: 'Medium blue', hex: '#0000CD' },
++      { name: 'Midnight blue', hex: '#191970' },
++      { name: 'Dark blue', hex: '#00008B' },
++      { name: 'Navy', hex: '#000080' },
++      { name: 'Slate blue', hex: '#6A5ACD' },
++      { name: 'Dark slate blue', hex: '#483D8B' },
++      { name: 'Medium slate blue', hex: '#7B68EE' },
++      { name: 'Blue violet', hex: '#8A2BE2' },
++      { name: 'Indigo', hex: '#4B0082' },
++      { name: 'Dark violet', hex: '#9400D3' },
++      { name: 'Dark orchid', hex: '#9932CC' },
++      { name: 'Medium orchid', hex: '#BA55D3' },
++      { name: 'Orchid', hex: '#DA70D6' },
++      { name: 'Violet', hex: '#EE82EE' },
++      { name: 'Medium purple', hex: '#9370DB' },
++      { name: 'Purple', hex: '#800080' },
++      { name: 'Rebecca purple', hex: '#663399' },
++      { name: 'Medium violet red', hex: '#C71585' },
++      { name: 'Pale violet red', hex: '#DB7093' },
++      { name: 'Deep pink', hex: '#FF1493' },
++      { name: 'Hot pink', hex: '#FF69B4' },
++      { name: 'Light pink', hex: '#FFB6C1' },
++      { name: 'Pink', hex: '#FFC0CB' },
++      { name: 'Plum', hex: '#DDA0DD' },
++      { name: 'Thistle', hex: '#D8BFD8' },
++      { name: 'Magenta', hex: '#FF00FF' },
++      { name: 'Fuchsia', hex: '#FF00FF' },
++      { name: 'Dark magenta', hex: '#8B008B' },
++      { name: 'Linen', hex: '#FAF0E6' },
++      { name: 'Old lace', hex: '#FDF5E6' },
++      { name: 'Sea shell', hex: '#FFF5EE' },
++      { name: 'Ivory', hex: '#FFFFF0' },
++      { name: 'Floral white', hex: '#FFFAF0' },
++      { name: 'Lavender blush', hex: '#FFF0F5' },
++      { name: 'Ghost white', hex: '#F8F8FF' },
++      { name: 'Alice blue', hex: '#F0F8FF' },
++      { name: 'Lavender', hex: '#E6E6FA' },
++      { name: 'White smoke', hex: '#F5F5F5' },
++      { name: 'Gainsboro', hex: '#DCDCDC' }
++    ]
++  },
++  {
++    name: 'RAL',
++    items: [
++      { name: '1000 Green beige', hex: '#716F52' },
++      { name: '1001 Beige', hex: '#9B8E79' },
++      { name: '1002 Sand yellow', hex: '#D4BB87' },
++      { name: '1003 Signal yellow', hex: '#F4A460' },
++      { name: '1004 Golden yellow', hex: '#EFBF04' },
++      { name: '1005 Honey yellow', hex: '#D7A500' },
++      { name: '1006 Maize yellow', hex: '#F2D185' },
++      { name: '1007 Daffodil yellow', hex: '#FDD185' },
++      { name: '1011 Brown beige', hex: '#8B7D6B' },
++      { name: '1012 Lemon yellow', hex: '#F5DB50' },
++      { name: '1013 Oyster white', hex: '#F3E5AB' },
++      { name: '1014 Ivory', hex: '#F8E4BC' },
++      { name: '1015 Light ivory', hex: '#FAE6D3' },
++      { name: '1018 Zinc yellow', hex: '#E4B922' },
++      { name: '1019 Grey beige', hex: '#A19D94' },
++      { name: '1020 Olive yellow', hex: '#B9975B' },
++      { name: '1021 Rape yellow', hex: '#B8860B' },
++      { name: '1023 Traffic yellow', hex: '#FF8C00' },
++      { name: '1024 Ochre yellow', hex: '#CC7722' },
++      { name: '1026 Traffic orange yellow', hex: '#FDBA37' },
++      { name: '1027 Curry', hex: '#F3A55C' },
++      { name: '1028 Melon yellow', hex: '#E87C33' },
++      { name: '1032 Broom yellow', hex: '#F2A641' },
++      { name: '1033 Dahlia yellow', hex: '#E09F39' },
++      { name: '1034 Pastel yellow', hex: '#F0B76E' },
++      { name: '1035 Pearl beige', hex: '#D1BCA0' },
++      { name: '1036 Pearl gold', hex: '#D4AF37' },
++      { name: '1037 Sun yellow', hex: '#F7C64F' },
++      { name: '2000 Yellow orange', hex: '#F28C38' },
++      { name: '2001 Deep orange', hex: '#E55B2B' },
++      { name: '2002 Vermilion', hex: '#E34234' },
++      { name: '2003 Pearl orange', hex: '#F27B33' },
++      { name: '2004 Pure orange', hex: '#F37322' },
++      { name: '2005 Luminous orange', hex: '#F75C03' },
++      { name: '2007 Luminous bright orange', hex: '#F46C1F' },
++      { name: '2008 Bright red orange', hex: '#E14423' },
++      { name: '2009 Traffic orange', hex: '#F28500' },
++      { name: '2010 Signal orange', hex: '#F46A0A' },
++      { name: '2011 Deep orange', hex: '#E0490C' },
++      { name: '2012 Salmon orange', hex: '#F46F42' },
++      { name: '2013 Pearl orange', hex: '#E6761C' },
++      { name: '2015 Pearl pink', hex: '#E8A18B' },
++      { name: '2016 Copper orange', hex: '#B8612C' },
++      { name: '2017 Signal brown', hex: '#8B4513' },
++      { name: '2018 Fir orange', hex: '#C14A0F' },
++      { name: '2020 Signal red', hex: '#BC2E1F' },
++      { name: '2021 Luminous red', hex: '#D52713' },
++      { name: '2022 Carmine red', hex: '#9F261E' },
++      { name: '2023 Pearl carmine red', hex: '#D53832' },
++      { name: '2024 Pure red', hex: '#C2341C' },
++      { name: '2025 Luminous deep red', hex: '#B32D1C' },
++      { name: '2027 Currant red', hex: '#A62320' },
++      { name: '2028 Pearl ruby red', hex: '#B9301E' },
++      { name: '3000 Fire red', hex: '#A91D2E' },
++      { name: '3001 Signal red', hex: '#A1262A' },
++      { name: '3002 Carmine red', hex: '#8F2626' },
++      { name: '3003 Ruby red', hex: '#9B2428' },
++      { name: '3004 Purple red', hex: '#872241' },
++      { name: '3005 Wine red', hex: '#722F37' },
++      { name: '3007 Black red', hex: '#3D1818' },
++      { name: '3009 Oxide red', hex: '#8A3324' },
++      { name: '3011 Brown red', hex: '#A22C29' },
++      { name: '3012 Pine red', hex: '#B22D20' },
++      { name: '3013 Tomato red', hex: '#D23741' },
++      { name: '3014 Antique pink', hex: '#A8282E' },
++      { name: '3015 Light pink', hex: '#C8283C' },
++      { name: '3016 Coral red', hex: '#D23F39' },
++      { name: '3017 Rose', hex: '#D1425E' },
++      { name: '3018 Strawberry red', hex: '#C4232F' },
++      { name: '3020 Traffic red', hex: '#C8102E' },
++      { name: '3022 Salmon pink', hex: '#E36A5A' },
++      { name: '3024 Luminous rose', hex: '#E63E62' },
++      { name: '3026 Luminous bright red', hex: '#E02A27' },
++      { name: '3027 Raspberry red', hex: '#B8315F' },
++      { name: '3028 Pure red', hex: '#C61C23' },
++      { name: '3031 Orient red', hex: '#AD2932' },
++      { name: '3032 Pearl ruby', hex: '#D32F2F' },
++      { name: '3033 Pearl pink', hex: '#D13C6F' },
++      { name: '4001 Red purple', hex: '#7B2B5F' },
++      { name: '4002 Red violet', hex: '#912E8C' },
++      { name: '4003 Heather violet', hex: '#9C366F' },
++      { name: '4004 Bordeaux violet', hex: '#6A1F49' },
++      { name: '4005 Blue violet', hex: '#4B2663' },
++      { name: '4006 Mahogany', hex: '#5C2D3C' },
++      { name: '4007 Grey purple', hex: '#5E3559' },
++      { name: '4008 Signal violet', hex: '#9C3568' },
++      { name: '4009 Fir green', hex: '#5E6E3A' },
++      { name: '4010 Sabine grey', hex: '#5B5B8A' },
++      { name: '4011 Pearl violet', hex: '#8F3A70' },
++      { name: '4012 Pearl blackberry', hex: '#5E3252' },
++      { name: '5001 Green blue', hex: '#1B4F72' },
++      { name: '5002 Ultramarine blue', hex: '#18669E' },
++      { name: '5003 Sapphire blue', hex: '#0F4C8A' },
++      { name: '5004 Black blue', hex: '#0D324A' },
++      { name: '5005 Signal blue', hex: '#1B5583' },
++      { name: '5007 Brilliant blue', hex: '#2C5F9D' },
++      { name: '5008 Grey blue', hex: '#3B5AA9' },
++      { name: '5009 Azure blue', hex: '#0077A3' },
++      { name: '5010 Gentian blue', hex: '#0A558C' },
++      { name: '5011 Steel blue', hex: '#2B547E' },
++      { name: '5012 Light blue', hex: '#0066A1' },
++      { name: '5013 Cobalt blue', hex: '#124780' },
++      { name: '5014 Pigeon blue', hex: '#1F4E79' },
++      { name: '5015 Sky blue', hex: '#0384A7' },
++      { name: '5017 Traffic blue', hex: '#006A9E' },
++      { name: '5018 Turquoise blue', hex: '#005F87' },
++      { name: '5019 Capri blue', hex: '#1B5583' },
++      { name: '5020 Ocean blue', hex: '#04749F' },
++      { name: '5021 Water blue', hex: '#009AAA' },
++      { name: '5022 Night blue', hex: '#1A3D5F' },
++      { name: '5023 Distant blue', hex: '#047AA6' },
++      { name: '5024 Pastel blue', hex: '#5B9BB8' },
++      { name: '5025 Pearl gentian blue', hex: '#3C6A98' },
++      { name: '5026 Pearl midnight blue', hex: '#1C3F5F' },
++      { name: '6000 Patina green', hex: '#36673A' },
++      { name: '6001 Emerald green', hex: '#0E5C34' },
++      { name: '6002 Leaf green', hex: '#437034' },
++      { name: '6003 Olive green', hex: '#3F3F2A' },
++      { name: '6004 Blue green', hex: '#2B4E52' },
++      { name: '6005 Moss green', hex: '#3B5F3F' },
++      { name: '6006 Grey olive', hex: '#4A563C' },
++      { name: '6007 Pine green', hex: '#2B4638' },
++      { name: '6008 Pine brown', hex: '#4A4139' },
++      { name: '6009 Fir green', hex: '#3B3A2E' },
++      { name: '6010 Grass green', hex: '#3E7A5F' },
++      { name: '6011 Reseda green', hex: '#5E716A' },
++      { name: '6012 Brown green', hex: '#3A4E48' },
++      { name: '6013 Reed green', hex: '#6B8E23' },
++      { name: '6014 Yellow green', hex: '#6B8E23' },
++      { name: '6015 Black green', hex: '#1E3E2F' },
++      { name: '6016 Turquoise green', hex: '#1E4D4B' },
++      { name: '6017 May green', hex: '#4C7C47' },
++      { name: '6018 Yellow green', hex: '#9CBF60' },
++      { name: '6019 Pine green', hex: '#2E5A3A' },
++      { name: '6020 Chrome oxide green', hex: '#2E5A3A' },
++      { name: '6021 Pale green', hex: '#9DC0A5' },
++      { name: '6022 Brown green', hex: '#4A563C' },
++      { name: '6024 Traffic green', hex: '#009E60' },
++      { name: '6025 Fern green', hex: '#3F7044' },
++      { name: '6026 Opal green', hex: '#4F7942' },
++      { name: '6027 Pine green', hex: '#3B5F3F' },
++      { name: '6028 Pine green', hex: '#3B5F3F' },
++      { name: '6029 Mint green', hex: '#00A550' },
++      { name: '6031 Bronze green', hex: '#3E5A40' },
++      { name: '6032 Pearl green', hex: '#3D7E5A' },
++      { name: '6033 Sax turquoise', hex: '#007D6E' },
++      { name: '6034 Pearl turquoise', hex: '#3D7E5A' },
++      { name: '6035 Pearl green', hex: '#3D7E5A' },
++      { name: '6036 Pearl jade', hex: '#3D7E5A' },
++      { name: '6037 Pure green', hex: '#00A550' },
++      { name: '6038 Luminous green', hex: '#00A550' },
++      { name: '6039 Mint green', hex: '#00A550' },
++      { name: '7000 Squirrel grey', hex: '#7D7D7D' },
++      { name: '7001 Silver grey', hex: '#A8A9AD' },
++      { name: '7002 Olive grey', hex: '#6F7368' },
++      { name: '7003 Moss grey', hex: '#8F9080' },
++      { name: '7004 Signal grey', hex: '#8E9291' },
++      { name: '7005 Mouse grey', hex: '#8B8788' },
++      { name: '7006 Beige grey', hex: '#9A8373' },
++      { name: '7008 Khaki grey', hex: '#828C6A' },
++      { name: '7009 Green grey', hex: '#6F7368' },
++      { name: '7010 Tarpaulin grey', hex: '#5F6563' },
++      { name: '7011 Iron grey', hex: '#4A5656' },
++      { name: '7012 Basalt grey', hex: '#4D5656' },
++      { name: '7013 Brown grey', hex: '#635147' },
++      { name: '7015 Slate grey', hex: '#6B6B83' },
++      { name: '7016 Anthracite grey', hex: '#32373D' },
++      { name: '7021 Light grey', hex: '#8B8B83' },
++      { name: '7022 Umber grey', hex: '#716347' },
++      { name: '7023 Concrete grey', hex: '#76787A' },
++      { name: '7024 Graphite grey', hex: '#5E6565' },
++      { name: '7026 Granite grey', hex: '#5E6565' },
++      { name: '7030 Stone grey', hex: '#8F9494' },
++      { name: '7031 Iron grey', hex: '#4A5656' },
++      { name: '7032 Pebble grey', hex: '#B2BFC0' },
++      { name: '7033 Cement grey', hex: '#9B9B9B' },
++      { name: '7034 Yellow grey', hex: '#8F9D9B' },
++      { name: '7035 Light grey', hex: '#CBD0CC' },
++      { name: '7036 Platinum grey', hex: '#6D7A80' },
++      { name: '7037 Dusty grey', hex: '#8A9191' },
++      { name: '7038 Agate grey', hex: '#7E8181' },
++      { name: '7039 Quartz grey', hex: '#6E7D7E' },
++      { name: '7040 Window grey', hex: '#8A9191' },
++      { name: '7042 Traffic grey A', hex: '#8A9191' },
++      { name: '7043 Traffic grey B', hex: '#6E7D7E' },
++      { name: '7044 Silk grey', hex: '#9B9B9B' },
++      { name: '7045 Telegrey 1', hex: '#A1A7B0' },
++      { name: '7046 Telegrey 2', hex: '#7E848C' },
++      { name: '7047 Telegrey 4', hex: '#7E848C' },
++      { name: '7048 Pearl mouse grey', hex: '#6D7A80' },
++      { name: '8000 Green brown', hex: '#786D5F' },
++      { name: '8001 Ochre brown', hex: '#8B7355' },
++      { name: '8003 Clay brown', hex: '#8B6F47' },
++      { name: '8004 Copper brown', hex: '#8B6F47' },
++      { name: '8007 Chocolate brown', hex: '#5C4033' },
++      { name: '8008 Olive brown', hex: '#6E5C4A' },
++      { name: '8011 Nut brown', hex: '#8B4513' },
++      { name: '8012 Red brown', hex: '#8B4513' },
++      { name: '8014 Sepia brown', hex: '#5C3317' },
++      { name: '8015 Chestnut brown', hex: '#854636' },
++      { name: '8016 Mahogany brown', hex: '#8B4513' },
++      { name: '8017 Chocolate brown', hex: '#5C3317' },
++      { name: '8019 Grey brown', hex: '#786D5F' },
++      { name: '8022 Chestnut brown', hex: '#854636' },
++      { name: '8023 Pearl copper', hex: '#8B6F47' },
++      { name: '8024 Beige brown', hex: '#8B7355' },
++      { name: '8025 Pearl mocha brown', hex: '#8B6F47' },
++      { name: '8027 Clay brown', hex: '#8B6F47' },
++      { name: '8028 Earth brown', hex: '#8B6F47' },
++      { name: '8029 Pearl brown', hex: '#8B6F47' },
++      { name: '9001 Cream', hex: '#FAF0E6' },
++      { name: '9002 Grey white', hex: '#EDECE6' },
++      { name: '9003 Signal white', hex: '#FFFFFF' },
++      { name: '9004 Signal black', hex: '#000000' },
++      { name: '9005 Jet black', hex: '#1D1D1D' },
++      { name: '9006 White aluminium', hex: '#C0C0C0' },
++      { name: '9007 Grey aluminium', hex: '#8C7853' },
++      { name: '9010 Pure white', hex: '#FFFFFF' },
++      { name: '9011 Graphite black', hex: '#1D1D1D' },
++      { name: '9016 Traffic white', hex: '#FFFFFF' },
++      { name: '9017 Traffic black', hex: '#000000' },
++      { name: '9018 Papyrus white', hex: '#FAF0E6' },
++      { name: '9022 Pearl light grey', hex: '#B2BFC0' }
++    ]
++  }
++]
+diff --git a/src/components/widgets/zr/zrMixin.ts b/src/components/widgets/zr/zrMixin.ts
+index f8ef57c..f5248d6 100644
+--- a/src/components/widgets/zr/zrMixin.ts
++++ b/src/components/widgets/zr/zrMixin.ts
+@@ -5,7 +5,7 @@ import FilesMixin from '@/mixins/files'
+ import { encodeGcodeParamValue } from '@/util/gcode-helpers'
+ import {
+   ZR_HEADS, ZR_MATERIALS, ZR_PALETTE,
+-  parseTmt1Slots, updateTmt1Slot, zrEndlessNext, zrEndlessSets, zrColorName, zrMaterialName, zrSwatchCss,
++  parseTmt1Slots, updateTmt1Slot, zrEndlessNext, zrEndlessSets, zrColorName, zrMaterialName, zrSwatchCss, nearestPaletteIndex, zrRgbToHex, zrNamedColour,
+   type ZrSlot
+ } from './zr'
+ 
+@@ -330,19 +330,29 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+     return material != null ? ZR_MATERIALS[material].temp : 220
+   }
+ 
++  /** The exact colour saved for a head (zr_tN_color, set from the colour lists) when it belongs to the swatch in tmt1.ini, else null. */
++  zrExactRgb (index: number): number | null {
++    const raw = this.zrVariables[`zr_t${index}_color`]
++    const v = Number(raw)
++    const slot = zrShared.slots[index]
++    if (raw == null || !Number.isFinite(v) || v < 0 || v > 0xFFFFFF || slot?.color == null) return null
++    return nearestPaletteIndex(zrRgbToHex(v)) === slot.color ? v : null
++  }
++
+   get zrHeads (): ZrHead[] {
+     const active = this.zrActiveTool
+     return Array.from({ length: ZR_HEADS }, (_, index) => {
+       const slot = zrShared.slots[index]
+       const heater = this.zrHeater(index)
+       const h = this.zrPrinter[heater] ?? {}
++      const exact = this.zrExactRgb(index)
+       return {
+         index,
+         heater,
+         slot,
+-        colorCss: zrSwatchCss(slot.color),
+-        colorHex: slot.color != null ? ZR_PALETTE[slot.color].hex : null,
+-        colorName: zrColorName(slot.color),
++        colorCss: exact != null ? zrRgbToHex(exact) : zrSwatchCss(slot.color),
++        colorHex: exact != null ? zrRgbToHex(exact) : (slot.color != null ? ZR_PALETTE[slot.color].hex : null),
++        colorName: exact != null ? zrNamedColour(zrRgbToHex(exact)) : zrColorName(slot.color),
+         materialName: zrMaterialName(slot.material),
+         temp: this.zrSavedTemp(index),
+         actual: Math.round(Number(h.temperature ?? 0)),
+@@ -381,7 +391,7 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+   }
+ 
+   /** Writes one slot to tmt1.ini and the ZR Tools variables, keeping everything else unchanged. */
+-  async zrSaveSlot (index: number, color: number, material: number, temp: number): Promise<void> {
++  async zrSaveSlot (index: number, color: number, material: number, temp: number, rgb?: number): Promise<void> {
+     // Re-read first so a change made on the touchscreen meanwhile is not lost.
+     const response = await this.serverFilesGet<string>(TMT1_PATH, { responseType: 'text', transformResponse: [(d: unknown) => d] })
+     const current = String(response.data ?? '')
+@@ -396,7 +406,7 @@ export default class ZrMixin extends Mixins(StateMixin, FilesMixin) {
+     zrShared.raw = updated
+     zrShared.slots = parseTmt1Slots(updated)
+ 
+-    const hex = parseInt(ZR_PALETTE[color].hex.slice(1), 16)
++    const hex = rgb ?? parseInt(ZR_PALETTE[color].hex.slice(1), 16)
+     const zrMat = ZR_MATERIALS[material].zr
+     this.zrSend([
+       `SAVE_VARIABLE VARIABLE=zr_t${index}_temp VALUE=${Math.round(temp)}`,
 -- 
 2.43.0
 

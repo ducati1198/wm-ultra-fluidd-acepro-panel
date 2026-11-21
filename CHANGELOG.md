@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.18.0
+
+- **Fluidd build (33 patches): filament colours (F-198 to F-201, F-207).** The tool dialog gets **More colours** with name lists (Orca, Basic, Web CSS, RAL; 430 colours), a **Color Picker**, a White entry and three extra swatches. The exact colour is saved in `zr_tN_color`, the nearest touchscreen swatch in `tmt1.ini`. Black is now named **Black** (it was "Ink black"). The Fluidd zip, patch and checksum are regenerated; the patch is one commit longer.
+- **`config/rpi_endless.cfg`: new setting `swap_purge` (F-202, Resume purge after a tool swap).** `_WM_ENDLESS_3` can raise the purge of the resume after an endless-spool swap to `swap_purge` mm when that is longer than the normal resume purge (20 mm), and puts it back to 20 afterwards. The default is 20, so nothing changes until you raise it. Plain RESUME and `WM_RESUME_TOOL` are not touched.
+- Goes with installer 2.23.0 (the KlipperScreen side of the colours, the Tools page and the new start purge switch).
+
 ## 1.17.0
 
 - **Fluidd build (32 patches): purge window, Resume tool and Load menu buttons.** The Fluidd zip and patch are regenerated. They call the secondary macros by their hidden names, so the endless spool, stats reset, load/unload stop and Z trim buttons keep working after the rename below.
