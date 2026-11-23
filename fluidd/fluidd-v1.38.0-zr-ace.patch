@@ -1,7 +1,7 @@
-From 5545af05aafeec3c97fcd7d7e987cc60856d4a95 Mon Sep 17 00:00:00 2001
+From f8f39085a730fd36d3f1aa505d7e15813edfcf66 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 27 Oct 2026 16:19:08 -0400
-Subject: [PATCH 01/33] ZR Ultra-S Toolheads card
+Subject: [PATCH 01/34] ZR Ultra-S Toolheads card
 
 ---
  src/App.vue                                   |   5 +-
@@ -1852,10 +1852,10 @@ index a01c43f..2ede1df 100644
 2.43.0
 
 
-From 63a7a025b9655aa0cf558b64993cfecb7e1b1930 Mon Sep 17 00:00:00 2001
+From 896a77700d8c6c092928055e5b1fc9b7f3f3c445 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:35:22 -0400
-Subject: [PATCH 02/33] ZR: compile/lint fixes; always write full tool mapping
+Subject: [PATCH 02/34] ZR: compile/lint fixes; always write full tool mapping
  before print
 
 ---
@@ -1927,10 +1927,10 @@ index cc15c3d..4693634 100644
 2.43.0
 
 
-From 2e6ea7e204d6a521903543a5e0d3fce693dcd2f2 Mon Sep 17 00:00:00 2001
+From 29d8f3288187d2daf3e033d06c0c320dbfee5b06 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:42:16 -0400
-Subject: [PATCH 03/33] fix(zr): drop httpClientActions removed in v1.37
+Subject: [PATCH 03/34] fix(zr): drop httpClientActions removed in v1.37
 
 Signed-off-by: ZR build <zr@local>
 ---
@@ -2054,10 +2054,10 @@ index 4693634..2b78324 100644
 2.43.0
 
 
-From 2a8fca020579de4d4d70b34d6b714fb6ad11dc0d Mon Sep 17 00:00:00 2001
+From 41d97ef842f57a9088f3e635c368c31521a973d2 Mon Sep 17 00:00:00 2001
 From: ZR build <zr@local>
 Date: Wed, 28 Oct 2026 13:53:48 -0400
-Subject: [PATCH 04/33] fix(zr): wait for tmt1.ini before colour suggest
+Subject: [PATCH 04/34] fix(zr): wait for tmt1.ini before colour suggest
 
 Opening the print dialog from the Jobs page on a fresh load suggested
 toolheads before tmt1.ini was read, falling back to the file's own tool
@@ -2126,10 +2126,10 @@ index 2b78324..e1f06c0 100644
 2.43.0
 
 
-From 39505e5eab24812784e1a3ad745ba95787502a1a Mon Sep 17 00:00:00 2001
+From 174c7a4ea35e94aead49bb9e74b2f51ae48a1598 Mon Sep 17 00:00:00 2001
 From: zr <zr@example.com>
 Date: Thu, 29 Oct 2026 22:30:50 +0000
-Subject: [PATCH 05/33] fix(zr): only mention the touchscreen when
+Subject: [PATCH 05/34] fix(zr): only mention the touchscreen when
  makerbase-client exists
 
 ---
@@ -2180,10 +2180,10 @@ index e1f06c0..99c90df 100644
 2.43.0
 
 
-From d888489e8e95757b82579446063a0c4601747bd8 Mon Sep 17 00:00:00 2001
+From 052c0d485975a565acf909ab93255845f63017a8 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:15:56 +0000
-Subject: [PATCH 06/33] feat(zr): ACE feeder and dryer inside the Toolheads
+Subject: [PATCH 06/34] feat(zr): ACE feeder and dryer inside the Toolheads
  card
 
 Signed-off-by: t <t@e.x>
@@ -3081,10 +3081,10 @@ index 99c90df..d18abc1 100644
 2.43.0
 
 
-From a454008f81159880129fc3180ae325d347bce939 Mon Sep 17 00:00:00 2001
+From 58a78e1f2a47fa37a86033dc7b8f749d164711b5 Mon Sep 17 00:00:00 2001
 From: t <t@e.x>
 Date: Tue, 3 Nov 2026 03:34:36 +0000
-Subject: [PATCH 07/33] feat(zr): dryer presets and endless-spool offer in the
+Subject: [PATCH 07/34] feat(zr): dryer presets and endless-spool offer in the
  Toolheads card
 
 Signed-off-by: t <t@e.x>
@@ -3339,10 +3339,10 @@ index d18abc1..43ff04b 100644
 2.43.0
 
 
-From d60fa990f7f229a0040a6df08db840a926bcf0b2 Mon Sep 17 00:00:00 2001
+From e9340430d3ae3ed94cb1f805e7c7e48ef6cbef20 Mon Sep 17 00:00:00 2001
 From: t <zr@local>
 Date: Tue, 3 Nov 2026 05:34:27 +0000
-Subject: [PATCH 08/33] feat(zr): Choose toolheads window, only opens when
+Subject: [PATCH 08/34] feat(zr): Choose toolheads window, only opens when
  colour or material do not match
 
 Replaces the Print with colours dialog. Looks at the file first and prints straight away when every filament matches a loaded toolhead (nearest palette colour and material). Otherwise shows one warning per filament, lets you pick another toolhead or print anyway, and swaps two filaments when you tap a toolhead that is already used.
@@ -3677,10 +3677,10 @@ index 7e3fcf6..fe9bf2d 100644
 2.43.0
 
 
-From 8ff2652c15ba953fb526455d4db95763b4c83f9d Mon Sep 17 00:00:00 2001
+From 2dc31d63c72250656cc3fd01db777341da976ba5 Mon Sep 17 00:00:00 2001
 From: ducati1198 <transportcarmelo@gmail.com>
 Date: Tue, 3 Nov 2026 18:13:12 -0500
-Subject: [PATCH 09/33] feat(zr): endless-spool chain, tool-change progress bar
+Subject: [PATCH 09/34] feat(zr): endless-spool chain, tool-change progress bar
  and counters in the Toolheads card
 
 Signed-off-by: ducati1198 <transportcarmelo@gmail.com>
@@ -4051,10 +4051,10 @@ index 43ff04b..8692f6f 100644
 2.43.0
 
 
-From c3cd32b29046ead5fdb614c9f0e5f7c5a455fb69 Mon Sep 17 00:00:00 2001
+From e5b3526eee9aa88a765c27872ede904ad3e5b516 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Tue, 10 Nov 2026 12:53:55 -0500
-Subject: [PATCH 10/33] feat(zr): Chamber light button beside AIR FILTER (light
+Subject: [PATCH 10/34] feat(zr): Chamber light button beside AIR FILTER (light
  on the screen board, found through config/rpi_chamber_light.json)
 
 ---
@@ -4162,10 +4162,10 @@ index 5bebf42..9c9c17b 100644
 2.43.0
 
 
-From 39d8cd60ea24f65c29b4fc8e8643ae47ec86f24d Mon Sep 17 00:00:00 2001
+From b090e87d5c9a380d13c7bd6c599570a4002f37a8 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:00:04 -0500
-Subject: [PATCH 11/33] feat(zr): Choose toolheads window always opens when
+Subject: [PATCH 11/34] feat(zr): Choose toolheads window always opens when
  Print is pressed
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4203,10 +4203,10 @@ index fe9bf2d..2486f37 100644
 2.43.0
 
 
-From e5b7c8d33d845951d88e8835d1b4426ae6c7bde3 Mon Sep 17 00:00:00 2001
+From a5cf4fd64f11f960d68005b70ff088690ac7a6f0 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:09:32 -0500
-Subject: [PATCH 12/33] feat(zr): Choose toolheads window gets List/Map, saved
+Subject: [PATCH 12/34] feat(zr): Choose toolheads window gets List/Map, saved
  mappings, auto-match, dry first and print as sliced
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -4948,10 +4948,10 @@ index 0000000..6022c94
 2.43.0
 
 
-From 9aa48927dc3e7b4eccc8340f4367705be5a378c6 Mon Sep 17 00:00:00 2001
+From d69a4f031d959d0f8f6128d5c0f960ce85e4f39b Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:22:23 -0500
-Subject: [PATCH 13/33] fix(zr): Choose toolheads window opens on every Print
+Subject: [PATCH 13/34] fix(zr): Choose toolheads window opens on every Print
  even when file metadata is not loaded yet
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5029,10 +5029,10 @@ index 2486f37..e21d215 100644
 2.43.0
 
 
-From f7a3a82e512ce9019ad4495909d86f635115bb8a Mon Sep 17 00:00:00 2001
+From 12bed8d5dc85197b581e566178e299ef9f1ab25d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 11 Nov 2026 17:42:06 -0500
-Subject: [PATCH 14/33] fix(zr): read OrcaSlicer metadata (empty
+Subject: [PATCH 14/34] fix(zr): read OrcaSlicer metadata (empty
  referenced_tools, JSON-text material list) in the Choose toolheads window
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5150,10 +5150,10 @@ index 24c2865..ebe2fce 100644
 2.43.0
 
 
-From 908e251e9c278a8f23f3736a892651acf43bd976 Mon Sep 17 00:00:00 2001
+From b8007e8e09cf1209579117998e654de444875fe8 Mon Sep 17 00:00:00 2001
 From: ducati1198 <noreply@github.com>
 Date: Thu, 12 Nov 2026 21:16:24 -0500
-Subject: [PATCH 15/33] feat(zr): Feed assist button in the tool window uses
+Subject: [PATCH 15/34] feat(zr): Feed assist button in the tool window uses
  ACE_WM_ASSIST (works during a pause)
 
 Signed-off-by: ducati1198 <noreply@github.com>
@@ -5193,10 +5193,10 @@ index 00b948f..7111b68 100644
 2.43.0
 
 
-From dd4e85ff8f3f253a3c25876438f9c30715d07b2b Mon Sep 17 00:00:00 2001
+From a44859ed0538e1a614184a2c204473d064509a47 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Fri, 13 Nov 2026 17:20:58 -0500
-Subject: [PATCH 16/33] Toolheads card: banner with Turn on when the ACE_Pro
+Subject: [PATCH 16/34] Toolheads card: banner with Turn on when the ACE_Pro
  switch is off
 
 ---
@@ -5260,10 +5260,10 @@ index 8692f6f..8ac9d96 100644
 2.43.0
 
 
-From 115303d50df76a46f549da193ec35e18574b8278 Mon Sep 17 00:00:00 2001
+From b50f7466d0870bd37141aa18a576262e68fc6af1 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Fri, 13 Nov 2026 23:03:02 -0500
-Subject: [PATCH 17/33] feat(zr): Auto load switch, Park and Select need only X
+Subject: [PATCH 17/34] feat(zr): Auto load switch, Park and Select need only X
  and Y, no Load/Unload with an ACE
 
 Park runs SET_GCODE_OFFSET X=0 Y=0 Z=0 and PARK_CURRENT_TOOL; Select needs only X and Y;
@@ -5494,10 +5494,10 @@ index 8ac9d96..f080b4d 100644
 2.43.0
 
 
-From 0974cc46ed09628ed46c0668cd53b7082ccc2e75 Mon Sep 17 00:00:00 2001
+From de0ef9fd2570dccc2e44ab604069b86fcf4f0bf3 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sat, 14 Nov 2026 01:38:56 -0500
-Subject: [PATCH 18/33] feat(zr): more filament materials (PLA+, PLA-CF,
+Subject: [PATCH 18/34] feat(zr): more filament materials (PLA+, PLA-CF,
  PETG-CF, PA, PA-CF, PC, ABS-CF, PA-GF, PC-ABS, PP, BVOH)
 
 Added at the end of the material list so no existing index moves.
@@ -5564,10 +5564,10 @@ index ebe2fce..3b38608 100644
 2.43.0
 
 
-From 8056f8e942a165448d9ad6b7a80ccb29323f914e Mon Sep 17 00:00:00 2001
+From 698f09f1e017981da7b4e3465b3bba59d50d0279 Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sat, 14 Nov 2026 01:51:07 -0500
-Subject: [PATCH 19/33] feat(zr): remove the Z offset button from the tool
+Subject: [PATCH 19/34] feat(zr): remove the Z offset button from the tool
  window
 
 The Z offset calibration is started from the touchscreen.
@@ -5603,10 +5603,10 @@ index 459afbd..7648d61 100644
 2.43.0
 
 
-From b70b945b6d481b13eb1179c46b318a19139f8a93 Mon Sep 17 00:00:00 2001
+From e7ebdb608f737a235da5daddc6f5cbc7cbae7fff Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:25:45 -0500
-Subject: [PATCH 20/33] feat(zr): bigger ACE sensors and dryer presets
+Subject: [PATCH 20/34] feat(zr): bigger ACE sensors and dryer presets
 
 Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_0188cJYRY7ZSqCguqTL3TYPE
@@ -5705,10 +5705,10 @@ index 06e56a0..6391cae 100644
 2.43.0
 
 
-From 9738d9c04a58d9d3ce4943211499466cc597f938 Mon Sep 17 00:00:00 2001
+From b2a5e0d080765dc666316ffb8d0f23afa41ded6f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:32:55 -0500
-Subject: [PATCH 21/33] feat(zr): edit chamber target and Off button
+Subject: [PATCH 21/34] feat(zr): edit chamber target and Off button
 
 Signed-off-by: Claude <noreply@anthropic.com>
 ---
@@ -5835,10 +5835,10 @@ index 6391cae..4973773 100644
 2.43.0
 
 
-From 00da2f6fe43a259b824a0272971d21a20e02e74a Mon Sep 17 00:00:00 2001
+From 84ed8db0f1c8742d98b39ac27a87c7acc3fe1b84 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Sat, 14 Nov 2026 11:38:40 -0500
-Subject: [PATCH 22/33] feat(zr): same height for chamber and dry buttons
+Subject: [PATCH 22/34] feat(zr): same height for chamber and dry buttons
 
 Signed-off-by: Claude <noreply@anthropic.com>
 ---
@@ -5901,10 +5901,10 @@ index 4973773..be92ee7 100644
 2.43.0
 
 
-From d5683234f9d80434ca75ded3b1a502de9bcf6cf3 Mon Sep 17 00:00:00 2001
+From 83041712cf137dab571d4f03f081753acd811c1e Mon Sep 17 00:00:00 2001
 From: t <t@t>
 Date: Sun, 15 Nov 2026 03:08:32 -0500
-Subject: [PATCH 23/33] feat(zr): chamber light button uses the Moonraker power
+Subject: [PATCH 23/34] feat(zr): chamber light button uses the Moonraker power
  device chamber_light
 
 Signed-off-by: Claude <noreply@anthropic.com>
@@ -5995,10 +5995,10 @@ index be92ee7..e5fabfa 100644
 2.43.0
 
 
-From a40ee60916390546ca6047364c7042657cb1c7e7 Mon Sep 17 00:00:00 2001
+From e4eb3314b9dd25dc6fceff671ed5de9f9a04d026 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sun, 15 Nov 2026 20:18:07 -0500
-Subject: [PATCH 24/33] feat(zr): friendly sensor labels with the real name
+Subject: [PATCH 24/34] feat(zr): friendly sensor labels with the real name
  under each
 
 Signed-off-by: zr <x@x>
@@ -6081,10 +6081,10 @@ index 33ee7bd..a70e3e9 100644
 2.43.0
 
 
-From 93cca1c89cdeb274581d31795f20cb4ea4fd1eb9 Mon Sep 17 00:00:00 2001
+From 965fa270ff174c65d9dc829b6b7615e265b6b3dc Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sun, 15 Nov 2026 20:18:11 -0500
-Subject: [PATCH 25/33] feat(zr): switches ACE Pro, Bed warp wait and Nozzle
+Subject: [PATCH 25/34] feat(zr): switches ACE Pro, Bed warp wait and Nozzle
  heat growth in the Toolheads card
 
 Signed-off-by: zr <x@x>
@@ -6226,10 +6226,10 @@ index f080b4d..29dde6d 100644
 2.43.0
 
 
-From 5a1487fc0a07fa04ff4a439ed2db19486350f2a1 Mon Sep 17 00:00:00 2001
+From decf8c28900f3c73d20003f70c0c71f266be3cb6 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 01:11:45 -0500
-Subject: [PATCH 26/33] feat(zr): unload menu, sensor lights, board line
+Subject: [PATCH 26/34] feat(zr): unload menu, sensor lights, board line
 
 Toolheads card: Unload Menu button (WM_UNLOAD_MENU); Hub, Head and Dock lights for every toolhead (not only with an ACE); Tool lock and Lock motor home lights of the carriage; print time per toolhead next to the tool-change counts (wm_stat_time0-3 from rpi_stats.cfg); touchscreen board line (version, update available, CPU, free memory) read from config/wm_screen_status.json, which the board uploads every minute.
 
@@ -6531,10 +6531,10 @@ index 29dde6d..9558492 100644
 2.43.0
 
 
-From 7b8f6807b16571528d9325c9e8641bae1b7d98af Mon Sep 17 00:00:00 2001
+From 97c5bb3e0bd03d22c7179d9f6e3308e98d549871 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 07:19:03 -0500
-Subject: [PATCH 27/33] feat(zr): endless spool section (sets of identical
+Subject: [PATCH 27/34] feat(zr): endless spool section (sets of identical
  toolheads), swap automatically switch, chain removed
 
 Signed-off-by: zr <x@x>
@@ -7183,10 +7183,10 @@ index 9558492..0a36d2f 100644
 2.43.0
 
 
-From 2bb503b7953105febfce302a0b8a20f52e257ec0 Mon Sep 17 00:00:00 2001
+From ab41363443a11e7b0a510a48fe6453531cb8450f Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 13:41:06 -0500
-Subject: [PATCH 28/33] feat(zr): endless spool: swap on a tangle switch, Fixed
+Subject: [PATCH 28/34] feat(zr): endless spool: swap on a tangle switch, Fixed
  button, ACE spools, Tangle light
 
 Signed-off-by: zr <x@x>
@@ -7508,10 +7508,10 @@ index 0a36d2f..8fb5763 100644
 2.43.0
 
 
-From 013a24679730be4353b59c27cb173d162b2f660a Mon Sep 17 00:00:00 2001
+From 08635f25adfc1cd2e35499400170d64d3cc435f0 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Mon, 16 Nov 2026 15:51:41 -0500
-Subject: [PATCH 29/33] feat(zr): pictures in a prompt window
+Subject: [PATCH 29/34] feat(zr): pictures in a prompt window
  (action:prompt_image), tool setter position pictures
 
 Signed-off-by: zr <x@x>
@@ -7739,10 +7739,10 @@ index c7747e0..6e81a4e 100644
 2.43.0
 
 
-From 4d801bced753b8a2b85f53274885e3cfa8aaeca6 Mon Sep 17 00:00:00 2001
+From 4bdbfdb58962cbf5cc560eb7ad80794f02538b37 Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 17 Nov 2026 01:45:24 -0500
-Subject: [PATCH 30/33] fix(zr): endless spool section in one column on a
+Subject: [PATCH 30/34] fix(zr): endless spool section in one column on a
  narrow card (phone)
 
 The title and switches lay over the circle and the chips were pushed off
@@ -7886,10 +7886,10 @@ index 4633a29..f3cb86e 100644
 2.43.0
 
 
-From c13f7352d2a5cf06c5147454a47ae2cc65ad5e69 Mon Sep 17 00:00:00 2001
+From 39b9a4a7d406d9f7e8f604d0075341e12ed9954e Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Tue, 17 Nov 2026 01:52:28 -0500
-Subject: [PATCH 31/33] fix(zr): toolhead tiles and chamber row on a phone
+Subject: [PATCH 31/34] fix(zr): toolhead tiles and chamber row on a phone
 
 Narrow tile (up to 120 px): Tangle / Head / Dock lights one under the other
 instead of overlapping the next tile, status READY without TOOLHEAD.
@@ -8157,10 +8157,10 @@ index f3cb86e..b991b14 100644
 2.43.0
 
 
-From c3e983a87dd04b075a40dc40e642c7efa35e0a24 Mon Sep 17 00:00:00 2001
+From 9812024659a0b20216fee7c2be0d7a4bfd29218a Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Fri, 20 Nov 2026 04:18:36 -0500
-Subject: [PATCH 32/33] feat(zr): purge window, Resume tool and Load menu
+Subject: [PATCH 32/34] feat(zr): purge window, Resume tool and Load menu
  buttons, secondary macros called by their hidden names
 
 Signed-off-by: zr <x@x>
@@ -8690,10 +8690,10 @@ index 8fb5763..f8ef57c 100644
 2.43.0
 
 
-From 40ba0f9162a071d4023054949fa2efdd62f5d9cf Mon Sep 17 00:00:00 2001
+From 2a7eba54deebf3f560990e97f549e2589f25375b Mon Sep 17 00:00:00 2001
 From: zr <x@x>
 Date: Sat, 21 Nov 2026 15:16:20 -0500
-Subject: [PATCH 33/33] feat(zr): More colours lists, Color Picker, White and
+Subject: [PATCH 33/34] feat(zr): More colours lists, Color Picker, White and
  extra swatches; black is named Black (F-198 to F-201, F-207)
 
 Signed-off-by: zr <x@x>
@@ -9693,6 +9693,254 @@ index f8ef57c..f5248d6 100644
      const zrMat = ZR_MATERIALS[material].zr
      this.zrSend([
        `SAVE_VARIABLE VARIABLE=zr_t${index}_temp VALUE=${Math.round(temp)}`,
+-- 
+2.43.0
+
+
+From 540515db0f6d86e285f30653864294abeef4d505 Mon Sep 17 00:00:00 2001
+From: WonderMaker project <noreply@example.invalid>
+Date: Mon, 23 Nov 2026 09:23:57 -0500
+Subject: [PATCH 34/34] feat(zr): versions line, Update now, button fixes
+
+Versions line (Pi, Screen, Panel from Moonraker's wondermaker database) and an Update now button in the Toolheads card; the four action buttons line up on a phone; Swap on a tangle lines up with Swap automatically; the Tangle dot is lit when the hub sensor is released.
+
+Signed-off-by: WonderMaker project <noreply@example.invalid>
+---
+ src/components/widgets/zr/ZrToolheadsCard.vue | 133 +++++++++++++++++-
+ 1 file changed, 126 insertions(+), 7 deletions(-)
+
+diff --git a/src/components/widgets/zr/ZrToolheadsCard.vue b/src/components/widgets/zr/ZrToolheadsCard.vue
+index a005650..a71c73b 100644
+--- a/src/components/widgets/zr/ZrToolheadsCard.vue
++++ b/src/components/widgets/zr/ZrToolheadsCard.vue
+@@ -234,10 +234,10 @@
+                 <div class="text-caption secondary--text zr-dots zr-dots--small">
+                   <span
+                     v-if="zrHubDetected(head.index) !== null"
+-                    title="Tangle sensor at the hub: green = the filament runs free, off = it is pulled tight (a tangle, or a finished spool whose end is fixed to the spool)"
++                    title="Tangle sensor at the hub: green = tangle (the hub sensor is released, the filament is pulled tight, or a finished spool whose end is fixed to the spool), off = the filament runs free"
+                   ><i
+                     class="zr-dot"
+-                    :class="dotClass(zrHubDetected(head.index))"
++                    :class="dotClass(!zrHubDetected(head.index))"
+                   />Tangle</span>
+                   <span title="Toolhead filament sensor: filament in the toolhead"><i
+                     class="zr-dot"
+@@ -305,7 +305,7 @@
+ 
+         <div
+           v-if="zrHasMacro('WM_UNLOAD_MENU') || zrHasMacro('_WM_PURGE') || zrHasMacro('WM_LOAD_MENU') || zrHasMacro('WM_RESUME_TOOL')"
+-          class="d-flex justify-center flex-wrap mt-2"
++          class="d-flex justify-center flex-wrap mt-2 zr-actions"
+         >
+           <app-btn
+             v-if="zrHasMacro('WM_UNLOAD_MENU')"
+@@ -326,7 +326,7 @@
+           <app-btn
+             v-if="zrHasMacro('WM_LOAD_MENU')"
+             color="primary"
+-            class="zr-unload-btn ml-2"
++            class="zr-unload-btn"
+             :disabled="!klippyReady || zrPrinting"
+             :title="zrPrinting ? 'Loading is not possible while a print runs. Pause it first' : 'Window to load one or more toolheads (WM_LOAD_MENU). Works while the print is paused'"
+             @click="zrSend('WM_LOAD_MENU')"
+@@ -342,7 +342,7 @@
+           <app-btn
+             v-if="zrHasMacro('WM_RESUME_TOOL')"
+             color="success"
+-            class="zr-unload-btn ml-2"
++            class="zr-unload-btn"
+             :disabled="!klippyReady || !zrPaused"
+             :title="zrPaused ? 'Choose the tool that continues the paused print, its temperature and purge (WM_RESUME_TOOL)' : 'Only while the print is paused'"
+             @click="zrSend('WM_RESUME_TOOL')"
+@@ -358,7 +358,7 @@
+           <app-btn
+             v-if="zrHasMacro('_WM_PURGE')"
+             color="warning"
+-            class="zr-unload-btn ml-2"
++            class="zr-unload-btn"
+             :disabled="!klippyReady || zrBusy"
+             :title="zrBusy ? 'Purging is not possible while a print runs or is paused' : 'Window to purge filament: toolhead, temperature, speed and amount'"
+             @click="purgeDialog = true"
+@@ -614,11 +614,19 @@
+                   :input-value="zrEndlessTangle"
+                   dense
+                   hide-details
+-                  class="mt-0 pt-0"
++                  class="mt-0 pt-0 mr-4 zr-endless-tangle"
+                   :disabled="!klippyReady"
+                   aria-label="Swap on a tangle"
+                   @change="setEndlessTangle"
+                 />
++                <v-switch
++                  dense
++                  hide-details
++                  class="mt-0 pt-0 zr-endless-ghost"
++                  disabled
++                  aria-hidden="true"
++                  tabindex="-1"
++                />
+               </div>
+             </div>
+             <div
+@@ -857,6 +865,46 @@
+       </div>
+     </div>
+ 
++    <div class="px-2 pb-2 zr-versions">
++      <v-divider class="mb-2" />
++      <div class="d-flex align-center flex-wrap zr-versions-row">
++        <span
++          class="text-caption secondary--text zr-versions-line"
++          title="Pi = the installer on the Pi, Screen = the touchscreen board, Panel = this Fluidd panel"
++        >Pi {{ zrVer.pi || '?' }} · Screen {{ zrVer.screen || '?' }} · Panel {{ zrVer.panel || '?' }}</span>
++        <v-spacer />
++        <span
++          v-if="verUpdateNames.length"
++          class="text-caption warning--text mr-2"
++        >Update available</span>
++        <span
++          v-else
++          class="text-caption secondary--text mr-2"
++        >Up to date</span>
++        <app-btn
++          x-small
++          color="success"
++          :disabled="!klippyReady || zrBusy || verBusy || !verUpdateNames.length"
++          :title="zrBusy ? 'Not during a print' : 'Download the new version and let the Pi apply it (Pi and screen together)'"
++          @click="confirmUpdate = true"
++        >
++          Update now
++        </app-btn>
++      </div>
++    </div>
++
++    <app-dialog
++      v-model="confirmUpdate"
++      title="Update the printer software?"
++      save-button-text="Update now"
++      max-width="460"
++      @save="runVersionUpdate"
++    >
++      <v-card-text class="pt-4">
++        Downloads the new version ({{ verUpdateNames.join(' and ') }}). The Pi then applies it by itself: backup, update, the screen board if it is behind, and a restart of Klipper. Fluidd disconnects for about a minute. Do not power off.
++      </v-card-text>
++    </app-dialog>
++
+     <div class="px-2 pb-2">
+       <app-btn
+         block
+@@ -955,6 +1003,9 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+   toolDialog = { open: false, index: 0 }
+   purgeDialog = false
+   confirmRestartScreen = false
++  confirmUpdate = false
++  verBusy = false
++  zrVer = { loaded: false, pi: '', screen: '', panel: '' }
+   pollTimer: number | null = null
+   confirmEndless = false
+   toolChange: ZrToolChange | null = null
+@@ -981,11 +1032,13 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+     this.zrLoadSlots()
+     this.loadLight()
+     this.loadBoard()
++    this.loadVersions()
+     this.pollTimer = window.setInterval(() => {
+       if (!document.hidden && !this.toolDialog.open) {
+         this.zrLoadSlots()
+         this.loadLight()
+         this.loadBoard()
++        this.loadVersions()
+       }
+     }, POLL_MS)
+   }
+@@ -1377,6 +1430,39 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+     this.zrSend(`SET_FAN_SPEED FAN=air_fan SPEED=${this.airFilterOn ? 0 : 1}`)
+   }
+ 
++  /** The installer saves the three versions in Moonraker's database (namespace wondermaker, key versions). */
++  async loadVersions () {
++    try {
++      const r = await SocketActions.serverDatabaseGetItem<{ pi?: string, screen?: string, panel?: string }>('versions', 'wondermaker', { suppressError: true })
++      const v = r?.value ?? {}
++      this.zrVer = { loaded: true, pi: String(v.pi ?? ''), screen: String(v.screen ?? ''), panel: String(v.panel ?? '') }
++    } catch {
++      this.zrVer = { loaded: true, pi: '', screen: '', panel: '' }
++    }
++  }
++
++  /** Update-manager entries that have a new version: the installer (it also updates the screen board) and the Fluidd panel project. */
++  get verUpdateNames (): string[] {
++    const has = (name: string): boolean => this.$typedGetters['version/hasUpdate'](name)
++    const names: string[] = []
++    if (has('WM_Ultra_Vanilla_Klipper')) names.push('WM_Ultra_Vanilla_Klipper')
++    if (has('wm-ultra-fluidd-acepro-panel')) names.push('wm-ultra-fluidd-acepro-panel')
++    return names
++  }
++
++  async runVersionUpdate () {
++    this.confirmUpdate = false
++    this.verBusy = true
++    try {
++      for (const name of this.verUpdateNames) await SocketActions.machineUpdateClient(name)
++      EventBus.$emit('Update started: the Pi applies it, Fluidd reconnects in about a minute', { type: 'success', timeout: 8000 })
++    } catch {
++      EventBus.$emit('The update could not be started. Try the Fluidd update page (the clock icon)', { type: 'error', timeout: 8000 })
++    } finally {
++      this.verBusy = false
++    }
++  }
++
+   async restartScreen () {
+     this.confirmRestartScreen = false
+     try {
+@@ -1535,6 +1621,14 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+     justify-content: space-between;
+   }
+ 
++  .zr-endless-ghost {
++    display: none;
++  }
++
++  .zr-endless-tangle {
++    margin-right: 0 !important;
++  }
++
+   .zr-endless {
+     grid-template-columns: 1fr;
+     justify-items: center;
+@@ -1630,6 +1724,31 @@ export default class ZrToolheadsCard extends Mixins(ZrMixin) {
+ 
+ .zr-unload-btn {
+   min-width: 200px !important;
++  margin: 0 !important;
++}
++
++// the four action buttons: same width, same left edge, same gap, also on a phone
++.zr-actions {
++  gap: 8px;
++}
++
++@media (max-width: 600px) {
++  .zr-actions {
++    flex-direction: column;
++    align-items: center;
++  }
++
++  .zr-actions .zr-unload-btn {
++    width: min(100%, 320px);
++  }
++}
++
++.zr-endless-ghost {
++  visibility: hidden;
++}
++
++.zr-versions-line {
++  min-width: 0;
+ }
+ 
+ .zr-dot {
 -- 
 2.43.0
 

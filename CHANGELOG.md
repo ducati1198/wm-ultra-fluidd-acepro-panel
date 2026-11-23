@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.19.0
+
+- **Fluidd build (34 patches): versions line and Update now, button fixes.** The Toolheads card ends with a line `Pi 2.28.0 · Screen S1.0.0 · Panel 1.19.0` (the installer saves the three versions in Moonraker's database, namespace `wondermaker`, key `versions`) and an **Update now** button. It is enabled only when the update manager has a new version of the installer (`WM_Ultra_Vanilla_Klipper`, which also updates the screen board that is behind) or of this panel project, never during a print, and it asks first. It does what Fluidd's own Update button does: the Pi applies it by itself.
+- **Phone: Unload menu, Load menu, Resume tool and Purge line up.** Same width, same left edge and same gap in one column (they had a left margin each, so every wrapped button sat at a different place).
+- **Endless spool: the Swap on a tangle switch sits under the Swap automatically switch** (it was shifted to the right).
+- **Tangle dot flipped.** The dot is lit (green) when the hub sensor is released, which is a tangle, and off while the hub sensor is triggered (no tangle). Its tooltip says so.
+- Goes with installer 2.28.0 (screen version S1.0.0).
+
 ## 1.18.0
 
 - **Fluidd build (33 patches): filament colours (F-198 to F-201, F-207).** The tool dialog gets **More colours** with name lists (Orca, Basic, Web CSS, RAL; 430 colours), a **Color Picker**, a White entry and three extra swatches. The exact colour is saved in `zr_tN_color`, the nearest touchscreen swatch in `tmt1.ini`. Black is now named **Black** (it was "Ink black"). The Fluidd zip, patch and checksum are regenerated; the patch is one commit longer.
