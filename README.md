@@ -682,6 +682,7 @@ At the end of an install or update (after the Klipper restart question) the inst
 | Category | Colour | What goes in |
 |---|---|---|
 | RPI Calibration | pink | every calibration macro of the Pi installer (real macro names): Extruder Setup, First Run Calibration, Bed Leveling, Bed Screws, Bed PID, Nozzle PID, Input Shaper, Full Offset Calibration, Offsets Rapid, Tool Setter Position / Accurate, Z Offsets Hot, Probe Calibrate, Nozzle Growth, Z Trim, Z Trim Menu, Live Z Menu, Live Z Zero, Bed Warp Wait, Measure Bed Warp, Speed Test, Speed Check ... |
+| Shake&Tune | brown | the five Klippain Shake&Tune commands: `AXES_MAP_CALIBRATION`, `AXES_SHAPER_CALIBRATION`, `COMPARE_BELTS_RESPONSES`, `CREATE_VIBRATIONS_PROFILE`, `EXCITATE_AXIS_AT_FREQ` (the Pi installer 2.29.0 installs Shake&Tune by default; the category is created only when these macros exist) |
 | AcePro | red | `ACE_*`, `WM_ENDLESS_*`, `WM_STATS_*`, `WM_SET_TOOL_MAP` |
 | WM Factory Calibration | yellow | WonderMaker's own calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
 | WM Ultra Tool Change | green | `T0`..`T3`, `LOCK`, `UNLOCK`, `PARK_CURRENT_TOOL` ... |
@@ -695,7 +696,7 @@ Every category has its own colour, and every macro in a category has that colour
 
 Hidden (nobody presses them by hand; buttons and switches call them): `M104`, `M106`, `M107`, `M109`, `M141`, `M190`, `M191`, `M221`, `z_rise`, `SET_GCODE_OFFSET`, `Z_OFFSET_APPLY_ENDSTOP`, `Z_OFFSET_APPLY_PROBE`, `WM_BED_SOAK`.
 
-The categories are listed in this order: RPI Calibration, AcePro, WM Factory Calibration, WM Ultra Tool Change, WM Ultra Filament, ZR Tools, WM Ultra Print, WM Ultra Tests, Timelapse.
+The categories are listed in this order: RPI Calibration, Shake&Tune, AcePro, WM Factory Calibration, WM Ultra Tool Change, WM Ultra Filament, ZR Tools, WM Ultra Print, WM Ultra Tests, Timelapse.
 
 - A category is created only when a macro for it exists (no AcePro category on a printer without the ACE parts, no WM Ultra Tests category when no `TEST_*` macro is left), and an existing category with the same name is reused.
 - **Updating from 1.9.x or older:** "WM Ultra Calibration" is renamed "WM Factory Calibration" (same macros). The Pi's calibration macros move from Raspberry Pi and Offset Calibration into RPI Calibration (shown with the real macro names since 1.16.2), the unload window into WM Ultra Filament, Nozzle Change and Chamber Light into ZR Tools, `WM_BED_SOAK` is hidden, and the empty Offset Calibration and Raspberry Pi categories are removed. Each happens once, and only for an entry you left as the installer put it (same category, same colour, no name of your own). One you moved, recoloured or renamed stays where it is, Offset Calibration or Raspberry Pi stays while you keep a macro in it, and one you move back afterwards is not moved again.

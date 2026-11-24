@@ -45,6 +45,8 @@ RPI_CAL_MACROS = OFFSET_MACROS + ["WM_FIRST_RUN_CAL", "WM_CAL_HELP", "WM_BED_LEV
                                   "WM_BED_WARP_MEASURE", "WM_BED_WARP_STOP", "WM_AUTO_SPEED", "WM_AUTO_SPEED_VALIDATE",
                                   "WM_EXTRUDER_SETUP"]
 UNLOAD_MACROS = ["WM_UNLOAD_MENU", "WM_UNLOAD_STOP"]
+# Klippain Shake&Tune (installed by default by the Pi installer 2.29.0): its five commands get their own category (1.20.0).
+SHAKETUNE_MACROS = ["AXES_MAP_CALIBRATION", "AXES_SHAPER_CALIBRATION", "COMPARE_BELTS_RESPONSES", "CREATE_VIBRATIONS_PROFILE", "EXCITATE_AXIS_AT_FREQ"]
 # Windows opened from the Toolheads card and the touchscreen (1.17.0): purge, load, resume with another tool. Same category as the unload window.
 FILAMENT_MENUS = ["WM_PURGE_MENU", "WM_LOAD_MENU", "WM_RESUME_TOOL"]
 # The Pi installer's printer tools that are not calibration: with WonderMaker's ZR tools (1.10.0; there is no
@@ -59,6 +61,7 @@ CATEGORIES = [
     ("Timelapse", "#00bcd4", ["GET_TIMELAPSE_SETUP", "HYPERLAPSE", "TIMELAPSE_RENDER", "TIMELAPSE_TAKE_FRAME", "TEST_STREAM_DELAY"], []),
     ("AcePro", "#f44336", ["WM_SET_TOOL_MAP"], ["ACE_", "WM_ENDLESS_", "WM_STATS_"]),
     ("RPI Calibration", "#e91e63", RPI_CAL_MACROS, []),
+    ("Shake&Tune", "#795548", SHAKETUNE_MACROS, []),
     ("WM Ultra Filament", "#ff9800",
      ["LOAD_FILAMENT", "UNLOAD_FILAMENT", "EXTRUDE_FILAMENT", "RETRACT_FILAMENT", "filament_insert", "filament_insert_gcode",
       "POP", "E_axis_move", "RESET_FLOW_EXTRUDER", "WIPE_NOZZLE", "WIPE_NOZZ"] + UNLOAD_MACROS + FILAMENT_MENUS, []),
@@ -71,7 +74,7 @@ CATEGORIES = [
 ]
 # Shown in this order in Fluidd (the order the categories are created in). "Raspberry Pi" is only there for placement:
 # no macro goes into it any more, but on an update it can still exist while you keep a macro of your own in it.
-CATEGORY_ORDER = ["Raspberry Pi", "RPI Calibration", "Offset Calibration", "AcePro", "WM Factory Calibration", "WM Ultra Tool Change",
+CATEGORY_ORDER = ["Raspberry Pi", "RPI Calibration", "Shake&Tune", "Offset Calibration", "AcePro", "WM Factory Calibration", "WM Ultra Tool Change",
                   "WM Ultra Filament", "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"]
 # Helper macros nobody presses by hand: hidden the first time they are seen.
 HIDDEN = ["M104", "M106", "M107", "M109", "M141", "M190", "M191", "M221", "z_rise",

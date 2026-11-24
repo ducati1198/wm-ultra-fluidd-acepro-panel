@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.20.0
+
+- **New Fluidd macro category Shake&Tune (brown).** The five Klippain Shake&Tune commands (`AXES_MAP_CALIBRATION`, `AXES_SHAPER_CALIBRATION`, `COMPARE_BELTS_RESPONSES`, `CREATE_VIBRATIONS_PROFILE`, `EXCITATE_AXIS_AT_FREQ`) are grouped in their own category, shown after RPI Calibration. The Pi installer 2.29.0 installs Shake&Tune by default.
+- Goes with installer 2.29.0 (screen version S1.0.0).
+
 ## 1.19.0
 
 - **Fluidd build (34 patches): versions line and Update now, button fixes.** The Toolheads card ends with a line `Pi 2.28.0 · Screen S1.0.0 · Panel 1.19.0` (the installer saves the three versions in Moonraker's database, namespace `wondermaker`, key `versions`) and an **Update now** button. It is enabled only when the update manager has a new version of the installer (`WM_Ultra_Vanilla_Klipper`, which also updates the screen board that is behind) or of this panel project, never during a print, and it asks first. It does what Fluidd's own Update button does: the Pi applies it by itself.

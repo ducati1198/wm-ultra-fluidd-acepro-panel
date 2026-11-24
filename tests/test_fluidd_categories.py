@@ -61,6 +61,11 @@ check("helper macros are hidden, not categorized", all(next(m for m in v["stored
 check("macros starting with _ and unknown macros are left out", not any(m["name"] in ("_HIDDEN_HELPER", "SOMETHING_ELSE") for m in v["stored"]))
 check("categories are created in Fluidd's order, only the ones needed", [c["name"] for c in v["categories"]] == ["RPI Calibration", "AcePro", "WM Factory Calibration", "WM Ultra Tool Change", "WM Ultra Filament", "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"])
 check("new categories are expanded", v["expanded"] == [0, 0, 1, 2, 3, 4, 5, 6, 7, 8])
+_st = wmfc.plan(["WM_BED_LEVELING", "AXES_SHAPER_CALIBRATION", "EXCITATE_AXIS_AT_FREQ", "G29"], None, [], now_ms=5)[0]
+check("Shake&Tune (1.20.0): its commands get their own brown category, after RPI Calibration, only when they exist",
+      [c["name"] for c in _st["categories"]] == ["RPI Calibration", "Shake&Tune", "WM Factory Calibration"]
+      and [m["color"] for m in _st["stored"] if m["name"] == "AXES_SHAPER_CALIBRATION"] == ["#795548"]
+      and "Shake&Tune" not in [c["name"] for c in wmfc.plan(["WM_BED_LEVELING", "G29"], None, [], now_ms=5)[0]["categories"]])
 check("only the macros that exist are used (a printer without an ACE gets no AcePro category)", "AcePro" not in [c["name"] for c in wmfc.plan(["WM_BED_LEVELING", "G29"], None, [], now_ms=5)[0]["categories"]])
 check("the report counts", r["categorized"] == 19 and r["hidden"] == 2 and r["kept"] == 0 and len(r["created"]) == 9)
 
