@@ -66,6 +66,8 @@ check("Shake&Tune (1.20.0): its commands get their own brown category, after RPI
       [c["name"] for c in _st["categories"]] == ["RPI Calibration", "Shake&Tune", "WM Factory Calibration"]
       and [m["color"] for m in _st["stored"] if m["name"] == "AXES_SHAPER_CALIBRATION"] == ["#795548"]
       and "Shake&Tune" not in [c["name"] for c in wmfc.plan(["WM_BED_LEVELING", "G29"], None, [], now_ms=5)[0]["categories"]])
+_tl = wmfc.plan(["WM_TIMELAPSE", "G29"], None, [], now_ms=5)[0]
+check("Timelapse (1.21.0): WM_TIMELAPSE is in the cyan Timelapse category", [c["name"] for c in _tl["categories"]].count("Timelapse") == 1 and [m["color"] for m in _tl["stored"] if m["name"] == "WM_TIMELAPSE"] == ["#00bcd4"])
 check("only the macros that exist are used (a printer without an ACE gets no AcePro category)", "AcePro" not in [c["name"] for c in wmfc.plan(["WM_BED_LEVELING", "G29"], None, [], now_ms=5)[0]["categories"]])
 check("the report counts", r["categorized"] == 19 and r["hidden"] == 2 and r["kept"] == 0 and len(r["created"]) == 9)
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.21.0
+
+- **`WM_TIMELAPSE` is in the Fluidd category Timelapse (cyan).** The new timelapse settings window (quality, mode, head parking) sits with the other timelapse macros. Goes with installer 2.30.0 (screen version S1.1.0).
+
 ## 1.20.0
 
 - **New Fluidd macro category Shake&Tune (brown).** The five Klippain Shake&Tune commands (`AXES_MAP_CALIBRATION`, `AXES_SHAPER_CALIBRATION`, `COMPARE_BELTS_RESPONSES`, `CREATE_VIBRATIONS_PROFILE`, `EXCITATE_AXIS_AT_FREQ`) are grouped in their own category, shown after RPI Calibration. The Pi installer 2.29.0 installs Shake&Tune by default.

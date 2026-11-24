@@ -58,7 +58,7 @@ FACTORY_CAL = ["G29", "PROBE_CALIBRATE", "BED_MESH_CALIBRATE", "CALIBRATE_OFFSET
                "SAVE_T_POSITON", "RESPOND_T_OFFSET", "RESPOND_T_POSITION"]
 # (category name, colour, exact macro names, name prefixes). The first rule that matches wins (rule order, not display order).
 CATEGORIES = [
-    ("Timelapse", "#00bcd4", ["GET_TIMELAPSE_SETUP", "HYPERLAPSE", "TIMELAPSE_RENDER", "TIMELAPSE_TAKE_FRAME", "TEST_STREAM_DELAY"], []),
+    ("Timelapse", "#00bcd4", ["WM_TIMELAPSE", "GET_TIMELAPSE_SETUP", "HYPERLAPSE", "TIMELAPSE_RENDER", "TIMELAPSE_TAKE_FRAME", "TEST_STREAM_DELAY"], []),
     ("AcePro", "#f44336", ["WM_SET_TOOL_MAP"], ["ACE_", "WM_ENDLESS_", "WM_STATS_"]),
     ("RPI Calibration", "#e91e63", RPI_CAL_MACROS, []),
     ("Shake&Tune", "#795548", SHAKETUNE_MACROS, []),

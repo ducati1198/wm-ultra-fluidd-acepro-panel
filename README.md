@@ -690,7 +690,7 @@ At the end of an install or update (after the Klipper restart question) the inst
 | ZR Tools | purple | `ZR_*`, and the Pi installer's Nozzle Change and Chamber Light |
 | WM Ultra Print | grey | `START_PRINT`, `PRINT_END`, `PAUSE`, `RESUME` ... |
 | WM Ultra Tests | dark grey | `TEST_*` |
-| Timelapse | cyan | `GET_TIMELAPSE_SETUP`, `HYPERLAPSE`, `TIMELAPSE_*`, `TEST_STREAM_DELAY` |
+| Timelapse | cyan | `WM_TIMELAPSE` (settings window), `GET_TIMELAPSE_SETUP`, `HYPERLAPSE`, `TIMELAPSE_*`, `TEST_STREAM_DELAY` |
 
 Every category has its own colour, and every macro in a category has that colour. A macro whose colour is still one the installer writes gets its category's colour at each install and update; a colour you picked yourself stays.
 
