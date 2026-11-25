@@ -13,6 +13,11 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INST="$REPO/installer.sh"
 PASS=0; FAIL=0
 ROOT="$(mktemp -d)"; trap 'rm -rf "$ROOT"' EXIT
+# Guard (2026-11-25): no test may touch the real home of the machine the tests run on (a test without a fake home once re-linked
+# the drivers in ~/klipper/klippy/extras to this throwaway copy, and the real Klipper stopped).
+REAL_HOME="${ACE_REAL_HOME:-$HOME}"
+real_sum() { { find "$REAL_HOME/klipper/klippy/extras" -maxdepth 1 -type l -printf '%f>%l\n' 2>/dev/null | sort; ls "$REAL_HOME/klipper/klippy/extras" 2>/dev/null | wc -l; ls "$REAL_HOME/printer_data/config" 2>/dev/null | grep -v '^backup$' | wc -l; md5sum "$REAL_HOME/printer_data/config/moonraker.conf" 2>/dev/null; } | md5sum | cut -c1-12; }
+REAL_SUM0="$(real_sum)"
 
 ok()   { PASS=$((PASS+1)); echo "  ok    $1"; }
 bad()  { FAIL=$((FAIL+1)); echo "  FAIL  $1"; [ -n "${2:-}" ] && echo "$2" | sed 's/^/        /' | head -25; }
@@ -410,6 +415,9 @@ check "migration: a second run changes nothing" bash -c '[ "$(grep -c "moved ~/a
 HD="$(new_home migdry)"; mkdir -p "$HD/acepro-backup/wm-20261110_101010"; echo x > "$HD/acepro-backup/wm-20261110_101010/manifest.txt"
 inst "$HD" 'n\n' --check --dry-run
 check "migration: a dry run moves nothing" test -d "$HD/acepro-backup/wm-20261110_101010"
+
+if [ "$(real_sum)" = "$REAL_SUM0" ]; then ok "the real home of this machine was not touched (Klipper's driver links, config file list, moonraker.conf)"
+else bad "the real home of this machine changed during the run: a test did not use its fake home, or the printer was used during the run" "$(find "$REAL_HOME/klipper/klippy/extras" -maxdepth 1 -type l -printf '%f -> %l\n' 2>/dev/null)"; fi
 
 echo
 echo "passed: $PASS   failed: $FAIL"
