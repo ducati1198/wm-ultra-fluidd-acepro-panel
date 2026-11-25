@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.22.0
+
+- **`ACE_WM_LOAD` and `ACE_WM_UNLOAD` open a Start window when you run them by hand (F-243).** The window has **Start**, **What it does** and **Cancel**. The ACE watcher, the unload queue and the Load window pass `CONFIRM=1` and run without it, and there is no window during a print. New hidden helpers `_WM_ACELOAD_INFO` and `_WM_ACEUNLOAD_INFO`. The windows use `_WM_WIN_START` and `_WM_WIN_INFO` of the Pi installer (`rpi_calibration.cfg`); without the Pi installer the two macros run directly, as before.
+- Goes with installer 2.33.0 (screen version S1.3.0).
+
 ## 1.21.0
 
 - **`WM_TIMELAPSE` is in the Fluidd category Timelapse (cyan).** The new timelapse settings window (quality, mode, head parking) sits with the other timelapse macros. Goes with installer 2.30.0 (screen version S1.1.0).

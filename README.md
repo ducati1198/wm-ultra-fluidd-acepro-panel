@@ -592,7 +592,7 @@ Written for the day the printer is running again. Do them in this order, empty b
 
 | Command | What it does |
 |---|---|
-| `ACE_WM_LOAD T=0..3` | Picks up the tool, goes to the wipe position (when the WonderMaker macros are installed), then feeds the slot to the hub and toolhead sensor. At the sensor the ACE stops, feed assist turns on, the extruder gear grabs the filament with a short push, WonderMaker's insert routine finishes the load, then feed assist turns off. |
+| `ACE_WM_LOAD T=0..3` | Run by hand it first opens a window with **Start**, **What it does** and **Cancel** (since 1.22.0, with the Pi installer; `CONFIRM=1` skips it; `ACE_WM_UNLOAD` does the same). Picks up the tool, goes to the wipe position (when the WonderMaker macros are installed), then feeds the slot to the hub and toolhead sensor. At the sensor the ACE stops, feed assist turns on, the extruder gear grabs the filament with a short push, WonderMaker's insert routine finishes the load, then feed assist turns off. |
 | `ACE_WM_UNLOAD T=0..3` | Picks up the tool, forms a tip with the extruder alone (ACE idle, feed assist off), then the ACE pulls the filament back until its slot is empty. When the ACE is busy (an unload or load is still finishing) the call waits in a queue and starts by itself when the ACE is free. |
 | `_ACE_WM_RETRACT T=0..3` | Only the ACE part of an unload (after WonderMaker's `UNLOAD_FILAMENT`). |
 | `ACE_WM_STOP` | Stop any feed or retract started by these macros. |

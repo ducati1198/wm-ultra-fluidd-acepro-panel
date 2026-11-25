@@ -184,7 +184,8 @@ menu '9\n0\n'
 check "bad number is refused"                       bash -c 'echo "$0" | grep -q "Choose a number"' "$OUT"
 menu '5\ny\ny\ny\ny\ny\n0\n'
 check "menu dry run changes nothing"                test ! -e "$(cfg "$HM")/rpi_ace.cfg"
-OUT="$(printf '' | bash "$INST" 2>&1 </dev/null)"
+HNT="$(new_home nt)"   # never the real home: on a Pi with the panel installed this run re-linked Klipper's extras to the throwaway test copy (2026-11-25)
+OUT="$(printf '' | ACE_INSTALL_HOME="$HNT" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1 </dev/null)"
 check "no terminal and no options does not hang on a menu" bash -c '! echo "$0" | grep -q "6) Uninstall"' "$OUT"
 GL="$ROOT/gl"; mkdir -p "$GL/src"; cp "$REPO/installer.sh" "$GL/src/"; echo 7.7.7 > "$GL/src/VERSION"; tar -czf "$GL/t.tgz" -C "$GL" src
 cp -a "$REPO" "$ROOT/copy"; rm -rf "$ROOT/copy/.git"
