@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.23.0
+
+- **Updates keep your edits (3-way merge).** `rpi_ace.cfg`, `rpi_ace_driver.cfg`, `rpi_endless.cfg` and `rpi_stats.cfg` are merged three ways: what the panel installed last time, the new version, and your file. Your changes stay, ours arrive; the old copy goes in the `backup` folder next to the file.
+- **One release number.** The file `RELEASE` is the same as the installer's (2.34.0).
+- Goes with installer 2.34.0.
+
 ## 1.22.0
 
 - **`ACE_WM_LOAD` and `ACE_WM_UNLOAD` open a Start window when you run them by hand (F-243).** The window has **Start**, **What it does** and **Cancel**. The ACE watcher, the unload queue and the Load window pass `CONFIRM=1` and run without it, and there is no window during a print. New hidden helpers `_WM_ACELOAD_INFO` and `_WM_ACEUNLOAD_INFO`. The windows use `_WM_WIN_START` and `_WM_WIN_INFO` of the Pi installer (`rpi_calibration.cfg`); without the Pi installer the two macros run directly, as before.
