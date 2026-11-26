@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.1
+
+- **One release number.** `RELEASE` follows the installer: 2.35.0. No change to the panel files.
+
 ## 1.23.0
 
 - **Updates keep your edits (3-way merge).** `rpi_ace.cfg`, `rpi_ace_driver.cfg`, `rpi_endless.cfg` and `rpi_stats.cfg` are merged three ways: what the panel installed last time, the new version, and your file. Your changes stay, ours arrive; the old copy goes in the `backup` folder next to the file.
