@@ -36,7 +36,7 @@ Details:
 6. [First tests on the printer](#6-first-tests-on-the-printer)
 7. [Everyday use and commands](#7-everyday-use-and-commands)
 8. [Endless spool (experimental)](#8-endless-spool-experimental)
-9. [Update, undo and uninstall](#9-update-undo-and-uninstall)
+9. [Update, undo and uninstall](#9-update-undo-and-uninstall) (including your own edits in the config files: [3-way merge](#your-own-edits-in-the-config-files-3-way-merge))
 10. [Troubleshooting](#10-troubleshooting)
 11. [Repository layout](#11-repository-layout)
 12. [Credits and license](#12-credits-and-license)
@@ -652,6 +652,12 @@ cd ~/wm-ultra-fluidd-acepro-panel && git pull
 (If you downloaded it without git, see [3.2a](#32a-the-factory-screen-board-no-git-old-clock-archived-apt): download again instead of `git pull`.)
 
 `--update` keeps your tuned distances and speeds. Undo the last install or update with `./installer.sh --undo`. `--uninstall` removes the config files, the include lines and the driver links; WonderMaker's files are never touched. The Fluidd panel is put back by `--undo`.
+
+### Your own edits in the config files (3-way merge)
+
+`--update` no longer replaces `rpi_ace.cfg`, `rpi_ace_driver.cfg`, `rpi_endless.cfg` and `rpi_stats.cfg` and then puts a few tuned values back. It compares three files line by line: what this installer gave you last time (`~/printer_data/wm-baseline/panel`), the new version in this repository, and your file. A line only you changed stays; a line only WonderMaker changed arrives; if both changed the same lines, yours stay and the update lists the lines it did not use. The plan shows `merged` for such a file. Without a starting point (the first update with this version) it is found in the history of this repository; when that is not possible, or `python3` or `scripts/wm_filemerge.py` is missing, the old way is used (your tuned values are kept). The old file is in the undo folder (`./installer.sh --undo`). `scripts/wm_filemerge.py` is the same file as in the Pi installer repository (a test checks it).
+
+The file `RELEASE` holds the release number that the Pi installer, this panel and the screen boards share; the Pi installer's `--status` lists all of them.
 
 ### Where the backups are (1.16.0)
 
