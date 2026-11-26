@@ -359,14 +359,39 @@ keep_value() { # staged_file existing_file prefix key   (prefix = "variable_" or
     sed -i -E "s/^(${pre}${k}:[[:space:]]*)[^[:space:]#]+/\1${val}/" "$sf"
 }
 
+panel_baseline_dir() { echo "$(dirname "$CONFIG_DIR")/wm-baseline/panel"; }   # what WonderMaker gave you last time, per file
+filemerge_py() { echo "$SCRIPT_DIR/scripts/wm_filemerge.py"; }
+declare -A MERGED=()      # file -> 1 when stage_files merged it (your edits + this version); otherwise only the tuned values are kept
+declare -a MERGE_NOTES=() # lines of the merge output, shown in the plan
+merge_stage_file() {      # FILE: 3-way merge of the file on the printer with this version into $STAGE/FILE. 1 = could not (the tuned-value copy is used instead)
+    local f="$1" live="$CONFIG_DIR/$1" mt out rc line
+    [ -f "$live" ] && [ -f "$(filemerge_py)" ] && [ -f "$SCRIPT_DIR/config/$f" ] || return 1
+    mt="$(mktemp -d)"; mkdir -p "$mt/base"
+    [ -d "$(panel_baseline_dir)" ] && cp -a "$(panel_baseline_dir)/." "$mt/base/" 2>/dev/null
+    cp "$live" "$mt/$f"
+    out="$(python3 -I "$(filemerge_py)" "$mt/$f" "$SCRIPT_DIR/config/$f" "$mt/base" --name "$f" --git-repo "$SCRIPT_DIR" --git-path "config/$f" --write --stamp x 2>&1)"; rc=$?
+    case "$rc" in 0|10|11) ;; *) rm -rf "$mt"; return 1 ;; esac
+    if [ -e "$mt/$f.wm-new" ]; then rm -rf "$mt"; return 1; fi     # no starting point found: the old way (tuned values) is used
+    cp "$mt/$f" "$STAGE/$f"
+    while IFS= read -r line; do [ -n "$line" ] && MERGE_NOTES+=("$line"); done <<< "$out"
+    rm -rf "$mt"; MERGED["$f"]=1; return 0
+}
+
 stage_files() {
     local f k
-    STAGE="$(mktemp -d)"
+    STAGE="$(mktemp -d)"; MERGED=(); MERGE_NOTES=()
     for f in "${CFG_FILES[@]}"; do cp "$SCRIPT_DIR/config/$f" "$STAGE/$f"; done
     if [ "$UPDATING" = 1 ]; then
-        for k in "${KEEP_VARS_ACE[@]}";     do keep_value "$STAGE/rpi_ace.cfg" "$CONFIG_DIR/rpi_ace.cfg" "variable_" "$k"; done
-        for k in "${KEEP_VARS_ENDLESS[@]}"; do keep_value "$STAGE/rpi_endless.cfg" "$CONFIG_DIR/rpi_endless.cfg" "variable_" "$k"; done
-        for k in "${KEEP_OPTS_DRIVER[@]}";  do keep_value "$STAGE/rpi_ace_driver.cfg" "$CONFIG_DIR/rpi_ace_driver.cfg" "" "$k"; done
+        for f in "${CFG_FILES[@]}"; do merge_stage_file "$f" || true; done
+        if [ -z "${MERGED[rpi_ace.cfg]:-}" ]; then
+            for k in "${KEEP_VARS_ACE[@]}";     do keep_value "$STAGE/rpi_ace.cfg" "$CONFIG_DIR/rpi_ace.cfg" "variable_" "$k"; done
+        fi
+        if [ -z "${MERGED[rpi_endless.cfg]:-}" ]; then
+            for k in "${KEEP_VARS_ENDLESS[@]}"; do keep_value "$STAGE/rpi_endless.cfg" "$CONFIG_DIR/rpi_endless.cfg" "variable_" "$k"; done
+        fi
+        if [ -z "${MERGED[rpi_ace_driver.cfg]:-}" ]; then
+            for k in "${KEEP_OPTS_DRIVER[@]}";  do keep_value "$STAGE/rpi_ace_driver.cfg" "$CONFIG_DIR/rpi_ace_driver.cfg" "" "$k"; done
+        fi
     else
         sed -i -E "s/^(variable_auto:[[:space:]]*)[0-9]+/\1${WANT_AUTO}/" "$STAGE/rpi_ace.cfg"
     fi
@@ -385,9 +410,13 @@ show_plan() {
     for f in "$STAGE"/*; do
         f="$(basename "$f")"
         if [ -e "$CONFIG_DIR/$f" ] && cmp -s "$STAGE/$f" "$CONFIG_DIR/$f"; then echo "  =  $f (unchanged)"
+        elif [ -e "$CONFIG_DIR/$f" ] && [ -n "${MERGED[$f]:-}" ]; then echo "  ~  $f (merged: your own edits stay, the changes of this version are added)"
         elif [ -e "$CONFIG_DIR/$f" ]; then echo "  ~  $f (replaced; your tuned values are kept)"
         else echo "  +  $f"; fi
     done
+    if [ "${#MERGE_NOTES[@]}" -gt 0 ]; then
+        local l; for l in "${MERGE_NOTES[@]}"; do echo "       $l"; done
+    fi
     echo "printer.cfg gets these lines (just above the SAVE_CONFIG block, after [save_variables]; nothing else is edited):"
     for f in "${INCLUDE_LINES[@]}"; do
         cfg_wanted "$(echo "$f" | sed -E 's/\[include ([^]]+)\]/\1/')" || continue
@@ -418,6 +447,9 @@ apply_stage() {
         cp "$STAGE/$f" "$t"
         print_success "Wrote $t"
     done
+    # what WonderMaker gave you this time is the starting point of the next merge
+    local bd; bd="$(panel_baseline_dir)"
+    mkdir -p "$bd" 2>/dev/null && for f in "$STAGE"/*; do f="$(basename "$f")"; [ -f "$SCRIPT_DIR/config/$f" ] && cp "$SCRIPT_DIR/config/$f" "$bd/$f"; done
 }
 
 add_before_save_config() { # file text

@@ -416,6 +416,34 @@ HD="$(new_home migdry)"; mkdir -p "$HD/acepro-backup/wm-20261110_101010"; echo x
 inst "$HD" 'n\n' --check --dry-run
 check "migration: a dry run moves nothing" test -d "$HD/acepro-backup/wm-20261110_101010"
 
+echo "Update merges the config files (3-way, your own edits stay)"
+HW="$(new_home mrg)"; CW="$(cfg "$HW")"
+inst "$HW" "$A_ALL"
+check "merge: the baseline of the installed version is recorded in wm-baseline/panel" cmp -s "$REPO/config/rpi_ace.cfg" "$HW/printer_data/wm-baseline/panel/rpi_ace.cfg"
+# last time WonderMaker gave you an older version (one extra line at the end); you added a note at the top and tuned a value
+{ cat "$REPO/config/rpi_ace.cfg"; echo "# OLD LINE FROM BEFORE"; } > "$HW/printer_data/wm-baseline/panel/rpi_ace.cfg"
+{ echo "# MY OWN NOTE"; cat "$HW/printer_data/wm-baseline/panel/rpi_ace.cfg"; } > "$CW/rpi_ace.cfg"
+sed -i 's/^variable_hub_to_head_mm: *1200/variable_hub_to_head_mm: 1234/' "$CW/rpi_ace.cfg"
+inst "$HW" 'n\ny\n' --update
+check "merge: update finished"                      test "$RC" -eq 0
+check "merge: your own note stays"                  grep -q '^# MY OWN NOTE' "$CW/rpi_ace.cfg"
+check "merge: the line WonderMaker dropped is gone" bash -c '! grep -q "OLD LINE FROM BEFORE" "$0"' "$CW/rpi_ace.cfg"
+check "merge: your tuned value stays"               grep -q '^variable_hub_to_head_mm: *1234' "$CW/rpi_ace.cfg"
+check "merge: the plan says merged"                 bash -c 'echo "$0" | grep -q "rpi_ace.cfg (merged"' "$OUT"
+check "merge: the baseline is the new version again" cmp -s "$REPO/config/rpi_ace.cfg" "$HW/printer_data/wm-baseline/panel/rpi_ace.cfg"
+check "merge: the old file is in the undo folder"   bash -c 'grep -q "MY OWN NOTE" "$(ls -d "$0"/ultra-backup/installer/acepro-panel/wm-*/files'"$CW"'/rpi_ace.cfg | tail -1)"' "$HW"
+# no merge script: the old way (tuned values kept) is used
+HX="$(new_home mrgx)"; CX="$(cfg "$HX")"
+inst "$HX" "$A_ALL"
+sed -i 's/^variable_hub_to_head_mm: *1200/variable_hub_to_head_mm: 1299/' "$CX/rpi_ace.cfg"
+mv "$REPO/scripts/wm_filemerge.py" "$ROOT/wm_filemerge.py.off"
+inst "$HX" 'n\ny\n' --update
+mv "$ROOT/wm_filemerge.py.off" "$REPO/scripts/wm_filemerge.py"
+check "merge: without the merge script the tuned value is still kept" grep -q '^variable_hub_to_head_mm: *1299' "$CX/rpi_ace.cfg"
+INST_COPY="${ACE_INSTALLER_REPO:-$REAL_HOME/pushwork/installer-c}/scripts/wm_filemerge.py"
+if [ -f "$INST_COPY" ]; then check "the merge script is the same file as in the Pi installer repository" cmp -s "$INST_COPY" "$REPO/scripts/wm_filemerge.py"
+else ok "the merge script copy is checked against the Pi installer repository only where that repository is next to this one (not here)"; fi
+
 if [ "$(real_sum)" = "$REAL_SUM0" ]; then ok "the real home of this machine was not touched (Klipper's driver links, config file list, moonraker.conf)"
 else bad "the real home of this machine changed during the run: a test did not use its fake home, or the printer was used during the run" "$(find "$REAL_HOME/klipper/klippy/extras" -maxdepth 1 -type l -printf '%f -> %l\n' 2>/dev/null)"; fi
 
