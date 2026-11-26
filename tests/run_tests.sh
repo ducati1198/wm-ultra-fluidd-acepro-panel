@@ -444,6 +444,11 @@ INST_COPY="${ACE_INSTALLER_REPO:-$REAL_HOME/pushwork/installer-c}/scripts/wm_fil
 if [ -f "$INST_COPY" ]; then check "the merge script is the same file as in the Pi installer repository" cmp -s "$INST_COPY" "$REPO/scripts/wm_filemerge.py"
 else ok "the merge script copy is checked against the Pi installer repository only where that repository is next to this one (not here)"; fi
 
+INST_REL="${ACE_INSTALLER_REPO:-$REAL_HOME/pushwork/installer-c}/RELEASE"
+check "the panel carries a release number (file RELEASE)" grep -Eq ^[0-9]+\.[0-9]+\.[0-9]+ "$REPO/RELEASE"
+if [ -f "$INST_REL" ]; then check "the panel RELEASE is the same as the Pi installer RELEASE (one release number)" cmp -s "$INST_REL" "$REPO/RELEASE"
+else ok "the release number is compared with the Pi installer repository only where that repository is next to this one (not here)"; fi
+
 if [ "$(real_sum)" = "$REAL_SUM0" ]; then ok "the real home of this machine was not touched (Klipper's driver links, config file list, moonraker.conf)"
 else bad "the real home of this machine changed during the run: a test did not use its fake home, or the printer was used during the run" "$(find "$REAL_HOME/klipper/klippy/extras" -maxdepth 1 -type l -printf '%f -> %l\n' 2>/dev/null)"; fi
 
