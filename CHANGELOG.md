@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.4
+
+- **One release number.** `RELEASE` follows the installer: 2.37.0 (machine-file step, `wm_my_overrides.cfg` removed). No panel file changed.
+
 ## 1.23.3
 
 - **One release number.** `RELEASE` follows the installer: 2.36.1 (the installer dry run no longer reports a failed panel download). No panel file changed.
