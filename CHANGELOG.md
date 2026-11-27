@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.7
+
+- No change to the panel itself. The release number follows the installer (2.37.2: a clearer update message).
+
 ## 1.23.6
 
 - **An update refreshes Fluidd by itself.** The sha256 of the installed Fluidd build is saved in the Fluidd folder (`.wm-zr-build`). `./installer.sh --update` asks "Also refresh the Fluidd panel?" with the default Yes when that mark is missing or differs from the zip of this folder (before, the default was always No, so the automatic update of the Pi installer never refreshed Fluidd). The old Fluidd folder is saved first, as before. RELEASE follows the installer: 2.37.1.
