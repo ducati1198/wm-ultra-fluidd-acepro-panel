@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.2
+
+- **One release number.** `RELEASE` follows the installer: 2.36.0 (clean reinstall, no capital-letter installer folder). `scripts/wm_filemerge.py` is the installer 2.36.0 copy (it gets `--reset`, used by the clean reinstall); the panel itself works as before.
+
 ## 1.23.1
 
 - **One release number.** `RELEASE` follows the installer: 2.35.0.

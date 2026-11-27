@@ -8,10 +8,15 @@ the new version of this repository, and the file on the Pi. Line by line:
   - WonderMaker did not change the file        -> yours stays
   - both changed different lines               -> both changes are in the result
   - both changed the same lines                -> YOUR lines stay, WonderMaker's lines are listed in the output
+  - both only ADDED lines at the same place    -> both additions are in (yours first), nothing is lost
+  - your file has Windows line endings (CRLF)  -> compared without them and written back the same way
   - no baseline yet (first update with this)   -> the baseline is found in the history of the repository: the older version
                                                   your file is closest to
 
-  wm_filemerge.py LIVE NEW BASEDIR [--name N] [--git-repo R --git-path REL] [--write] [--stamp S]
+  wm_filemerge.py LIVE NEW BASEDIR [--name N] [--git-repo R --git-path REL] [--write] [--stamp S] [--reset]
+
+With --reset (clean reinstall, 2.36.0) there is no merge: the file becomes the new version exactly. Your edits are only saved in backup/NAME.wm-before-reset-S.
+The output line says whether you had edited the file (compared with the baseline) or the file just differed.
 
 Without --write nothing is changed. With --write the old file is first copied to backup/NAME.wm-before-merge-S (a backup folder next to LIVE), and the new version
 becomes the baseline (BASEDIR/N).
@@ -21,7 +26,8 @@ import os, shutil, subprocess, sys, tempfile
 
 
 def merge3(live, base, new):
-    """-> (merged text, conflicts). On a conflict the lines of the live file are kept. conflicts: [(your lines, WonderMaker's lines)]"""
+    """-> (merged text, conflicts). On a conflict the lines of the live file are kept, except where both sides only ADDED lines at the
+    same place (nothing of the old file changed): then both additions are kept, yours first. conflicts: [(your lines, WonderMaker's lines)]"""
     with tempfile.TemporaryDirectory() as d:
         ps = []
         for n, t in (("yours", live), ("base", base), ("wm", new)):
@@ -29,26 +35,34 @@ def merge3(live, base, new):
             with open(p, "w", newline="") as f:
                 f.write(t)
             ps.append(p)
-        cmd = ["git", "merge-file", "-p", "-L", "yours", "-L", "base", "-L", "wm"]
+        cmd = ["git", "merge-file", "-p", "--diff3", "-L", "yours", "-L", "base", "-L", "wm"]
         raw = subprocess.run(cmd + ps, capture_output=True)
         if raw.returncode < 0 or raw.returncode > 127:
             raise RuntimeError("git merge-file failed: " + raw.stderr.decode("utf-8", "replace"))
-        ours = subprocess.run(cmd[:3] + ["--ours"] + cmd[3:] + ps, capture_output=True)
-        if ours.returncode < 0 or ours.returncode > 127:
-            raise RuntimeError("git merge-file failed: " + ours.stderr.decode("utf-8", "replace"))
-    conflicts, mode, a, b = [], 0, [], []
+    conflicts, out, mode, a, o, b = [], [], 0, [], [], []
     for line in raw.stdout.decode("utf-8", "replace").split("\n"):
-        if line.startswith("<<<<<<< yours"):
-            mode, a, b = 1, [], []
-        elif mode == 1 and line == "=======":
+        if mode == 0 and line.startswith("<<<<<<< yours"):
+            mode, a, o, b = 1, [], [], []
+        elif mode == 1 and line.startswith("||||||| base"):
             mode = 2
-        elif mode == 2 and line.startswith(">>>>>>> wm"):
-            conflicts.append((a, b)); mode = 0
+        elif mode == 2 and line == "=======":
+            mode = 3
+        elif mode == 3 and line.startswith(">>>>>>> wm"):
+            if o:
+                conflicts.append((a, b))
+                out.extend(a)
+            else:
+                out.extend(a + b)
+            mode = 0
         elif mode == 1:
             a.append(line)
         elif mode == 2:
+            o.append(line)
+        elif mode == 3:
             b.append(line)
-    return ours.stdout.decode("utf-8", "replace"), conflicts
+        else:
+            out.append(line)
+    return "\n".join(out), conflicts
 
 
 def distance(a, b):
@@ -90,15 +104,26 @@ def read(p):
 
 
 def decide(live, new, base):
-    """-> (kind, result text, conflicts); kind: same, kept, updated, merged, conflicts"""
+    """-> (kind, result text, conflicts); kind: same, kept, updated, merged, conflicts.
+    A file with Windows line endings (CRLF) is compared without the CR and written back with CRLF."""
+    crlf = live.count("\r\n") > live.count("\n") / 2
+    orig = live
+    if crlf:
+        live, new, base = (t.replace("\r\n", "\n") for t in (live, new, base))
     if live == new:
-        return "same", new, []
-    if base == new:
-        return "kept", live, []
-    if base == live:
-        return "updated", new, []
-    merged, conf = merge3(live, base, new)
-    return ("conflicts" if conf else "merged"), merged, conf
+        kind, out, conf = "same", new, []
+    elif base == new:
+        kind, out, conf = "kept", live, []
+    elif base == live:
+        kind, out, conf = "updated", new, []
+    else:
+        merged, conf = merge3(live, base, new)
+        kind, out = ("conflicts" if conf else "merged"), merged
+    if crlf:
+        out = out.replace("\n", "\r\n")
+        if kind in ("same", "kept"):
+            out = orig
+    return kind, out, conf
 
 
 def main(argv):
@@ -109,7 +134,7 @@ def main(argv):
             if i + 1 >= len(argv):
                 print(__doc__); return 2
             opt[a], i = argv[i + 1], i + 2
-        elif a == "--write":
+        elif a in ("--write", "--reset"):
             opt[a], i = True, i + 1
         else:
             args.append(a); i += 1
@@ -129,6 +154,18 @@ def main(argv):
             shutil.copyfile(new_p, live_p); os.makedirs(basedir, exist_ok=True); shutil.copyfile(new_p, base_p)
         return 10
     live = read(live_p)
+    if opt.get("--reset"):
+        if live == new:
+            print("%s: already the new version" % name); return 0
+        had = os.path.isfile(base_p) and live != read(base_p)
+        print("%s: reset to WonderMaker's version (%s)" % (name, "had your edits, saved in backup/" if had else "it differed, a copy is saved in backup/"))
+        if write:
+            bdir = os.path.join(os.path.dirname(os.path.abspath(live_p)), "backup")
+            os.makedirs(bdir, exist_ok=True)
+            shutil.copy2(live_p, os.path.join(bdir, os.path.basename(live_p) + ".wm-before-reset-" + stamp))
+            shutil.copyfile(new_p, live_p)
+            os.makedirs(basedir, exist_ok=True); shutil.copyfile(new_p, base_p)
+        return 10
     note = ""
     if os.path.isfile(base_p):
         base = read(base_p)
