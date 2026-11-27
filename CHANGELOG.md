@@ -2,7 +2,8 @@
 
 ## 1.23.1
 
-- **One release number.** `RELEASE` follows the installer: 2.35.0. No change to the panel files.
+- **One release number.** `RELEASE` follows the installer: 2.35.0.
+- **Macro lists at the top of `config/rpi_endless.cfg` and `config/rpi_stats.cfg`** now match the main RPi4 (the macros that start with an underscore are listed as hidden). Comment lines only, no macro changed.
 
 ## 1.23.0
 
