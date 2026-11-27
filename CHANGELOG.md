@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.8
+
+- **"Update available" and "Update now" work again (Fluidd build, patch 36 of 36).** The versions line at the bottom of the Toolheads card looked for the update entry by its old capital-letter name `WM_Ultra_Vanilla_Klipper` and for the panel project's own entry, which is gone since 2.37.1. So it always said "Up to date" while Fluidd's update page showed a new version. It now follows the one entry `wm_ultra_vanilla_klipper` (the old name still works on a Pi that was not updated yet). The release number follows the installer (2.37.3).
+
 ## 1.23.7
 
 - No change to the panel itself. The release number follows the installer (2.37.2: a clearer update message).
