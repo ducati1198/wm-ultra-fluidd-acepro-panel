@@ -144,7 +144,6 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Counters** | Tool changes in total and per toolhead, plus the print time of each toolhead on the carriage (pauses not counted), with a Reset button. |
 | **Sensor lights** | Every toolhead shows its Tangle (the sensor at the hub: off when the filament is pulled tight), Head and Dock sensors; below the toolheads the carriage's Tool lock and Lock motor home sensors. |
 | **Unload Menu button** | Opens the unload window of the Pi installer (`WM_UNLOAD_MENU`): one toolhead or all of them, with or without an ACE. |
-| **Touchscreen line** | The touchscreen board's version, an "update" chip when a newer version is on GitHub, its CPU and free memory. The board sends it every minute (needs WM_Ultra_Vanilla_Klipper 2.11.0 on the board). |
 | **OrcaSlicer plugin** | Pick the toolhead for each filament inside Orca; written into the G-code as `WM_SET_TOOL_MAP` ([`orca_plugin/`](orca_plugin/INSTALL.md)). |
 | **Orca filament sync** | With an ACE, the slots are published to Moonraker's `lane_data` so Orca's "sync filament from printer" can see them. Not yet tested. |
 | **Safe installer** | Asks plain questions, shows what changes, backs up first, `--undo`, `--check`, `--dry-run`, tests. |

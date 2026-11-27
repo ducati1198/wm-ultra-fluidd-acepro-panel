@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.5
+
+- **Touchscreen line removed from the Fluidd Toolheads card** (Fluidd build, patch 35 of 35). The line with the touchscreen version, the "update" chip, CPU and free memory is gone: it showed "update 2.36.1" after every Pi-only release, because it compared the old installer number of the last screen update with the newest installer number. The Pi / Screen / Panel versions line and its Update now button stay. The Fluidd zip is rebuilt from the 35-patch series (new sha256). The screen board may still upload `wm_screen_status.json`; nothing reads it any more.
+
 ## 1.23.4
 
 - **One release number.** `RELEASE` follows the installer: 2.37.0 (machine-file step, `wm_my_overrides.cfg` removed). No panel file changed.
