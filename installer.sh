@@ -544,6 +544,12 @@ PYDROP
     fi
 }
 
+# 1.23.6: the sha256 of the build that is served is saved in the Fluidd folder (.wm-zr-build). An update refreshes Fluidd by itself
+# when it differs from the zip of this folder (or is missing: a build from before this mark), so Fluidd always follows the release.
+fluidd_zip_sum() { sha256sum "$SCRIPT_DIR/fluidd/fluidd-v1.38.0-zr-ace.zip" 2>/dev/null | cut -d" " -f1; }
+fluidd_mark_build() { fluidd_zip_sum > "$1/.wm-zr-build" 2>/dev/null || true; }
+fluidd_build_current() { local z; z="$(fluidd_zip_sum)"; [ -n "$z" ] && [ "$(head -n1 "$1/.wm-zr-build" 2>/dev/null)" = "$z" ]; }
+
 install_fluidd_panel() {
     local fluidd_dir="$1" zip="$SCRIPT_DIR/fluidd/fluidd-v1.38.0-zr-ace.zip" backup
     [ -f "$zip" ] || { warn_later "Fluidd build not found: $zip"; return 1; }
@@ -570,6 +576,7 @@ PYZIP
     chmod -R a+rX "$fluidd_dir" 2>/dev/null || true
     if grep -rlq "ACE feeder" "$fluidd_dir/assets" 2>/dev/null; then
         print_success "Fluidd Toolheads + ACE panel installed (hard-refresh the browser to load it)"
+        fluidd_mark_build "$fluidd_dir"
     else
         print_error "The panel was not found after unpacking. Restoring Fluidd."
         rm -rf "$fluidd_dir" && cp -a "$backup" "$fluidd_dir"; return 1
@@ -772,8 +779,12 @@ do_install() {
     fi
     if [ -d "$fl" ]; then
         local q="Install the WonderMaker Toolheads panel$([ "$HAVE_ACE" = 1 ] && echo " (with the ACE parts)") into Fluidd?"
-        [ "$UPDATING" = 1 ] && q="Also refresh the Fluidd panel?"
-        ask_yn "$q" "$([ "$UPDATING" = 1 ] && echo N || echo Y)" "your Fluidd folder is saved first and can be put back with --undo." && { WANT_FLUIDD=1; FLUIDD_DIR="$fl"; }
+        local fdef=Y
+        if [ "$UPDATING" = 1 ]; then
+            q="Also refresh the Fluidd panel?"
+            if fluidd_build_current "$fl"; then fdef=N; else print_info "The Fluidd panel on this printer is not the build of this version: it is refreshed (the old folder is saved first)."; fi
+        fi
+        ask_yn "$q" "$fdef" "your Fluidd folder is saved first and can be put back with --undo." && { WANT_FLUIDD=1; FLUIDD_DIR="$fl"; }
     else
         print_info "No Fluidd folder at $fl, so the panel is skipped."
     fi

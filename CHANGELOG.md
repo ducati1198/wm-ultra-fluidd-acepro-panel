@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.6
+
+- **An update refreshes Fluidd by itself.** The sha256 of the installed Fluidd build is saved in the Fluidd folder (`.wm-zr-build`). `./installer.sh --update` asks "Also refresh the Fluidd panel?" with the default Yes when that mark is missing or differs from the zip of this folder (before, the default was always No, so the automatic update of the Pi installer never refreshed Fluidd). The old Fluidd folder is saved first, as before. RELEASE follows the installer: 2.37.1.
+
 ## 1.23.5
 
 - **Touchscreen line removed from the Fluidd Toolheads card** (Fluidd build, patch 35 of 35). The line with the touchscreen version, the "update" chip, CPU and free memory is gone: it showed "update 2.36.1" after every Pi-only release, because it compared the old installer number of the last screen update with the newest installer number. The Pi / Screen / Panel versions line and its Update now button stay. The Fluidd zip is rebuilt from the 35-patch series (new sha256). The screen board may still upload `wm_screen_status.json`; nothing reads it any more.

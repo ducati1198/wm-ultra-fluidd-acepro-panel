@@ -85,6 +85,15 @@ check "fast_timeout_s 45 kept"                      grep -q '^variable_fast_time
 check "feed_speed 33 kept"                          grep -q '^feed_speed: *33' "$C/rpi_ace_driver.cfg"
 check "includes not duplicated"                     test "$(grep -c 'include rpi_ace.cfg' "$C/printer.cfg")" -eq 1
 
+echo "2b. An update refreshes Fluidd by itself when its build is not the release (1.23.6)"
+check "install: the Fluidd folder carries the build mark (sha256 of the zip)" bash -c 'test "$(cat "$0/fluidd/.wm-zr-build")" = "$(sha256sum "$1/fluidd/fluidd-v1.38.0-zr-ace.zip" | cut -d" " -f1)"' "$H" "$REPO"
+echo stale > "$H/fluidd/assets/stale.js"
+inst "$H" '' --update
+check "update, Fluidd build mark current: the served Fluidd is not touched" test -f "$H/fluidd/assets/stale.js"
+rm -f "$H/fluidd/.wm-zr-build"
+inst "$H" '' --update
+check "update, no mark (a build from before the mark): Fluidd is refreshed by itself, the old folder is saved first" bash -c '! test -e "$0/fluidd/assets/stale.js" && test -f "$0/fluidd/.wm-zr-build" && echo "$1" | grep -q "is refreshed" && ls -d "$0"/ultra-backup/fluidd-page/*/fluidd_backup_* >/dev/null' "$H" "$OUT"
+
 echo "3. Dry run changes nothing"
 H3="$(new_home t3)"; C3="$(cfg "$H3")"; cp -a "$C3/printer.cfg" "$ROOT/p3.cfg"
 inst "$H3" "$A_ALL" --dry-run
