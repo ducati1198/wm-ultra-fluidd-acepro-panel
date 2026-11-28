@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.25.1
+
+Release number 2.39.1 (follows WM_Ultra_Vanilla_Klipper 2.39.1). Tested by the user on the printer.
+
+- **Shorter message when the ACE USB is unplugged (F-289).** The console line is now `ACE[0]: Unable to communicate with ACE (USB read failed, details in klippy.log)`. Before, it showed up to 120 characters of the raw serial error. The full traceback stays in klippy.log.
+
 ## 1.25.0
 
 Release number 2.39.0 (follows WM_Ultra_Vanilla_Klipper 2.39.0). Tested by the user on the real printer (main RPi4 with the ACE Pro) before it was copied here.

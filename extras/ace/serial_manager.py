@@ -1642,9 +1642,8 @@ class AceSerialManager:
             logging.warning(
                 "ACE[%d]: USB read failed\n%s", self.instance_num, traceback.format_exc()
             )
-            reason = (str(exc).splitlines() or ["USB read failed"])[0][:120]
             self.gcode.respond_info(
-                f"ACE[{self.instance_num}]: Unable to communicate with ACE ({reason})"
+                f"ACE[{self.instance_num}]: Unable to communicate with ACE (USB read failed, details in klippy.log)"
             )
 
             if not self._ace_pro_enabled:
