@@ -12,6 +12,7 @@ import logging
 import re
 
 from . import ace2_ota
+from . import rollback_assist as _rollback_assist
 from . import connection_pause
 from . import monitor_events
 from . import print_tools
@@ -709,6 +710,24 @@ def cmd_ACE_STOP_RETRACT(gcmd):
         raise gcmd.error(f"ACE_STOP_RETRACT error: {e}") from e
 
 
+
+def cmd_ACE_ROLLBACK_ASSIST(gcmd):
+    """F-284: the ACE follows the extruder's retract (START=1) or stops following (START=0)."""
+    try:
+        ace, slot = ace_get_instance_and_slot(gcmd)
+        if not (0 <= slot < ace.SLOT_COUNT):
+            raise gcmd.error(f"Invalid slot {slot}")
+        if gcmd.get_int("START", 1):
+            length = gcmd.get_float("LENGTH", 100.0)
+            speed = gcmd.get_float("SPEED", 20.0)
+            validate_feed_and_retract_arguments(gcmd, ace, slot, length, speed)
+            _rollback_assist.follow_start(ace, slot, length, speed)
+        else:
+            _rollback_assist.follow_stop(ace, slot)
+    except Exception as e:
+        raise gcmd.error(f"ACE_ROLLBACK_ASSIST error: {e}") from e
+
+
 # Predefined color names mapping (0.0-1.0 float range converted to 0-255 RGB)
 COLOR_NAMES = {
     "BLACK": [0, 0, 0],
@@ -1294,13 +1313,8 @@ def cmd_ACE_RESET_ACTIVE_TOOLHEAD(gcmd):
         ace.reset_feed_assist_state()
 
     manager = ace_get_manager()
-    manager.state.set("ace_current_index", -1)
-    manager.state.set("ace_target_index", -1)
+    manager.record_no_tool()
     manager.state.set_and_save("ace_filament_pos", FILAMENT_STATE_BOWDEN)
-
-    manager.gcode.run_script_from_command(
-        "SET_GCODE_VARIABLE MACRO=_ACE_STATE VARIABLE=active VALUE=-1"
-    )
 
     gcmd.respond_info(f"ACE[{ace.instance_num}]: Active toolhead state reset")
 
@@ -1665,6 +1679,9 @@ def toolchange_homing_script(needed_axes, homed_axes):
 
 def cmd_ACE_CHANGE_TOOL(manager, gcmd, tool_index):
     """Handle tool change command."""
+    # Before anything heats or moves: an unknown tool failed deep inside
+    # the change, after the loaded tool's unload.
+    _check_ace_tool(gcmd, tool_index)
     if not manager.get_ace_global_enabled():
         if getattr(manager, "tool_changer_owns_tools", False) is True:
             # Ignoring it would let the tool changer record a tool that
@@ -1676,8 +1693,6 @@ def cmd_ACE_CHANGE_TOOL(manager, gcmd, tool_index):
         gcmd.respond_info("ACE: Global ACE Pro support disabled - tool change ignored")
         return
 
-    printer = get_printer()
-
     if tool_index == -1:
         current_tool = manager.state.get("ace_current_index", -1)
         if current_tool < 0:
@@ -1685,19 +1700,19 @@ def cmd_ACE_CHANGE_TOOL(manager, gcmd, tool_index):
 
         # PARK=1: out of the hotend only, parked at the toolhead's intake.
         park = gcmd.get_int("PARK", 0) and current_tool >= 0
+        what = "Park" if park else "Unload"
+        # A failure reaches the caller (a panel, a tool changer, a macro);
+        # the tool stays recorded, so the next change retries its unload.
         try:
             if park:
                 success = manager.park_tool(current_tool)
             else:
                 success = manager.smart_unload(current_tool)
-            if success:
-                # gcmd.respond_info(f"ACE: Tool {current_tool} unloaded successfully")
-                manager.state.set("ace_current_index", -1)
-            else:
-                gcmd.respond_info(f"ACE: Smart unload of tool {current_tool} failed")
         except Exception as e:
-            gcmd.respond_info(f"ACE: Smart unload error: {e}")
-
+            raise gcmd.error(f"ACE: {what} of T{current_tool} failed: {e}")
+        if not success:
+            raise gcmd.error(f"ACE: {what} of T{current_tool} failed")
+        manager.record_no_tool()
         return
 
     printer = get_printer()
@@ -1765,6 +1780,10 @@ def cmd_ACE_CHANGE_TOOL(manager, gcmd, tool_index):
         except Exception:
             filament_pos = None
 
+        # perform_tool_change itself recorded the requested tool as loaded,
+        # and a later step (the purge) failed: its filament is in the nozzle.
+        load_confirmed = manager.state.get("ace_current_index", -1) == tool_index
+
         if is_printing and not is_startup:
             # Mid-print failure. Pinning the REQUESTED tool as current is only
             # valid when the sequence got past the unload (target filament may
@@ -1777,9 +1796,7 @@ def cmd_ACE_CHANGE_TOOL(manager, gcmd, tool_index):
             # the "already loaded" reselection path, which trusts the poisoned
             # index, skips the real toolchange, and enables a second feed
             # assist in parallel with the still-loaded previous tool's.
-            # The exception: perform_tool_change itself recorded the
-            # requested tool as loaded, and a later step (the purge) failed.
-            load_confirmed = manager.state.get("ace_current_index", -1) == tool_index
+            # The exception: a confirmed load.
             if (filament_pos in (FILAMENT_STATE_NOZZLE, FILAMENT_STATE_SPLITTER)
                     and not load_confirmed):
                 active_tool = fallback_tool
@@ -1787,7 +1804,9 @@ def cmd_ACE_CHANGE_TOOL(manager, gcmd, tool_index):
                 active_tool = tool_index
         else:
             # Idle/startup failure. Decide which tool is physically in the path.
-            if filament_pos == FILAMENT_STATE_BOWDEN:
+            if load_confirmed:
+                active_tool = tool_index
+            elif filament_pos == FILAMENT_STATE_BOWDEN:
                 # The unload of the previous tool completed (filament_pos only
                 # becomes "bowden" after a successful retract). If the sensors
                 # still report filament, the tool we just tried to LOAD is stuck
@@ -2713,6 +2732,8 @@ ACE_COMMANDS = [
     ("ACE_STOP_FEED", cmd_ACE_STOP_FEED, "Stop feeding. T=<tool> or INSTANCE= INDEX="),
     ("ACE_RETRACT", cmd_ACE_RETRACT, "Retract filament. T=<tool> or INSTANCE= INDEX=, LENGTH=, [SPEED=]"),
     ("ACE_STOP_RETRACT", cmd_ACE_STOP_RETRACT, "Stop retraction. T=<tool> or INSTANCE= INDEX="),
+    ("ACE_ROLLBACK_ASSIST", cmd_ACE_ROLLBACK_ASSIST,
+     "The ACE follows the extruder retract. T=<tool> or INSTANCE= INDEX=, START=1|0, [LENGTH=] [SPEED=]"),
     ("ACE_SMART_UNLOAD", cmd_ACE_SMART_UNLOAD,
      "Unload filament, trys also other filament slots if sensor still triggers after unload of current tool [TOOL=]"),
     ("ACE_SMART_LOAD", cmd_ACE_SMART_LOAD, "Load all non-empty slots to verification sensor."),

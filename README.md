@@ -548,6 +548,9 @@ Written for the day the printer is running again. Do them in this order, empty b
 - ACE unplugged and plugged in again: the touchscreen and Fluidd window "ACE connection issue" closes by itself 10 s after the ACE is back (1.9.0).
 - Unload on T0, T1, T2 and T3: the tool is picked up by itself, the extruder pulls the tip, the ACE retracts, and the slot ends up empty. Auto-load is held off for 5 s afterwards (it was 90 s until 1.7.10). Measured on the printer: after an unload the slot goes to empty and stays empty, the ACE does not grip the old filament end again.
 - Tool head LEDs (`wm_tool_leds.cfg` in wm-ultra-rpi): blue with filament, red without.
+- Slot info (1.25.0): the colour, material and temperature of a head from the Toolheads card or the touchscreen are copied into its ACE slot, so Orca's filament sync shows real filaments (Orca generic filament ids, no "may not be compatible" warning).
+- Unload with the ACE Pro (1.25.0): the extruder and the ACE pull the filament out of the head together (`ACE_ROLLBACK_ASSIST`), up to 3 pulls checked by the head sensor; the ABS tip is cooled further and held longer.
+- ACE unplugged during use (1.25.0): one short line in the console, the traceback goes to klippy.log; saved variables are written safely (temp file, fsync, rename) and the Orca lane data waits for the end of a print.
 
 ### Still unverified (needs the printer)
 

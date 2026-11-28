@@ -91,6 +91,49 @@ class MoonrakerLaneSyncAdapter:
                 return
             self._post_print_retry_scheduled = True
 
+        def _finish(request_sync):
+            with self._lock:
+                if request_sync:
+                    self._pending_reason = f"{reason}_post_print"
+                    self._pending_sync.set()
+                self._post_print_retry_scheduled = False
+
+        # Preferred: a Klipper reactor timer, so the printer state is read on
+        # the reactor thread (no sleeping thread reading Klipper objects).
+        # This method runs on the sync worker thread, so the timer is
+        # registered through the thread-safe async callback.
+        reactor = getattr(self.manager, "reactor", None)
+        if reactor is not None and hasattr(reactor, "register_async_callback"):
+            never = getattr(reactor, "NEVER", 9999999999.)
+
+            def _check(eventtime):
+                try:
+                    if self._shutdown.is_set():
+                        _finish(False)
+                        return never
+                    if not self._is_printing_or_paused():
+                        _finish(True)
+                        return never
+                    return eventtime + self._post_print_retry_delay_s
+                except Exception:
+                    logging.debug("ACE: lane sync post-print check failed", exc_info=True)
+                    _finish(False)
+                    return never
+
+            def _register(eventtime):
+                try:
+                    reactor.register_timer(
+                        _check, eventtime + self._post_print_retry_delay_s)
+                except Exception:
+                    logging.debug("ACE: lane sync timer failed", exc_info=True)
+                    _finish(False)
+
+            try:
+                reactor.register_async_callback(_register)
+                return
+            except Exception:
+                logging.debug("ACE: lane sync async callback failed", exc_info=True)
+
         def _wait_for_idle():
             try:
                 while not self._shutdown.is_set():
@@ -258,7 +301,9 @@ class MoonrakerLaneSyncAdapter:
             "material": material if has_filament else "",
             # acepro-any-klipper: names for slicers that read lane_data (OrcaSlicer filament sync)
             "filament_name": material if has_filament else "",
-            "filament_id": material if has_filament else "",
+            # OrcaSlicer matches filament_id against its system presets (tray_info_idx); a material
+            # name here made Orca say "may not be compatible". Send the Orca Generic preset id instead.
+            "filament_id": self._orca_filament_id(material) if has_filament else "",
             "color": self._rgb_to_hex(inv.get("color")) if has_filament else "",
             "scan_time": "",
             "td": "",
@@ -304,6 +349,28 @@ class MoonrakerLaneSyncAdapter:
             if marker:
                 markers.add(marker.upper())
         return markers
+
+    # OrcaSlicer system "Generic" filament preset ids (OrcaFilamentLibrary), checked in this order
+    _ORCA_GENERIC_IDS = (
+        (("PETG", "PCTG"), "OFYPdQJh"),
+        (("PLA",), "OFDSrzZ8"),
+        (("ABS",), "OFY9muEs"),
+        (("ASA",), "OFLPAxz3"),
+        (("TPU", "TPE", "FLEX"), "OFgbpcy9"),
+        (("PVA",), "OFDvXujf"),
+        (("HIPS",), "OFsFon5l"),
+        (("PC",), "OFLakOUI"),
+        (("PA", "NYLON"), "OFg8ndtj"),
+    )
+
+    @classmethod
+    def _orca_filament_id(cls, material):
+        """Orca Generic preset id for a material name; empty string when unknown."""
+        mat = str(material or "").strip().upper()
+        for prefixes, orca_id in cls._ORCA_GENERIC_IDS:
+            if mat.startswith(prefixes):
+                return orca_id
+        return ""
 
     def _normalize_material(self, material):
         value = str(material or "").strip()

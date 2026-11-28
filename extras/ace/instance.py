@@ -39,6 +39,14 @@ from .intake_gated import STRATEGY_SENSOR_PUSH
 # After a stop_feed_assist the ACE's reported status is trusted only this
 # much later.
 FEED_ASSIST_STOP_SETTLE_S = 1.0
+# How long the ACE has to answer a feed assist start, and how often a
+# refused or unanswered start is tried before the load fails (a refusal can
+# pass: the ACE still switching from feeding).
+FEED_ASSIST_ACK_TIMEOUT_S = 5.0
+FEED_ASSIST_START_ATTEMPTS = 3
+FEED_ASSIST_START_RETRY_S = 1.0
+# Poll interval while waiting for a reply.
+REPLY_POLL_S = 0.1
 
 
 class AceInstance:
@@ -50,8 +58,9 @@ class AceInstance:
     DEFAULT_TEMP = 0
 
     # Feed assist restore retries: a freshly powered ACE spends time in RFID
-    # identification (busy) - retry once per heartbeat (~1 Hz) up to this cap
-    FEED_ASSIST_RESTORE_MAX_ATTEMPTS = 30
+    # identification (busy) - retry once per heartbeat (~1 Hz) up to this
+    # cap, about three minutes
+    FEED_ASSIST_RESTORE_MAX_ATTEMPTS = 180
 
     # Consecutive FORBIDDEN rejections tolerated per incremental feed step
     # before aborting (FORBIDDEN = previous feed still executing; a long
@@ -94,6 +103,7 @@ class AceInstance:
         serial_mgr=None,
         bus_session=None,
         target_usb_location=None,
+        reserved_usb_locations=(),
     ):
         """
         Initialize ACE instance.
@@ -107,6 +117,9 @@ class AceInstance:
                 bound to, as resolved from daisy-chain topology order by
                 AceManager. Ignored when `serial_mgr` is already provided
                 (shared-bus instances build their AceSerialManager elsewhere).
+            reserved_usb_locations: Locations bound to the other dedicated
+                instances, never taken by this instance's port fallback.
+                Ignored with `serial_mgr`, like `target_usb_location`.
         """
         self.variables = {}
         self.SLOT_COUNT = SLOTS_PER_ACE
@@ -213,6 +226,7 @@ class AceInstance:
             supervision_enabled=self.supervision_enabled,
             protocol=self.protocol,
             target_usb_location=target_usb_location,
+            reserved_usb_locations=reserved_usb_locations,
         )
         if not self.transport_spec.shared_bus:
             self.serial_mgr.set_heartbeat_callback(self._on_heartbeat_response)
@@ -242,6 +256,7 @@ class AceInstance:
         serial_mgr=None,
         bus_session=None,
         target_usb_location=None,
+        reserved_usb_locations=(),
     ):
         """Swap this instance's protocol/transport in place.
 
@@ -278,6 +293,7 @@ class AceInstance:
             supervision_enabled=self.supervision_enabled,
             protocol=self.protocol,
             target_usb_location=target_usb_location,
+            reserved_usb_locations=reserved_usb_locations,
         )
         if not self.transport_spec.shared_bus:
             self.serial_mgr.set_heartbeat_callback(self._on_heartbeat_response)
@@ -362,7 +378,11 @@ class AceInstance:
             return
 
         request = self.protocol.build_get_status_request()
-        self.send_high_prio_request(request, self._on_heartbeat_response)
+        self.serial_mgr.send_poll_request(
+            self.instance_num,
+            self._prepare_request(request),
+            self._on_heartbeat_response,
+        )
 
     def _shared_bus_heartbeat_tick(self, eventtime):
         """Periodically poll one ACE2 logical instance on shared transport."""
@@ -634,34 +654,51 @@ class AceInstance:
             return False
 
     def _enable_feed_assist(self, slot_index):
-        """Enable feed assist for smooth filament loading."""
+        """Enable feed assist on slot_index, stopping this unit's assist on
+        another slot first. Recorded only once the ACE accepted it; raises
+        ValueError when it refused or did not answer every attempt."""
+        if 0 <= self._feed_assist_index != slot_index:
+            self._disable_feed_assist(self._feed_assist_index)
+        for attempt in range(1, FEED_ASSIST_START_ATTEMPTS + 1):
+            self.wait_ready()
+            response = self._request_reply(
+                self.protocol.build_start_feed_assist_request(slot_index),
+                FEED_ASSIST_ACK_TIMEOUT_S)
+            if response and response.get("code") == 0:
+                break
+            detail = response.get("msg", "no message") if response else "no answer"
+            if attempt == FEED_ASSIST_START_ATTEMPTS:
+                raise ValueError(
+                    f"ACE[{self.instance_num}]: Feed assist on slot {slot_index} "
+                    f"was not started after {attempt} attempts ({detail})")
+            logging.info(
+                f"ACE[{self.instance_num}]: Feed assist start on slot "
+                f"{slot_index} refused ({detail}), attempt {attempt} of "
+                f"{FEED_ASSIST_START_ATTEMPTS}")
+            self.dwell(FEED_ASSIST_START_RETRY_S)
         self._feed_assist_index = slot_index
         self._feed_assist_topology_position = self.serial_mgr.get_usb_topology_position()
-
-        def callback(response):
-            if response and response.get("code") == 0:
-                self.gcode.respond_info(
-                    f"ACE[{self.instance_num}]: Feed assist enabled on slot {slot_index}"
-                )
-                self.state.set(
-                    f"ace_feed_assist_index_{self.instance_num}",
-                    slot_index
-                )
-            else:
-                msg = response.get("msg", "Unknown") if response else ""
-                logging.warning(
-                    f"ACE[{self.instance_num}]: Feed assist enable failed: {msg}"
-                )
-
-        self.wait_ready()
-        request = self.protocol.build_start_feed_assist_request(slot_index)
-        self.send_request(request, callback)
+        self.state.set(f"ace_feed_assist_index_{self.instance_num}", slot_index)
+        self.gcode.respond_info(
+            f"ACE[{self.instance_num}]: Feed assist enabled on slot {slot_index}"
+        )
         # ACE1: stays 'ready' during feed assist, so wait confirms the command was processed.
         # ACE2: transitions to 'busy' the moment feed assist starts and never returns to
         # 'ready' until STOP_FEED_ASSIST is received.  Calling wait_ready() here on ACE2
         # would block forever.
         if not self.protocol.feed_assist_causes_busy():
             self.wait_ready()
+
+    def _request_reply(self, request, timeout_s):
+        """Send request and return its reply, or None when none came within
+        timeout_s. Pauses the reactor: never from a reactor timer or the
+        serial reader's callbacks."""
+        reply = {}
+        self.send_request(request, lambda response: reply.setdefault("r", response))
+        deadline = self.reactor.monotonic() + timeout_s
+        while "r" not in reply and self.reactor.monotonic() < deadline:
+            self.reactor.pause(self.reactor.monotonic() + REPLY_POLL_S)
+        return reply.get("r")
 
     def _disable_feed_assist(self, slot_index):
         """Disable feed assist and wait until the ACE has stopped."""
@@ -1884,7 +1921,7 @@ class AceInstance:
             try:
                 self._stop_retract(slot)
             except Exception:
-                pass
+                logging.debug("ACE: stop_retract failed after an unload error (slot %s)", locals().get("slot"), exc_info=True)
             raise
 
         except Exception as e:
@@ -1895,7 +1932,7 @@ class AceInstance:
             try:
                 self._stop_retract(slot)
             except Exception:
-                pass
+                logging.debug("ACE: stop_retract failed after an unexpected unload error (slot %s)", locals().get("slot"), exc_info=True)
             raise
 
     def _query_rfid_full_data(self, slot_idx):
@@ -1967,7 +2004,7 @@ class AceInstance:
                 slots_out.append(slot_data)
             self.gcode.respond_info("// " + json.dumps({"instance": self.instance_num, "slots": slots_out}))
         except Exception:
-            pass
+            logging.debug("ACE: status JSON for the console failed", exc_info=True)
 
     def _status_update_callback(self, response):
         """Handle status updates from ACE hardware."""
@@ -2491,7 +2528,7 @@ class AceInstance:
                         f"ace_feed_assist_index_{self.instance_num}", -1
                     )
                 except Exception:
-                    pass
+                    logging.debug("ACE: could not reset ace_feed_assist_index", exc_info=True)
                 return
 
         self._feed_assist_restore_attempts += 1
@@ -2521,25 +2558,23 @@ class AceInstance:
             f"ACE[{self.instance_num}]: Restoring feed assist on slot {slot} "
             f"(chain position: {current_position})"
         )
-        try:
-            # Use short timeout - if ACE is busy (e.g., RFID read/preload), skip restoration
-            # Feed assist can be restored later or manually if needed
-            self.wait_ready(timeout_s=5.0)
-            request = self.protocol.build_start_feed_assist_request(slot)
-            self.send_request(
-                request,
-                lambda response: self._on_feed_assist_restore_response(response, slot)
-            )
-        except TimeoutError:
-            # ACE busy (likely RFID read/preload) - re-queue so the next
-            # heartbeat actually retries (previously this message promised a
-            # retry that never happened: the pending flag was already cleared)
+        if not self.is_ready():
+            # Busy (RFID identification, preload): retried on the next
+            # heartbeat. No wait here - this runs in the serial reader's
+            # callback, and the status a wait needs comes through that reader.
             self._pending_feed_assist_restore = slot
             logging.info(
                 f"ACE[{self.instance_num}]: Feed assist restoration on slot {slot} "
                 f"deferred (ACE busy) - retry "
                 f"{self._feed_assist_restore_attempts}/{self.FEED_ASSIST_RESTORE_MAX_ATTEMPTS} "
                 f"on next status update"
+            )
+            return
+        try:
+            request = self.protocol.build_start_feed_assist_request(slot)
+            self.send_request(
+                request,
+                lambda response: self._on_feed_assist_restore_response(response, slot)
             )
         except Exception as e:
             self.gcode.respond_info(

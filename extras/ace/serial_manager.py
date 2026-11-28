@@ -11,6 +11,7 @@ Responsibilities:
 
 import select
 import serial
+import termios
 import json
 import threading
 import queue
@@ -44,6 +45,9 @@ class AceSerialManager:
     DEFAULT_TIMEOUT_S = 5.0
     # A connected port that takes no output for this long is reconnected.
     TX_STALL_LIMIT_S = 2.0
+    # send_poll_request key of the transport heartbeat (shared-bus instances
+    # poll under their instance number instead)
+    TRANSPORT_POLL_KEY = "transport"
 
     def __init__(
             self,
@@ -54,7 +58,8 @@ class AceSerialManager:
             status_debug_logging=False,
             supervision_enabled=True,
             protocol=None,
-            target_usb_location=None):
+            target_usb_location=None,
+            reserved_usb_locations=()):
         """
         Initialize serial manager.
 
@@ -73,10 +78,14 @@ class AceSerialManager:
                 (e.g. direct/unit-tested construction), legacy index-based
                 matching is used, and the location is learned automatically
                 after the first successful connect.
+            reserved_usb_locations: USB locations the topology bound to
+                other dedicated instances. The index fallback never selects
+                a port there, even before its owner has opened it.
         """
         self._port = None
         self._usb_location = None
         self._target_usb_location = target_usb_location
+        self._reserved_usb_locations = frozenset(reserved_usb_locations)
         self._port_description = None
         self._baud = None
         self.serial_name = None
@@ -105,6 +114,8 @@ class AceSerialManager:
 
         self._hp_queue = queue.Queue(maxsize=self.QUEUE_MAXSIZE)
         self._queue = queue.Queue(maxsize=self.QUEUE_MAXSIZE)
+        # Poll keys with a status poll queued or in flight (send_poll_request)
+        self._outstanding_polls = set()
 
         self.read_buffer = bytearray()
         # Frames not yet taken by the port, and since when it takes nothing.
@@ -197,8 +208,16 @@ class AceSerialManager:
         self._comm_duplicate_timestamps = []    # Duplicate reply times (health stats)
         self._last_duplicate_warn_time = None
 
-    def enable_ace_pro(self):
-        """Enable ACE Pro and reconnect if not connected."""
+        # Late replies: a request whose callback was dropped while it was on
+        # the wire (timeout, write error, clear_queues) can still be answered.
+        # Request ids are never reused, so such a reply is recognised as late
+        # instead of unsolicited.
+        self.LATE_REPLY_WINDOW_S = 30.0         # Remember abandoned ids this long
+        self._inflight_names = {}               # rid -> method/command name
+        self._abandoned_requests = {}           # rid -> (monotonic time, name)
+
+    def enable_ace_pro(self, baud):
+        """Enable ACE Pro and reconnect at baud if it was disabled."""
         was_disabled = not self._ace_pro_enabled
         self._ace_pro_enabled = True
 
@@ -207,7 +226,6 @@ class AceSerialManager:
             self.gcode.respond_info(
                 f"ACE[{self.instance_num}]: ACE Pro enabled - reconnecting"
             )
-            baud = self._baud if self._baud else 115200
             self.gcode.respond_info(
                 f"ACE[{self.instance_num}]: Using baud rate: {baud}"
             )
@@ -295,14 +313,6 @@ class AceSerialManager:
             if not transport_description_matches(device_name, portinfo.description):
                 continue
 
-            if portinfo.device in claimed_elsewhere:
-                claimed_count += 1
-                logging.info(
-                    f"ACE[{self.instance_num}] Skipping {portinfo.device} - "
-                    f"already claimed by another instance"
-                )
-                continue
-
             # Extract USB location from hwid
             location = None
             m = re.search(r'LOCATION=([-\w\.]+)', portinfo.hwid)
@@ -315,6 +325,25 @@ class AceSerialManager:
                     location = f"acm.{m2.group(1)}"
                 else:
                     location = portinfo.device
+
+            if portinfo.device in claimed_elsewhere:
+                claimed_count += 1
+                logging.info(
+                    f"ACE[{self.instance_num}] Skipping {portinfo.device} - "
+                    f"already claimed by another instance"
+                )
+                continue
+
+            # A claim only exists once the owner has opened its port; at boot
+            # an instance can look while its own unit is in a watchdog reset
+            # gap and its sibling's unit is visible but not yet opened.
+            if location in self._reserved_usb_locations:
+                claimed_count += 1
+                logging.info(
+                    f"ACE[{self.instance_num}] Skipping {portinfo.device} - "
+                    f"location {location} is reserved for another instance"
+                )
+                continue
 
             location_key = parse_usb_location(location)
             sort_key = (len(location_key), location_key)
@@ -400,8 +429,9 @@ class AceSerialManager:
                         return None
                 return port
             # The known physical location isn't visible right now (e.g. the
-            # unit is mid-reset/re-enumerating) - fall back to legacy
-            # index+description matching rather than refusing to connect.
+            # unit is mid-reset/re-enumerating, or was moved to another USB
+            # port) - fall back to index+description matching, which skips
+            # ports claimed by or reserved for other instances.
 
         port_index = 0 if transport.shared_bus else instance
         return self.find_com_port(transport.port_description, port_index, ports=ports)
@@ -739,6 +769,7 @@ class AceSerialManager:
                 write_timeout=0
             )
             if self._serial.is_open:
+                self._clear_hupcl()
                 self._connected = True
                 self.connection_state = "connected"
                 # Found and opened a port -> clear any sustained-miss tracking.
@@ -810,12 +841,34 @@ class AceSerialManager:
             self._serial = None
         return False
 
+    def _clear_hupcl(self):
+        """Clear the termios HUPCL flag on the open port.
+
+        With HUPCL set (the default) cdc-acm drops DTR when the last
+        descriptor closes, and the ACE has been seen to reset and
+        re-enumerate under a new ttyACM number right after such a close.
+        Cleared after open and again before close (a port reconfiguration
+        may rewrite the flags). Best effort: a failure only logs a warning
+        and never fails the connect or disconnect.
+        """
+        try:
+            fd = self._serial.fileno()
+            attrs = termios.tcgetattr(fd)
+            attrs[2] &= ~termios.HUPCL
+            termios.tcsetattr(fd, termios.TCSANOW, attrs)
+        except Exception as e:
+            logging.warning(
+                "ACE[%s]: could not clear HUPCL on the serial port: %s",
+                self.instance_num, e,
+            )
+
     def disconnect(self):
         """Close serial connection and stop all timers."""
         self.stop_heartbeat()
 
         if self._serial and self._serial.is_open:
             try:
+                self._clear_hupcl()
                 self._serial.close()
             except Exception as e:
                 logging.error(f"ACE[{self.instance_num}]: Error closing serial: {e}")
@@ -1115,12 +1168,15 @@ class AceSerialManager:
         Args:
             request: Dict with JSON-serializable request
             callback: Callable as in send_request
+
+        Returns:
+            bool: True if the request was queued
         """
         if not self._ace_pro_enabled:
             self.gcode.respond_info(
                 f"ACE[{self.instance_num}]: Dropping high-priority request — ACE Pro is disabled"
             )
-            return
+            return False
         try:
             normalized_request = self.protocol.normalize_request(request)
             self._hp_queue.put([normalized_request, callback], timeout=1)
@@ -1128,14 +1184,89 @@ class AceSerialManager:
             self.gcode.respond_info(
                 f"ACE[{self.instance_num}]: High-priority queue full!"
             )
+            return False
+        return True
+
+    def send_poll_request(self, key, request, callback):
+        """Queue a periodic status poll unless the last one for `key` is open.
+
+        An unanswered poll must not be followed by more: an ACE that stalls
+        (filament preload, 6-7 s) answers every queued poll late, and each
+        one becomes a timeout plus a reply without a callback. `key` names
+        the poller (the transport heartbeat, or one shared-bus device). A
+        poll is open until its callback runs (reply or timeout) or
+        clear_queues() drops it. Reactor thread only.
+
+        Returns:
+            bool: True if the poll was queued
+        """
+        if key in self._outstanding_polls:
+            return False
+
+        def _release_then_call(response=None):
+            self._outstanding_polls.discard(key)
+            callback(response)
+
+        queued = self.send_high_prio_request(request, _release_then_call)
+        if queued:
+            self._outstanding_polls.add(key)
+        return bool(queued)
 
     def clear_queues(self):
         """Clear all pending requests."""
         self._clear_queue(self._queue)
         self._clear_queue(self._hp_queue)
         with self._lock:
+            now = self.reactor.monotonic()
+            for rid in list(self.inflight):
+                self._abandon(rid, now)
             self._callback_map.clear()
             self.inflight.clear()
+            self._outstanding_polls.clear()
+
+    @staticmethod
+    def _request_name(request):
+        """ACE1 names a request by 'method', ACE2 by 'command'."""
+        return request.get('method') or request.get('command')
+
+    def _abandon(self, rid, now):
+        """Remember that in-flight request `rid` lost its callback."""
+        self._forget_old_abandoned(now)
+        self._abandoned_requests[rid] = (now, self._inflight_names.pop(rid, None))
+
+    def _forget_old_abandoned(self, now):
+        cutoff = now - self.LATE_REPLY_WINDOW_S
+        self._abandoned_requests = {
+            r: v for r, v in self._abandoned_requests.items() if v[0] > cutoff
+        }
+
+    def _handle_late_reply(self, response):
+        """Absorb a reply to an abandoned request. Returns True if it was one.
+
+        A late status reply only goes to klippy.log. A late reply to a
+        command is shown on the console: the ACE carried out something the
+        caller was already told had failed.
+        """
+        now = self.reactor.monotonic()
+        self._forget_old_abandoned(now)
+        entry = self._abandoned_requests.pop(response.get('id'), None)
+        if entry is None:
+            return False
+
+        abandoned_at, name = entry
+        rid = response.get('id')
+        if name == self._request_name(self.protocol.build_get_status_request()):
+            logging.info(
+                "ACE[%s]: late status reply ID=%s, %.1fs after its request was abandoned",
+                self.instance_num, rid, now - abandoned_at,
+            )
+        else:
+            self.gcode.respond_info(
+                f"ACE[{self.instance_num}]: late reply to request ID={rid} ({name}) "
+                f"that was already reported as failed - the ACE may have carried "
+                f"it out: {json.dumps(response, default=str)}"
+            )
+        return True
 
     def _clear_queue(self, q):
         """Remove all items from queue."""
@@ -1169,8 +1300,10 @@ class AceSerialManager:
     def _fail_inflight(self):
         """Answer every in-flight request with None and forget it."""
         with self._lock:
+            now = self.reactor.monotonic()
             for rid in list(self.inflight):
                 self.inflight.pop(rid, None)
+                self._abandon(rid, now)
                 cb = self._callback_map.pop(rid, None)
                 if cb:
                     try:
@@ -1276,6 +1409,7 @@ class AceSerialManager:
                 cb = self._callback_map.pop(rid, None)
                 if cb:
                     self.inflight.pop(rid, None)
+                    self._inflight_names.pop(rid, None)
 
         if cb is not None:
             now = self.reactor.monotonic()
@@ -1437,7 +1571,7 @@ class AceSerialManager:
                         f"ACE[{self.instance_num}]: Heartbeat callback error: {e}"
                     )
 
-        self.send_high_prio_request(request, _heartbeat_response)
+        self.send_poll_request(self.TRANSPORT_POLL_KEY, request, _heartbeat_response)
 
     def _writer(self, eventtime):
         """Timer callback: send requests from queue, handle timeouts, fill window."""
@@ -1463,6 +1597,7 @@ class AceSerialManager:
                                     f"ACE[{self.instance_num}]: Callback error: {e}"
                                 )
                         self.inflight.pop(rid, None)
+                        self._abandon(rid, now)
 
             # Fill window with new requests
             while True:
@@ -1483,6 +1618,7 @@ class AceSerialManager:
                     req['id'] = rid
                     self._callback_map[rid] = cb
                     self.inflight[rid] = now
+                    self._inflight_names[rid] = self._request_name(req)
 
                 self._send_frame(req)
         except Exception as e:
@@ -1501,10 +1637,14 @@ class AceSerialManager:
         """Timer callback: read frames from serial, dispatch responses."""
         try:
             raw = self._serial.read(size=4096)
-        except SerialException:
+        except SerialException as exc:
+            # Console gets one short line; the full traceback goes to the log.
+            logging.warning(
+                "ACE[%d]: USB read failed\n%s", self.instance_num, traceback.format_exc()
+            )
+            reason = (str(exc).splitlines() or ["USB read failed"])[0][:120]
             self.gcode.respond_info(
-                f"ACE[{self.instance_num}]: Unable to communicate with ACE\n" +
-                traceback.format_exc()
+                f"ACE[{self.instance_num}]: Unable to communicate with ACE ({reason})"
             )
 
             if not self._ace_pro_enabled:
@@ -1539,31 +1679,47 @@ class AceSerialManager:
             self.gcode.respond_info(f"ACE[{self.instance_num}]: {notice}")
 
         for ret in responses:
-            if self._status_debug_logging:
-                self._status_update_callback(ret)
-
-            cb, _ = self.dispatch_response(ret)
-            if cb:
-                try:
-                    cb(response=ret)
-                except Exception as e:
-                    self.gcode.respond_info(f"ACE[{self.instance_num}]: Callback error: {e}")
-            else:
-                # A second reply to an already-answered request must never be
-                # routed anywhere (device_id collision - sender unknowable)
-                if self._handle_duplicate_response(ret):
-                    continue
-                # Try unsolicited callback first
-                if self.unsolicited_response_callback and self.unsolicited_response_callback(ret):
-                    continue
-                # Log unsolicited messages (no matching callback found)
-                response_id = ret.get('id', 'no-id')
-                response_str = json.dumps(ret)
-                self.gcode.respond_info(f"ACE[{self.instance_num}]: UNSOLICITED (ID={response_id}, current_id={self._request_id}): {response_str}")
-                # Track unsolicited message for communication health supervision
-                self._track_comm_unsolicited()
+            try:
+                self._handle_response(ret)
+            except Exception as e:
+                # Device bytes are external input: an exception out of this
+                # reactor timer would shut Klipper down.
+                logging.exception("ACE[%d]: reply handling failed", self.instance_num)
+                self.gcode.respond_info(
+                    f"ACE[{self.instance_num}]: dropped a reply that could not "
+                    f"be handled ({type(e).__name__}: {e})")
 
         return eventtime + 0.05
+
+    def _handle_response(self, ret):
+        """Route one decoded reply: its request's callback, else the
+        unsolicited handlers, else the UNSOLICITED log."""
+        if self._status_debug_logging:
+            self._status_update_callback(ret)
+
+        cb, _ = self.dispatch_response(ret)
+        if cb:
+            try:
+                cb(response=ret)
+            except Exception as e:
+                self.gcode.respond_info(f"ACE[{self.instance_num}]: Callback error: {e}")
+            return
+        # A second reply to an already-answered request must never be
+        # routed anywhere (device_id collision - sender unknowable)
+        if self._handle_duplicate_response(ret):
+            return
+        # Try unsolicited callback first
+        if self.unsolicited_response_callback and self.unsolicited_response_callback(ret):
+            return
+        if self._handle_late_reply(ret):
+            return
+        # Log unsolicited messages (no matching callback found); ACE2
+        # replies carry raw protobuf fields as bytes.
+        response_id = ret.get('id', 'no-id')
+        response_str = json.dumps(ret, default=str)
+        self.gcode.respond_info(f"ACE[{self.instance_num}]: UNSOLICITED (ID={response_id}, current_id={self._request_id}): {response_str}")
+        # Track unsolicited message for communication health supervision
+        self._track_comm_unsolicited()
 
     def _get_status_debug_state(self, device_id):
         """Return the change-detection state holder for one status stream.

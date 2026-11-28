@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.25.0
+
+Release number 2.39.0 (follows WM_Ultra_Vanilla_Klipper 2.39.0). Tested by the user on the real printer (main RPi4 with the ACE Pro) before it was copied here.
+
+- **ACE slot follows the toolhead card (F-280).** The colour, material and temperature saved for a head (Fluidd Toolheads card, KlipperScreen Edit filament) are copied into the ACE slot of that head (`_WM_ACE_SLOT_SYNC`, checked every 3 s by `_wm_ace_slot_watch` in `rpi_ace.cfg`). Orca's filament sync then sees real filaments instead of "Unknown". Empty slots, slots with an RFID tag and the materials Empty and Other are left alone.
+- **Orca accepts the filaments (F-281).** `moonraker_lane_sync.py` sends Orca's own generic filament ids (PLA, PETG, ABS, ASA, TPU, PVA, HIPS, PC, PA), so the "Sync filaments ... may not be compatible" warning is gone.
+- **Upstream ACEPRO fixes merged into the ACE driver (F-282).** The serial port no longer resets the ACE when it closes, late replies are recognised and status polls no longer stack while the ACE stalls, a bad reply cannot shut Klipper down, saved variables are written shell-quoted and a failed write stays dirty, feed assist is restored without a blocking wait and a refused start is retried, an intake load always stops the ACE feed, `ACE_CHANGE_TOOL TOOL=-1` is recorded, and the ACE 2 gets a reply decode guard and a reconnect at its own baud rate. Tested on the printer: ACE card, Orca sync, USB unplug, load and unload of each head, new spool, pause and resume in a print.
+- **ACE Pro unload: extruder and ACE pull together (F-284).** New command `ACE_ROLLBACK_ASSIST T= START=1|0 LENGTH= SPEED=` (`rollback_assist.py`, `commands.py`). The ACE unload pulls the filament out of the head with the extruder and the ACE together (`assist_mm` 80 mm at `assist_speed` 20 mm/s), checks the head sensor and pulls again up to 3 times, then switches the heater and extruder off and lets the ACE pull the rest. If the filament is still in the head after 3 pulls the unload stops with an error and the heater stays on. New macros `_WM_ACE_ASSIST_PULL`, `_WM_ACE_ASSIST_CHECK`, `_WM_ACE_UNLOAD_FULL`.
+- **Safe write of the saved variables (F-286).** `saved_variables.cfg` is written to a temporary file, flushed to disk and renamed over the real file, so a power loss cannot leave a half-written calibration. After an emergency stop the variables are written directly instead of one error per variable.
+- **Errors are logged (F-287).** Eight places that swallowed an error silently now write a debug line to klippy.log. No change in behaviour.
+- **Orca lane sync waits for the print end with a Klipper timer (F-288).** No sleeping thread reads Klipper objects any more. The lane data of Orca stays unchanged during a print and is updated when the print ends.
+- **Short message when the ACE USB is unplugged (F-289).** The console gets one line (`ACE[0]: Unable to communicate with ACE (reason)`); the full traceback goes to klippy.log.
+- **Clearer message (F-290).** When the ACE comes back after a USB drop with feed assist off, the console says "the USB link to the ACE dropped and came back. Feed assist is on again for T..".
+
 ## 1.24.0
 
 Release number 2.38.0 (follows WM_Ultra_Vanilla_Klipper 2.38.0). Everything here was tested by the user on the real printer.

@@ -41,8 +41,9 @@ Typical usage::
 """
 
 import configparser
-import json
 import logging
+import os
+import shlex
 
 
 class PersistentState:
@@ -85,34 +86,14 @@ class PersistentState:
     def _write_to_disk(self, varname, value):
         """Issue one ``SAVE_VARIABLE`` gcode command for *varname*.
 
-        Type conversion rules (Klipper uses ``ast.literal_eval``):
-        - ``bool``  → ``True`` / ``False``
-        - ``str``   → single-quote + double-quote wrapped
-        - ``dict`` / ``list`` → JSON with Python literals, single-quote
-          wrapped
-        - everything else (int, float, None …) → ``str(value)``
+        Klipper splits the parameters with POSIX ``shlex`` and reads the
+        value with ``ast.literal_eval``: a shell-quoted ``repr`` comes back
+        unchanged for every type stored here, quotes and ``;`` included.
+        ``flush_direct`` writes ``repr`` as well.
         """
-        if isinstance(value, bool):
-            formatted = "True" if value else "False"
-            self.gcode.run_script_from_command(
-                f"SAVE_VARIABLE VARIABLE={varname} VALUE={formatted}"
-            )
-        elif isinstance(value, str):
-            self.gcode.run_script_from_command(
-                f"SAVE_VARIABLE VARIABLE={varname} VALUE='\"{value}\"'"
-            )
-        elif isinstance(value, (dict, list)):
-            payload = (json.dumps(value)
-                       .replace("true", "True")
-                       .replace("false", "False")
-                       .replace("null", "None"))
-            self.gcode.run_script_from_command(
-                f"SAVE_VARIABLE VARIABLE={varname} VALUE='{payload}'"
-            )
-        else:
-            self.gcode.run_script_from_command(
-                f"SAVE_VARIABLE VARIABLE={varname} VALUE={value}"
-            )
+        self.gcode.run_script_from_command(
+            f"SAVE_VARIABLE VARIABLE={varname} VALUE={shlex.quote(repr(value))}"
+        )
 
     # ------------------------------------------------------------------
     # Read
@@ -189,25 +170,37 @@ class PersistentState:
     def flush(self):
         """Write every dirty variable to ``saved_variables.cfg``.
 
-        Each variable is written via a ``SAVE_VARIABLE`` gcode command.
-        The dirty set is cleared after all writes complete.
+        Each variable is written via a ``SAVE_VARIABLE`` gcode command; a
+        variable whose write fails stays dirty.
 
         Safe to call when nothing is dirty — it simply returns.
         """
         if not self._dirty:
             return
 
+        # After a Klipper shutdown (emergency stop, MCU error) the G-code
+        # queue rejects SAVE_VARIABLE ("Printer is shutdown"), so write the
+        # file directly instead of logging a failure per variable.
+        try:
+            if self.printer.is_shutdown():
+                self.flush_direct()
+                return
+        except Exception:
+            logging.debug("ACE: shutdown check in flush failed", exc_info=True)
+
         variables = self._variables()
-        flushed = list(self._dirty)
-        for varname in flushed:
+        for varname in list(self._dirty):
             value = variables.get(varname)
             try:
                 self._write_to_disk(varname, value)
             except Exception:
+                # Stays dirty: the next flush, or flush_direct at
+                # shutdown, writes it.
                 logging.exception(
                     "ACE: Failed to flush variable %s", varname
                 )
-        self._dirty.clear()
+                continue
+            self._dirty.discard(varname)
 
     def remove_keys(self, varnames):
         """Delete variables from RAM and from ``saved_variables.cfg``.
@@ -254,8 +247,15 @@ class PersistentState:
             for name, val in sorted(variables.items()):
                 cfg.set("Variables", name, repr(val))
 
-            with open(filename, "w") as fh:
+            # Atomic write: temp file in the same folder, flushed to disk,
+            # then renamed over the real file. A power loss or kill during
+            # the write leaves the old file intact instead of a truncated one.
+            tmp_name = f"{filename}.ace-tmp"
+            with open(tmp_name, "w") as fh:
                 cfg.write(fh)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(tmp_name, filename)
 
             self._dirty.clear()
             logging.info(

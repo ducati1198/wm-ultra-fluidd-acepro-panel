@@ -264,6 +264,7 @@ class AceManager:
                 protocol=protocol,
                 active_protocol_name=instance_config["active_protocol_name"],
                 target_usb_location=topology_entry.get("target_location"),
+                reserved_usb_locations=self._reserved_usb_locations(instance_num),
                 **shared_kwargs,
             )
 
@@ -2690,14 +2691,14 @@ class AceManager:
         try:
             live_empty = instance._is_slot_empty(slot) is True
         except Exception:
-            pass
+            logging.debug("ACE: live slot-empty check failed", exc_info=True)
         inv_empty = False
         try:
             inv_empty = (
                 instance.inventory[slot].get("status", "empty") == "empty"
             )
         except Exception:
-            pass
+            logging.debug("ACE: inventory slot-empty check failed", exc_info=True)
 
         if live_empty or inv_empty:
             source = "device" if live_empty else "inventory"
@@ -2775,7 +2776,7 @@ class AceManager:
             try:
                 sensor_loaded = self.get_switch_state(SENSOR_TOOLHEAD) is True
             except Exception:
-                pass
+                logging.debug("ACE: toolhead sensor read failed", exc_info=True)
             if pos is not None and not pos_loaded and not sensor_loaded:
                 self.gcode.respond_info(
                     f"ACE: NOT re-enabling feed assist for T{tool_index} - "
@@ -2876,7 +2877,7 @@ class AceManager:
 
             # Enable reconnection attempts in all serial managers
             for instance in self.instances:
-                instance.serial_mgr.enable_ace_pro()
+                instance.serial_mgr.enable_ace_pro(instance.baud)
             self.runout_monitor.start_monitoring()
 
             self.gcode.respond_info(
@@ -3631,15 +3632,21 @@ class AceManager:
         gcode_move.reset_last_position()
 
         if target_tool == -1:
-            self.state.set("ace_current_index", -1)
             # Unload-only change confirmed complete -- nothing left in flight.
-            self.state.set("ace_target_index", -1)
-            self.gcode.run_script_from_command(
-                "SET_GCODE_VARIABLE MACRO=_ACE_STATE VARIABLE=active VALUE=-1"
-            )
+            self.record_no_tool()
             self.gcode.respond_info("ACE: State updated - no tool currently loaded")
 
         return status
+
+    def record_no_tool(self):
+        """Record that no tool is loaded and none is in flight: the current
+        and target index and the _ACE_STATE macro's `active`, which the
+        printer macros read. Runs G-code: call it from a command."""
+        self.state.set("ace_current_index", -1)
+        self.state.set("ace_target_index", -1)
+        self.gcode.run_script_from_command(
+            "SET_GCODE_VARIABLE MACRO=_ACE_STATE VARIABLE=active VALUE=-1"
+        )
 
     def register_tool_macros(self, instance_num):
         """
@@ -4007,10 +4014,12 @@ class AceManager:
         # listed yet, so binding instance 0 to it can permanently pin instance
         # 0 to the wrong physical unit for the whole session (there is no
         # re-resolution). Defer entirely instead - each serial manager then
-        # uses claim-protected, location-learning index fallback, which orders
-        # by the same physical position and self-corrects once the full chain
-        # is up. A shared-bus unit legitimately backs all remaining instances,
-        # so its presence already makes the mapping complete.
+        # uses claim-protected, location-learning index fallback. That
+        # fallback has the same blind spot: an instance that connects while
+        # an earlier unit is invisible binds and learns its sibling's unit
+        # for the session (open; ARCHITECTURE.md, topology step 4). A shared-bus unit legitimately
+        # backs all remaining instances, so its presence already makes the
+        # mapping complete.
         if len(resolution) < self.ace_count:
             if resolution:
                 self.gcode.respond_info(
@@ -4022,6 +4031,14 @@ class AceManager:
             return {}
 
         return resolution
+
+    def _reserved_usb_locations(self, instance_num):
+        """USB locations the topology bound to the other dedicated instances."""
+        return frozenset(
+            entry["target_location"]
+            for num, entry in self._topology_resolution.items()
+            if num != instance_num and not entry.get("shared_bus")
+        )
 
     def _create_instance_protocol(self, instance_config):
         """Create protocol adapter for this instance."""
@@ -4815,7 +4832,7 @@ class AceManager:
             try:
                 bus_session.unbind_logical_instance(instance.instance_num)
             except Exception:
-                pass
+                logging.debug("ACE: unbind_logical_instance failed", exc_info=True)
 
         protocol = create_protocol_adapter("ace1_json")
         # Don't reuse the topology target here: for a demoted instance that
@@ -4831,6 +4848,7 @@ class AceManager:
             serial_mgr=None,
             bus_session=None,
             target_usb_location=target,
+            reserved_usb_locations=self._reserved_usb_locations(instance.instance_num),
         )
         # Old manager here is the shared ACE2 one - only torn down if no other
         # instance still shares it (guarded inside the helper).
