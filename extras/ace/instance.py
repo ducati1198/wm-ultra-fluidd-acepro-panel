@@ -66,14 +66,14 @@ class AceInstance:
 
     # Material temperature defaults (from RFID tags)
     MATERIAL_TEMPS = {
-        "PLA": 200,
-        "PLA+": 210,
-        "PLA Glow": 210,
-        "PLA High Speed": 215,
-        "PLA Marble": 205,
-        "PLA Matte": 205,
-        "PLA SE": 210,
-        "PLA Silk": 215,
+        "PLA": 220,
+        "PLA+": 220,
+        "PLA Glow": 220,
+        "PLA High Speed": 220,
+        "PLA Marble": 220,
+        "PLA Matte": 220,
+        "PLA SE": 220,
+        "PLA Silk": 220,
         "ABS": 240,
         "ASA": 245,
         "PETG": 235,

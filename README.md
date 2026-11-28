@@ -32,7 +32,7 @@ Details:
 2. [Hardware and wiring](#2-hardware-and-wiring)
 3. [Install](#3-install)
 4. [Configure](#4-configure)
-5. [Fluidd Toolheads + ACE panel](#5-fluidd-toolheads--ace-panel) (including the [OrcaSlicer plugin](#install-the-orcaslicer-plugin-optional-works-without-an-ace-pro))
+5. [Fluidd Toolheads + ACE panel](#5-fluidd-toolheads--ace-panel) (including the [OrcaSlicer plugin](#orcaslicer-plugin-moved-to-its-own-repository))
 6. [First tests on the printer](#6-first-tests-on-the-printer)
 7. [Everyday use and commands](#7-everyday-use-and-commands)
 8. [Endless spool (experimental)](#8-endless-spool-experimental)
@@ -68,7 +68,7 @@ The idea: this adds to WonderMaker's own Klipper and Fluidd. It adds config file
 
    ![Toolhead dialog](docs/img/fluidd-toolhead-dialog.png)
 
-Optional: [pick toolheads inside OrcaSlicer](#install-the-orcaslicer-plugin-optional-works-without-an-ace-pro).
+Optional: [pick toolheads inside OrcaSlicer](https://github.com/ducati1198/wm-orca-slicer-plugin) (separate plugin repository).
 
 ## Everyday cheat sheet
 
@@ -144,7 +144,7 @@ This project is provided **"as is"**, without warranty of any kind (see also the
 | **Counters** | Tool changes in total and per toolhead, plus the print time of each toolhead on the carriage (pauses not counted), with a Reset button. |
 | **Sensor lights** | Every toolhead shows its Tangle (the sensor at the hub: off when the filament is pulled tight), Head and Dock sensors; below the toolheads the carriage's Tool lock and Lock motor home sensors. |
 | **Unload Menu button** | Opens the unload window of the Pi installer (`WM_UNLOAD_MENU`): one toolhead or all of them, with or without an ACE. |
-| **OrcaSlicer plugin** | Pick the toolhead for each filament inside Orca; written into the G-code as `WM_SET_TOOL_MAP` ([`orca_plugin/`](orca_plugin/INSTALL.md)). |
+| **OrcaSlicer plugin** | Pick the toolhead for each filament inside Orca; written into the G-code as `WM_SET_TOOL_MAP` ([plugin repository](https://github.com/ducati1198/wm-orca-slicer-plugin)). |
 | **Orca filament sync** | With an ACE, the slots are published to Moonraker's `lane_data` so Orca's "sync filament from printer" can see them. Not yet tested. |
 | **Safe installer** | Asks plain questions, shows what changes, backs up first, `--undo`, `--check`, `--dry-run`, tests. |
 
@@ -499,35 +499,13 @@ A toolhead counts as a match when its colour is the closest of WonderMaker's pal
 
 - **Tool-change bar.** While WonderMaker changes tools the card shows what it is doing (lifting Z, putting the old head back, locking the new one). It reads WonderMaker's own `changing_tool` flag and the dock sensors; no WonderMaker macro is changed or wrapped. The percentages are rough steps, not a measurement.
 - **Counters.** `rpi_stats.cfg` watches WonderMaker's `current_extruder` every 2 seconds and counts every change: in total and per toolhead (`wm_stat_changes`, `wm_stat_head0`…`3`). **Reset** (or `_WM_STATS_RESET`) sets them to 0. Purged filament is not counted, because that would mean wrapping WonderMaker's purge macros.
-- **OrcaSlicer plugin.** Choose the toolhead per filament inside Orca. Install steps are in the next section.
+- **OrcaSlicer plugin.** Choose the toolhead per filament inside Orca. Install steps are in the next section (the plugin has its own repository).
 
-### Install the OrcaSlicer plugin (optional, works without an ACE Pro)
+### OrcaSlicer plugin (moved to its own repository)
 
-The plugin lets you pick, inside Orca, which toolhead prints each filament. When you send or export, it writes the choice at the top of the G-code, so the print needs no popup at start. It reads your four toolheads (colour, material, loaded or empty) from the printer, so an ACE Pro is not needed.
+The OrcaSlicer plugin (WM Device tab and toolhead mapping for the WonderMaker ZR Ultra / Ultra-S) now lives in its own repository and is the plugin to use from now on: **[ducati1198/wm-orca-slicer-plugin](https://github.com/ducati1198/wm-orca-slicer-plugin)**. Install steps, updates and screenshots are there. The plugin that used to be in this repository (`orca_plugin/`) was removed.
 
-<div align="center">
-<img src="orca_plugin/spool-toolhead-mapper-wm.png" alt="Spools and Toolheads panel in OrcaSlicer with a WonderMaker ZR Ultra-S" width="80%">
-</div>
-
-**On the printer (once):** run `./installer.sh` or `./installer.sh --update` from this repository. That installs `rpi_stats.cfg`, which holds the `WM_SET_TOOL_MAP` macro the plugin calls. Then restart Klipper.
-
-**In OrcaSlicer (once):**
-
-1. Download the plugin file `spool_toolhead_mapper.py` from the [`orca_plugin/`](https://github.com/ducati1198/wm-ultra-fluidd-acepro-panel/tree/main/orca_plugin) folder (open the file, then use the download button; keep the `.py` name). The same plugin also works with an ACE Pro printer: it detects which printer it is talking to.
-2. Open Orca's **Printer settings → Connection** and make sure the host is your printer's address, for example `192.168.0.50:7125`. The plugin uses it to read the toolheads.
-3. Open **File → Plugins**, use the split button **Browse plugins → Install local plugin**, and pick `spool_toolhead_mapper.py`.
-4. When Orca asks whether the plugin may connect to your printer, click **Yes**.
-5. The plugin brings two parts, **Spools and Toolheads** (the panel) and **Spool and Toolhead Map** (the G-code step). If the Plugins window shows them disabled, enable both.
-6. Switch Orca to **Advanced** mode. Open your **Process** settings → **Others** → **Slicing Pipeline Plugin**, add **Spool and Toolhead Map**, and save the process preset. Do this for each process preset you print with.
-7. Restart Orca. The **Spools and Toolheads** panel docks on the right of the 3D view.
-
-**Use it:** in the panel, each filament shows its best toolhead (**Auto**: same material, closest colour, each toolhead used once). Change a row to a specific toolhead or **As sliced**, then slice and use **Upload and Print**. The G-code gets a line like:
-
-```
-WM_SET_TOOL_MAP MAP=0:0,1:3,2:2,3:3 FILE="benchy.gcode" KEEP_EXISTING=1
-```
-
-Print tool T1 is then printed with toolhead 4 (the numbers in the macro start at 0). If you choose toolheads in Fluidd's **Choose toolheads** window for the same file, the Fluidd choice wins. More detail: [`orca_plugin/INSTALL.md`](orca_plugin/INSTALL.md).
+**On the printer (once):** run `./installer.sh` or `./installer.sh --update` from this repository. That installs `rpi_stats.cfg`, which holds the `WM_SET_TOOL_MAP` macro the plugin calls. Then restart Klipper. If you choose toolheads in Fluidd's **Choose toolheads** window for the same file, the Fluidd choice wins.
 
 ### Dryer presets
 
@@ -691,7 +669,7 @@ At the end of an install or update (after the Klipper restart question) the inst
 | AcePro | red | `ACE_*`, `WM_ENDLESS_*`, `WM_STATS_*`, `WM_SET_TOOL_MAP` |
 | WM Factory Calibration | yellow | WonderMaker's own calibration macros (`G29`, `RAPID_MODE`, `CALIBRATE_*`, `SAVE_T_*` ...) |
 | WM Ultra Tool Change | green | `T0`..`T3`, `LOCK`, `UNLOCK`, `PARK_CURRENT_TOOL` ... |
-| WM Ultra Filament | orange | `LOAD_FILAMENT`, `UNLOAD_FILAMENT`, `WIPE_NOZZLE` ..., and Unload Menu / Unload Stop (`WM_UNLOAD_MENU`, `_WM_UNLOAD_STOP`) |
+| WM Ultra Filament | orange | `LOAD_FILAMENT`, `UNLOAD_FILAMENT` (both hidden since 1.24.0), `WIPE_NOZZLE` ..., and Unload Menu / Unload Stop / Extrude Menu (`WM_EXTRUDE_MENU`) (`WM_UNLOAD_MENU`, `_WM_UNLOAD_STOP`) |
 | ZR Tools | purple | `ZR_*`, and the Pi installer's Nozzle Change and Chamber Light |
 | WM Ultra Print | grey | `START_PRINT`, `PRINT_END`, `PAUSE`, `RESUME` ... |
 | WM Ultra Tests | dark grey | `TEST_*` |
@@ -730,15 +708,14 @@ wm-ultra-fluidd-acepro-panel/
 │   └── temperature_ace.py
 ├── fluidd/                         Fluidd 1.38.0 build + patch (Toolheads card with the ACE parts)
 ├── old_backup/fluidd/              Older Fluidd builds (1.37.7) kept for going back; not used by the installer
-├── orca_plugin/                    OrcaSlicer plugin: pick toolheads in Orca
 ├── docs/                           Hardware notes, ACE USB adapter wiring, screenshots (demo data)
-├── tests/                          run_tests.sh (installer), test_macros.py (macros), test_orca_plugin.py, test_fluidd_categories.py
+├── tests/                          run_tests.sh (installer), test_macros.py (macros), test_fluidd_categories.py
 └── LICENSE                         GPL v3
 ```
 
 The ACE driver in `extras/ace` is a copy of the one in [acepro-any-klipper](https://github.com/ducati1198/acepro-any-klipper) with one small addition: a `register_tool_commands` option (default `True`, so nothing changes elsewhere). The WonderMaker config sets it to `False`.
 
-Run the tests: `bash tests/run_tests.sh`, `python3 -I tests/test_macros.py` (needs `jinja2`) and `python3 -I tests/test_orca_plugin.py`.
+Run the tests: `bash tests/run_tests.sh`, `python3 -I tests/test_macros.py` (needs `jinja2`).
 
 ---
 

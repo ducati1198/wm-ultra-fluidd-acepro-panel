@@ -41,7 +41,7 @@ def cat_of(value, name):
 
 
 MACROS = ["ACE_WM_LOAD", "WM_ENDLESS_SET", "WM_STATS_RESET", "WM_SET_TOOL_MAP", "WM_BED_LEVELING", "WM_SCREWS_CAL", "WM_OFFSETS_RAPID", "WM_SETTER_PROBE_POSITION", "G29",
-          "RAPID_MODE", "T0", "PARK_CURRENT_TOOL", "LOAD_FILAMENT", "WIPE_NOZZ", "ZR_LOAD", "START_PRINT", "TEST_XY",
+          "RAPID_MODE", "T0", "PARK_CURRENT_TOOL", "RETRACT_FILAMENT", "WIPE_NOZZ", "ZR_LOAD", "START_PRINT", "TEST_XY",
           "TEST_STREAM_DELAY", "HYPERLAPSE", "M104", "z_rise", "_HIDDEN_HELPER", "SOMETHING_ELSE"]
 
 print("rules")
@@ -52,8 +52,13 @@ check("RPI Calibration: the Pi's calibration macros, pink, with real macro names
       and [m["color"] for m in v["stored"] if m["name"] == "WM_OFFSETS_RAPID"] == ["#e91e63"] and next(m for m in v["stored"] if m["name"] == "WM_BED_LEVELING")["alias"] == "")
 check("WonderMaker factory macros land in their categories",
       cat_of(v, "G29") == "WM Factory Calibration" and cat_of(v, "RAPID_MODE") == "WM Factory Calibration" and cat_of(v, "T0") == "WM Ultra Tool Change"
-      and cat_of(v, "PARK_CURRENT_TOOL") == "WM Ultra Tool Change" and cat_of(v, "LOAD_FILAMENT") == "WM Ultra Filament" and cat_of(v, "WIPE_NOZZ") == "WM Ultra Filament"
+      and cat_of(v, "PARK_CURRENT_TOOL") == "WM Ultra Tool Change" and cat_of(v, "RETRACT_FILAMENT") == "WM Ultra Filament" and cat_of(v, "WIPE_NOZZ") == "WM Ultra Filament"
       and cat_of(v, "ZR_LOAD") == "ZR Tools" and cat_of(v, "START_PRINT") == "WM Ultra Print" and cat_of(v, "TEST_XY") == "WM Ultra Tests")
+_x = wmfc.plan(["WM_EXTRUDE_MENU", "LOAD_FILAMENT", "UNLOAD_FILAMENT", "WM_LOAD_MENU", "G29"], None, [], now_ms=7)[0]
+check("1.24.0: the Extrude menu is in WM Ultra Filament, orange; LOAD_FILAMENT and UNLOAD_FILAMENT are hidden (the menus replace them)",
+      cat_of(_x, "WM_EXTRUDE_MENU") == "WM Ultra Filament" and cat_of(_x, "WM_LOAD_MENU") == "WM Ultra Filament"
+      and [m["color"] for m in _x["stored"] if m["name"] == "WM_EXTRUDE_MENU"] == ["#ff9800"]
+      and all(next(m for m in _x["stored"] if m["name"] == n)["visible"] is False for n in ["LOAD_FILAMENT", "UNLOAD_FILAMENT"]))
 check("TEST_STREAM_DELAY goes to Timelapse, not Tests", cat_of(v, "TEST_STREAM_DELAY") == "Timelapse" and cat_of(v, "HYPERLAPSE") == "Timelapse")
 check("colours", [m["color"] for m in v["stored"] if m["name"] == "ACE_WM_LOAD"] == ["#f44336"] and [m["color"] for m in v["stored"] if m["name"] == "WM_BED_LEVELING"] == ["#e91e63"]
       and [m["color"] for m in v["stored"] if m["name"] == "G29"] == ["#ffeb3b"])

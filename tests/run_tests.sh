@@ -249,7 +249,7 @@ OUT="$(printf '%b' "$A_ALL" | SUDO_USER=root ACE_TEST_IN_SUDO_GROUP=0 ACE_INSTAL
 check "running as root: no sudo group change"                    bash -c '! grep -q "usermod" "$0/.sudo.log" 2>/dev/null' "$HS4"
 echo
 echo "Free up disk space"
-FB="$ROOT/fsb"; FT="$ROOT/fst"; mkdir -p "$FB/.cache/pip" "$FB/printer_data/logs" "$FB/printer_data/gcodes" "$FT/tmp.AAA/orca_plugin" "$FT/tmp.keep"
+FB="$ROOT/fsb"; FT="$ROOT/fst"; mkdir -p "$FB/.cache/pip" "$FB/printer_data/logs" "$FB/printer_data/gcodes" "$FT/tmp.AAA/extras" "$FT/tmp.keep"
 dd if=/dev/zero of="$FB/.cache/pip/x" bs=1M count=3 2>/dev/null; dd if=/dev/zero of="$FT/tmp.AAA/pad" bs=1M count=3 2>/dev/null
 echo 1.0.0 > "$FT/tmp.AAA/VERSION"; touch "$FT/tmp.AAA/installer.sh"; echo mine > "$FT/tmp.keep/file"; echo gcode > "$FB/printer_data/gcodes/a.gcode"
 dd if=/dev/zero of="$FB/printer_data/logs/klippy.log.1" bs=1M count=2 2>/dev/null
@@ -267,7 +267,7 @@ check "free space: the menu has the entry"        bash -c 'printf "7\n0\n0\n" | 
 HL="$(new_home tl)"
 OUT="$(ACE_TEST_DISK_MB=100 ACE_INSTALL_HOME="$HL" ACE_INSTALLER_TEST=1 bash "$INST" </dev/null 2>&1)"
 check "install: not enough space and no terminal stops with the --free-space hint" bash -c 'echo "$0" | grep -q "free-space"' "$OUT"
-HM2="$(new_home tm2)"; mkdir -p "$HM2/.cache/pip"; dd if=/dev/zero of="$HM2/.cache/pip/x" bs=1M count=3 2>/dev/null; mkdir -p "$FT/tmp.AAA/orca_plugin"; dd if=/dev/zero of="$FT/tmp.AAA/pad" bs=1M count=3 2>/dev/null; echo 1 > "$FT/tmp.AAA/VERSION"; touch "$FT/tmp.AAA/installer.sh"
+HM2="$(new_home tm2)"; mkdir -p "$HM2/.cache/pip"; dd if=/dev/zero of="$HM2/.cache/pip/x" bs=1M count=3 2>/dev/null; mkdir -p "$FT/tmp.AAA/extras"; dd if=/dev/zero of="$FT/tmp.AAA/pad" bs=1M count=3 2>/dev/null; echo 1 > "$FT/tmp.AAA/VERSION"; touch "$FT/tmp.AAA/installer.sh"
 OUT="$(printf 'y\n1\ny\n%b' "$A_ALL" | ACE_TEST_FREE_OFFER=1 ACE_TEST_DISK_MB=299 ACE_TEST_TMP="$FT" ACE_INSTALL_HOME="$HM2" ACE_INSTALLER_TEST=1 bash "$INST" 2>&1)"
 check "install: not enough space offers the cleanup, warns, then goes on" bash -c 'echo "$0" | grep -q "Only 299 MB free" && echo "$0" | grep -q "This will ERASE" && echo "$0" | grep -q "Disk space ok"' "$OUT"
 echo

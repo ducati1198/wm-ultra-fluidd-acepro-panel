@@ -1190,7 +1190,7 @@ fs_add() { FS_ID+=("$1"); FS_LABEL+=("$2"); FS_KB+=("$3"); FS_WARN+=("$4"); FS_S
 fs_kb() { local k; [ $# -gt 0 ] || { echo 0; return; }; k="$(du -sk "$@" 2>/dev/null | awk '{s+=$1} END{print s+0}')"; echo "${k:-0}"; }
 fs_tmpdirs() {   # leftover downloads of this installer in /tmp: only folders made by this user that hold a copy of wm-ultra-rpi
     local base="${ACE_TEST_TMP:-/tmp}" d
-    for d in "$base"/tmp.*; do [ -d "$d" ] && [ -f "$d/VERSION" ] && [ -d "$d/orca_plugin" ] && [ -f "$d/installer.sh" ] && [ "$(stat -c %U "$d" 2>/dev/null)" = "$(id -un)" ] && echo "$d"; done
+    for d in "$base"/tmp.*; do [ -d "$d" ] && [ -f "$d/VERSION" ] && [ -d "$d/extras" ] && [ -f "$d/installer.sh" ] && [ "$(stat -c %U "$d" 2>/dev/null)" = "$(id -un)" ] && echo "$d"; done
 }
 fs_scan() {
     FS_ID=(); FS_LABEL=(); FS_KB=(); FS_WARN=(); FS_SUDO=()

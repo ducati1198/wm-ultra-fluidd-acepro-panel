@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.24.0
+
+Release number 2.38.0 (follows WM_Ultra_Vanilla_Klipper 2.38.0). Everything here was tested by the user on the real printer.
+
+- **Fluidd macro categories.** `WM_EXTRUDE_MENU` (the new Extrude / Retract window of the Pi installer) is in WM Ultra Filament, orange, next to the Load, Purge and Unload menus. `LOAD_FILAMENT` and `UNLOAD_FILAMENT` are hidden the first time they are seen (the Load menu and the Unload menu replace them; they stay in the printer for the touchscreen and for other macros).
+- **ACE temperatures.** All PLA types in the driver table (`extras/ace/instance.py`) are 220 C (PLA, PLA+, PLA Glow, PLA High Speed, PLA Marble, PLA Matte, PLA SE, PLA Silk; they were 200 to 215).
+- **Wipe slow, then fast.** The wipe in `rpi_ace.cfg` follows the Fluidd switch `Wipe_Slow_Fast` of the Pi installer 2.38.0 (`WIPE_NOZZLE STYLE=SWITCH`).
+- **OrcaSlicer plugin moved to its own repository.** The plugin (`orca_plugin/`, `spool_toolhead_mapper.py`, its test) is removed from this repository. Use the new plugin from [ducati1198/wm-orca-slicer-plugin](https://github.com/ducati1198/wm-orca-slicer-plugin). The README links to it. The `WM_SET_TOOL_MAP` macro it calls stays in `rpi_stats.cfg`.
+
 ## 1.23.8
 
 - **"Update available" and "Update now" work again (Fluidd build, patch 36 of 36).** The versions line at the bottom of the Toolheads card looked for the update entry by its old capital-letter name `WM_Ultra_Vanilla_Klipper` and for the panel project's own entry, which is gone since 2.37.1. So it always said "Up to date" while Fluidd's update page showed a new version. It now follows the one entry `wm_ultra_vanilla_klipper` (the old name still works on a Pi that was not updated yet). The release number follows the installer (2.37.3).

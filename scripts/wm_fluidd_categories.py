@@ -47,8 +47,8 @@ RPI_CAL_MACROS = OFFSET_MACROS + ["WM_FIRST_RUN_CAL", "WM_CAL_HELP", "WM_BED_LEV
 UNLOAD_MACROS = ["WM_UNLOAD_MENU", "WM_UNLOAD_STOP"]
 # Klippain Shake&Tune (installed by default by the Pi installer 2.29.0): its five commands get their own category (1.20.0).
 SHAKETUNE_MACROS = ["AXES_MAP_CALIBRATION", "AXES_SHAPER_CALIBRATION", "COMPARE_BELTS_RESPONSES", "CREATE_VIBRATIONS_PROFILE", "EXCITATE_AXIS_AT_FREQ"]
-# Windows opened from the Toolheads card and the touchscreen (1.17.0): purge, load, resume with another tool. Same category as the unload window.
-FILAMENT_MENUS = ["WM_PURGE_MENU", "WM_LOAD_MENU", "WM_RESUME_TOOL"]
+# Windows opened from the Toolheads card and the touchscreen (1.17.0): purge, load, resume with another tool; the Extrude menu (1.24.0). Same category as the unload window.
+FILAMENT_MENUS = ["WM_PURGE_MENU", "WM_LOAD_MENU", "WM_RESUME_TOOL", "WM_EXTRUDE_MENU"]
 # The Pi installer's printer tools that are not calibration: with WonderMaker's ZR tools (1.10.0; there is no
 # "Raspberry Pi" category any more). A WM_ macro that is in none of these lists stays uncategorized.
 ZR_PI_MACROS = ["WM_NOZZLE_CHANGE", "WM_CHAMBER_LIGHT"]
@@ -77,7 +77,7 @@ CATEGORIES = [
 CATEGORY_ORDER = ["Raspberry Pi", "RPI Calibration", "Shake&Tune", "Offset Calibration", "AcePro", "WM Factory Calibration", "WM Ultra Tool Change",
                   "WM Ultra Filament", "ZR Tools", "WM Ultra Print", "WM Ultra Tests", "Timelapse"]
 # Helper macros nobody presses by hand: hidden the first time they are seen.
-HIDDEN = ["M104", "M106", "M107", "M109", "M141", "M190", "M191", "M221", "z_rise",
+HIDDEN = ["M104", "M106", "M107", "M109", "M141", "M190", "M191", "M221", "z_rise", "LOAD_FILAMENT", "UNLOAD_FILAMENT",
           "SET_GCODE_OFFSET", "Z_OFFSET_APPLY_ENDSTOP", "Z_OFFSET_APPLY_PROBE", "WM_BED_SOAK"]
 # 1.16.2: no aliases are written any more, Fluidd shows the real macro names. These are the aliases that 1.10.0 to 1.16.1 wrote:
 # they are cleared once, and only while the entry still holds exactly this alias (one you typed yourself stays).
